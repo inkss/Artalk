@@ -4,7 +4,6 @@ import { ListData, NotifyData } from '~/types/artalk-data'
 import Context from '~/types/context'
 import * as Utils from '../lib/utils'
 import * as Ui from '../lib/ui'
-import Api from '../api'
 import ListHTML from './list.html?raw'
 import ListLite from './list-lite'
 
@@ -26,14 +25,15 @@ export default class List extends ListLite {
     this.$el = el
 
     // 平铺模式
-    let flatMode = false
-    if (this.ctx.conf.flatMode === 'auto') {
+    if (this.ctx.conf.flatMode === true) {
+      this.flatMode = true // 遵循配置总是开启平铺模式
+    } else if (this.conf.nestMax && this.conf.nestMax <= 1) {
+      this.flatMode = true // 嵌套层数值无效时，强制开启平铺模式
+    } else if (this.ctx.conf.flatMode === 'auto') {
+      // 自动判断启用平铺模式
       if (window.matchMedia("(max-width: 768px)").matches)
-        flatMode = true
-    } else if (this.ctx.conf.flatMode === true) {
-      flatMode = true
+        this.flatMode = true
     }
-    this.flatMode = flatMode
 
     // 分页模式
     this.pageMode = this.conf.pagination.readMore ? 'read-more' : 'pagination'

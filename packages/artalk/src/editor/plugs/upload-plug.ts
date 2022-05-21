@@ -1,5 +1,4 @@
 import * as Utils from '@/lib/utils'
-import Api from '@/api'
 import Editor from '../editor'
 import EditorPlug from './editor-plug'
 
@@ -83,7 +82,7 @@ export default class UploadPlug extends EditorPlug {
 
     // 未登录提示
     if (!this.ctx.user.checkHasBasicUserInfo()) {
-      this.editor.showNotify('填入你的名字邮箱才能上传哦', 'w')
+      this.editor.showNotify(this.ctx.$t('uploadLoginMsg'), 'w')
       return
     }
 
