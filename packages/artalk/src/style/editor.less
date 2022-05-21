@@ -17,6 +17,15 @@
     flex-direction: row;
     padding: 10px 14px 0;
 
+    .label {
+      display: contents;
+    }
+
+    label {
+      padding: .5em;
+      font-size: 14px;
+    }
+
     input {
       flex: 1;
       width: 100%;
@@ -126,9 +135,13 @@
       font-size: @font-size;
       user-select: none;
       border-radius: @block-radius;
+      display: inline-flex;
+      align-content: center;
+      justify-content: center;
 
       &:not(:last-child) {
         margin-right: 2px;
+        border-right: 1px solid var(--at-color-border);
       }
 
       &:hover {
@@ -159,7 +172,7 @@
       color: #fff;
       font-size: @font-size;
       border: none;
-      padding: 0 30px;
+      padding: 0 1em;
       margin: 0;
       height: 30px;
       cursor: pointer;
