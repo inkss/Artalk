@@ -55,6 +55,7 @@ export default class EmoticonsPlug extends EditorPlug {
 
   public onPanelHide() {
     this.$panel.parentElement!.style.height = ''
+    this.$btn!.classList.remove('active')
   }
 
   isListLoaded = false
