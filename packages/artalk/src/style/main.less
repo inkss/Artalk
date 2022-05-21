@@ -37,7 +37,7 @@
   }
 
   pre {
-    margin: 10px 0 0 0;
+    margin: 5px 0 0 0;
     padding: 0;
     line-height: 0;
   }
@@ -51,6 +51,83 @@
     background-color: var(--at-color-bg-grey);
     color: var(--at-color-font);
     margin: 0;
+    border-radius: 2px;
+    word-break: break-all;
+    font-size: .875rem;
+    width: auto;
+    &:before {
+      position: absolute;
+      font-size: 13px;
+      padding: 4px 8px;
+      right: 0;
+      top: -5px;
+    }
+    &.language-plaintext:before {
+      content: 'TXT'
+    }
+    &.language-conf:before {
+      content: 'CONF'
+    }
+    &.language-json:before {
+      content: 'JSON'
+    }
+    &.language-js:before {
+      content: 'JS'
+    }
+    &.language-css:before {
+      content: 'CSS'
+    }
+    &.language-html:before {
+      content: 'HTML'
+    }
+    &.language-c:before {
+      content: 'C'
+    }
+    &.language-cpp:before {
+      content: 'C++'
+    }
+    &.language-java:before {
+      content: 'Java'
+    }
+    &.language-md:before {
+      content: 'MarkDown'
+    }
+    &.language-shell:before {
+      content: 'Shell'
+    }
+    &.language-php:before {
+      content: 'PHP'
+    }
+    &.language-less:before {
+      content: 'Less'
+    }
+    &.language-ejs:before {
+      content: 'EJS'
+    }
+    &.language-xml:before {
+      content: 'XML'
+    }
+    &.language-sql:before {
+      content: 'SQL'
+    }
+    &.language-python:before {
+      content: 'Python'
+    }
+    &.language-lua:before {
+      content: 'Lua'
+    }
+    &.language-yml:before {
+      content: 'YML'
+    }
+    &.language-yaml:before {
+      content: 'YAML'
+    }
+    &.language-stylus:before {
+      content: 'Stylus'
+    }
+    &.language-scss:before {
+      content: 'SCSS'
+    }
   }
 
   a {

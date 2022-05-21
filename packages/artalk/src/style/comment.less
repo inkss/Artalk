@@ -1,7 +1,7 @@
 .atk-comment-wrap {
-  overflow: hidden;
+  overflow: inherit;
   position: relative;
-  border-bottom: 1px solid transparent;
+  border-bottom: none;
 
   &.atk-flash-once {
     animation: atkFlashOnce 1s ease-in-out 0s;
@@ -47,11 +47,21 @@
     display: block;
     padding: 2px 0;
     float: left;
+    width: 48px;
+    height: 48px;
 
     img {
       width: 50px;
       height: 50px;
-      border-radius: 3px;
+      border-radius: 50%;
+      &.error:before {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 8px;
+      }
+      &.error:after {
+        display: none;
+      }
     }
   }
 
@@ -280,6 +290,7 @@
     width: 100%;
     content: " ";
     bottom: 0;
+    left: 0;
     height: 80px;
     background: var(--at-color-gradient);
   }
@@ -314,7 +325,7 @@
 .atk-comment-children {
   & > .atk-comment-wrap {
     margin-top: 10px;
-    border-left: 1px dashed transparent;
+    border-left: none;
     border-bottom-color: transparent;
     &:not(:last-child) {
       margin-bottom: 5px;
@@ -334,6 +345,63 @@
         & > .atk-body > .atk-content {
         }
       }
+    }
+  }
+}
+
+@media screen and (min-width: 840px) {
+  .atk-comment .atk-main {
+    .atk-header .atk-ua-wrap {
+      padding: 4px 0;
+    }
+    .atk-footer {
+      display: none;
+      position: absolute;
+      margin: 0;
+      top: 18px;
+      right: 10px;
+    }
+  }
+
+  .atk-main:hover {
+    .atk-footer {
+      display: block;
+    }
+    .atk-comment-children .atk-footer {
+      display: none;
+    }
+  }
+
+  .atk-comment-children {
+    .atk-main:hover {
+      .atk-footer {
+        display: block;
+        top: 8px;
+        right: 0;
+      }
+      .atk-comment-children .atk-footer {
+        display: none;
+      }
+    }
+    .atk-comment-wrap {
+      .atk-footer {
+        display: none;
+      }
+      .atk-main:hover > .atk-footer {
+        display: block;
+        top: 8px;
+        right: 0;
+      }
+    }
+
+    .atk-comment {
+      padding-right: 0;
+      padding-bottom: 0;
+      padding-left: 0;
+    }
+    .atk-avatar img.error:before {
+      width: 36px !important;
+      height: 36px !important;
     }
   }
 }
