@@ -284,7 +284,7 @@ export default class EmoticonsPlug extends EditorPlug {
     this.emoticons.forEach((grp) => {
       if (grp.type !== 'image') return
       Object.entries(grp.items).forEach(([index, item]) => {
-        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" atk-emoticon="${item.key}">`) // replaceAll(...)
+        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" alt="${item.key}" title="${item.key}" atk-emoticon="${item.key}">`) // replaceAll(...)
       })
     })
 
