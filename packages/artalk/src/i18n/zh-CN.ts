@@ -4,7 +4,7 @@ const zhCN: I18n = {
   /* Editor */
   placeholder: '键入内容...',
   noComment: '「此时无声胜有声」',
-  send: '发送评论',
+  send: '提交',
   nick: '昵称',
   email: '邮件',
   link: '网址',
