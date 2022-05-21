@@ -2,7 +2,7 @@
   @editor-padding: 10px;
   z-index: 5;
   position: relative;
-  overflow: hidden;
+  //overflow: hidden;
   background: var(--at-color-bg);
   border: 1px solid var(--at-color-border);
   border-radius: @block-radius;
@@ -102,11 +102,7 @@
   }
 
   & > .atk-plug-panel-wrap {
-    position: relative;
-    height: 180px;
-    width: 100%;
     overflow: hidden;
-    border-top: 1px solid var(--at-color-border);
     animation: 0.3s both atkFadeIn;
     transition: 0.2s height ease-in-out;
   }
@@ -115,7 +111,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 5px 5px 5px 10px;
+    padding: 5px;
 
     & > .atk-item {
       display: flex;

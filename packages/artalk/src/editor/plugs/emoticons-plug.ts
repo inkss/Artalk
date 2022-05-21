@@ -227,7 +227,8 @@ export default class EmoticonsPlug extends EditorPlug {
           $item.innerText = item.val
         }
 
-        $item.onclick = () => {
+        $item.onclick = e => {
+          e.stopPropagation();
           if (grp.type === 'image') {
             this.editor.insertContent(`:[${item.key}]`)
           } else {
@@ -245,7 +246,10 @@ export default class EmoticonsPlug extends EditorPlug {
         const $item = Utils.createElement('<span />')
         $item.innerText = grp.name
         $item.setAttribute('data-index', String(index))
-        $item.onclick = () => (this.openGrp(index))
+        $item.onclick = e => {
+          e.stopPropagation();
+          this.openGrp(index)
+        }
         this.$grpSwitcher.append($item)
       })
     }

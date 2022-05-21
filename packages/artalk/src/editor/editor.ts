@@ -359,7 +359,9 @@ export default class Editor extends Component {
       const $btn = plug.getBtn()
       if ($btn) {
         this.$plugBtnWrap.appendChild($btn)
-        $btn.onclick = $btn.onclick || (() => {
+        $btn.onclick = $btn.onclick || (e => {
+          e.stopPropagation();
+
           // 其他按钮去除 Active
           this.$plugBtnWrap.querySelectorAll('.active').forEach(item => item.classList.remove('active'))
 
@@ -403,6 +405,14 @@ export default class Editor extends Component {
 
     this.$plugPanelWrap.style.display = ''
     this.openedPlugName = plugName
+
+    if(plugName === 'emoticons') {
+      document.addEventListener('click', () => {
+        this.closePlugPanel()
+      }, {
+        once: true
+      })
+    }
   }
 
   /** 收起插件面板 */
