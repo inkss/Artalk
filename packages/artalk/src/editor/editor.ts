@@ -13,6 +13,7 @@ import UploadPlug from './plugs/upload-plug'
 import PreviewPlug from './plugs/preview-plug'
 import EditorPlug from './plugs/editor-plug'
 import HeaderInputPlug from './plugs/header-input-plug'
+import RefreshPlug from "./plugs/refresh-plug";
 
 export default class Editor extends Component {
   private get user() { return this.ctx.user }
@@ -37,7 +38,7 @@ export default class Editor extends Component {
   private isTraveling = false
 
   /** 启用的插件 */
-  private readonly ENABLED_PLUGS = [ EmoticonsPlug, UploadPlug, PreviewPlug, HeaderInputPlug ]
+  private readonly ENABLED_PLUGS = [ EmoticonsPlug, UploadPlug, PreviewPlug, HeaderInputPlug, RefreshPlug]
   public plugList: { [name: string]: EditorPlug } = {}
   private openedPlugName: string|null = null
   public $plugPanelWrap: HTMLElement
