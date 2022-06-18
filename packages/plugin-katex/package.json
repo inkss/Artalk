@@ -1,6 +1,6 @@
 {
   "name": "@artalkjs/plugin-katex",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "LGPL-3.0",
   "description": "The katex plugin of artalk",
   "repository": {
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "artalk": "workspace: *",
-    "katex": "^0.15.6"
+    "katex": "^0.16.0"
   },
   "devDependencies": {
     "@types/katex": "0.14.0"

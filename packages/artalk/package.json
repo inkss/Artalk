@@ -1,7 +1,7 @@
 {
   "name": "artalk",
-  "version": "2.3.3",
-  "backendMinVersion": "2.1.7",
+  "version": "2.3.4",
+  "backendMinVersion": "2.1.10",
   "license": "LGPL-3.0",
   "description": "A Selfhosted Comment System",
   "keywords": [
@@ -40,7 +40,7 @@
   "dependencies": {
     "hanabi": "^0.4.0",
     "insane": "^2.6.2",
-    "marked": "^4.0.16",
+    "marked": "^4.0.17",
     "abortcontroller-polyfill": "^1.7.3"
   }
 }
