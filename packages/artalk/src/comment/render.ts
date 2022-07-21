@@ -22,6 +22,7 @@ export default class CommentRender {
   public $content!: HTMLElement
   private $childrenWrap!: HTMLElement|null
   public $actions!: HTMLElement
+  public $actionsNew!: HTMLElement
   public voteBtnUp?: ActionBtn
   public voteBtnDown?: ActionBtn
 
@@ -40,6 +41,7 @@ export default class CommentRender {
     this.$body = this.$el.querySelector('.atk-body')!
     this.$content = this.$body.querySelector('.atk-content')!
     this.$actions = this.$el.querySelector('.atk-actions')!
+    this.$actionsNew = this.$el.querySelector('.atk-actions-new')!
 
     this.$el.setAttribute('data-comment-id', `${this.data.id}`)
 
@@ -227,14 +229,14 @@ export default class CommentRender {
     if (!this.ctx.conf.vote) return // 关闭投票功能
 
     // 赞同按钮
-    this.voteBtnUp = new ActionBtn(this.ctx, () => `${this.ctx.$t('voteUp')} (${this.data.vote_up || 0})`).appendTo(this.$actions)
+    this.voteBtnUp = new ActionBtn(this.ctx, () => `${this.ctx.$t('voteUp')}(${this.data.vote_up || 0})`).appendTo(this.$actionsNew)
     this.voteBtnUp.setClick(() => {
       this.comment.getActions().vote('up')
     })
 
     // 反对按钮
     if (this.ctx.conf.voteDown) {
-      this.voteBtnDown = new ActionBtn(this.ctx, () => `${this.ctx.$t('voteDown')} (${this.data.vote_down || 0})`).appendTo(this.$actions)
+      this.voteBtnDown = new ActionBtn(this.ctx, () => `${this.ctx.$t('voteDown')}(${this.data.vote_down || 0})`).appendTo(this.$actionsNew)
       this.voteBtnDown.setClick(() => {
         this.comment.getActions().vote('down')
       })
@@ -246,7 +248,7 @@ export default class CommentRender {
     if (!this.data.is_allow_reply) return // 不允许回复
 
     const replyBtn = Utils.createElement(`<span>${this.ctx.$t('reply')}</span>`)
-    this.$actions.append(replyBtn)
+    this.$actionsNew.append(replyBtn)
     replyBtn.addEventListener('click', (e) => {
       e.stopPropagation() // 防止穿透
       if (!this.cConf.onReplyBtnClick) {

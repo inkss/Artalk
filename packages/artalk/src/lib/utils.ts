@@ -85,7 +85,7 @@ export function timeAgo(date: Date, ctx: Context) {
     }
     if (days < 0) return ctx.$t('now')
 
-    if (days < 8) {
+    if (days < 30) {
       return `${days} ${ctx.$t('days')}`
     }
 
