@@ -59,7 +59,8 @@ export default class Artalk {
 
   /** 表情包放大  */
   private showOwoBig(target:Node) {
-    const max = 2
+    const ratio = 2
+    const maxLength = 200
     const div = document.createElement('div')
     const body = document.querySelector('body') || document.createElement('body')
 
@@ -76,35 +77,47 @@ export default class Artalk {
             if (flag && e.target.tagName === 'IMG') {
               flag = 0;
               owoTime = setTimeout(() => {
-                const height = e.path[0].clientHeight * max
-                const width = e.path[0].clientWidth * max
                 const alt = e.path[0].alt || '';
-                let tempWidth = 0;
-                let tempHeight = 0;
-                if(width / height >= 1) {
-                  if(width >= 200) {
-                    tempWidth = 200
-                    tempHeight = (height * 200) / width
+                const clientHeight = e.path[0].clientHeight
+                const clientWidth = e.path[0].clientWidth
+                if(clientHeight <= maxLength && clientWidth <= maxLength) {
+                  const naturalHeight = e.path[0].naturalHeight
+                  const naturalWidth = e.path[0].naturalWidth
+                  const zoomHeight = clientHeight * ratio
+                  const zoomWidth = clientWidth * ratio
+                  // eslint-disable-next-line no-nested-ternary
+                  const height = naturalHeight > clientHeight
+                    ?  zoomHeight < naturalHeight && naturalHeight < maxLength ? zoomHeight : naturalHeight
+                    : clientHeight
+                  // eslint-disable-next-line no-nested-ternary
+                  const width = naturalWidth > clientWidth
+                    ? zoomWidth < naturalWidth && naturalWidth < maxLength ? zoomWidth : naturalWidth
+                    : clientWidth
+                  let tempWidth = 0;
+                  let tempHeight = 0;
+                  if(width / height >= 1) {
+                    if(width >= maxLength) {
+                      tempWidth = maxLength
+                      tempHeight = (height * maxLength) / width
+                    } else {
+                      tempWidth = width
+                      tempHeight = height
+                    }
                   } else {
-                    tempWidth = width
-                    tempHeight = height
+                    if(height >= maxLength) {
+                      tempHeight = maxLength
+                      tempWidth = (width * maxLength) / height
+                    } else {
+                      tempWidth = width
+                      tempHeight = height
+                    }
                   }
-                } else {
-                  if(height >= 200) {
-                    tempHeight = 200
-                    tempWidth = (width * 200) / height
-                  } else {
-                    tempWidth = width
-                    tempHeight = height
-                  }
-                }
-                const top = e.y - e.offsetY
-                let  left = (e.x - e.offsetX) - (tempWidth - e.path[0].clientWidth) / 2
-                if ((left + tempWidth) > body.clientWidth) left -= ((left + tempWidth) - body.clientWidth + 10)
-                if (left < 0) left = 10
-                if (alt !== '') tempHeight += 10
-                if (width <= 200 && height <= 200) {
-                  div.style.cssText = `display:block;height:${tempHeight}px;width:${tempWidth}px;left:${left}px;top:${top}px;`;
+                  const top = e.y - e.offsetY
+                  let  left = (e.x - e.offsetX) - (tempWidth - e.path[0].clientWidth) / 2
+                  if ((left + tempWidth) > body.clientWidth) left -= ((left + tempWidth) - body.clientWidth + 10)
+                  if (left < 0) left = 10
+                  if (alt !== '') tempHeight += 10
+                  div.style.cssText = `display:block;height:${tempHeight+34}px;width:${tempWidth+34}px;left:${left}px;top:${top}px;`;
                   div.innerHTML = `<img src="${e.target.src}"><p>${alt}</p>`
                 }
               }, 300);
