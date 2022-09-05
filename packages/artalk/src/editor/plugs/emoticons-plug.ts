@@ -216,8 +216,8 @@ export default class EmoticonsPlug extends EditorPlug {
         const $item = Utils.createElement(`<span class="atk-item"></span>`)
         $grp.append($item)
 
-        if (!!item.key && !(new RegExp(`^(${grp.name})?\\s?[0-9]+$`).test(item.key)))
-          $item.setAttribute('title', item.key)
+        //if (!!item.key && !(new RegExp(`^(${grp.name})?\\s?[0-9]+$`).test(item.key)))
+        //  $item.setAttribute('title', item.key)
 
         if (grp.type === 'image') {
           const imgEl = document.createElement('img')
@@ -290,7 +290,7 @@ export default class EmoticonsPlug extends EditorPlug {
     this.emoticons.forEach((grp) => {
       if (grp.type !== 'image') return
       Object.entries(grp.items).forEach(([index, item]) => {
-        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" alt="${item.key}" title="${item.key}" atk-emoticon="${item.key}">`) // replaceAll(...)
+        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" alt="${item.key}" atk-emoticon="${item.key}">`) // replaceAll(...)
       })
     })
 
