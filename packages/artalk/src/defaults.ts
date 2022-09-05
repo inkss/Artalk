@@ -14,14 +14,14 @@ const defaults: ArtalkConfig = {
   editorTravel: true,
 
   flatMode: 'auto',
-  nestMax: 2,
+  nestMax: 3,
   nestSort: 'DATE_ASC',
 
   emoticons: "https://cdn.jsdelivr.net/gh/ArtalkJS/Emoticons/grps/default.json",
 
   vote: true,
-  voteDown: false,
-  uaBadge: true,
+  voteDown: true,
+  uaBadge: false,
   listSort: true,
   preview: true,
   countEl: '#ArtalkCount',
@@ -29,7 +29,7 @@ const defaults: ArtalkConfig = {
 
   gravatar: {
     default: 'mp',
-    mirror: 'https://sdn.geekzu.org/avatar/',
+    mirror: 'https://cravatar.cn/avatar/',
   },
 
   pagination: {

@@ -60,7 +60,6 @@
   </div>
   <div class="float-btn to-night atk-fade-in">Blink</div>
   <div class="float-btn to-top atk-fade-in" style="display: none;">TOP</div>
-
   <script type="module">
     import Artalk from './src/main'
     var artalk = new Artalk({
@@ -69,7 +68,10 @@
       pageTitle: 'Artalk Home',
       server: 'https://artalk.szyink.com',
       site: '本地测试',
-      nestMax: 3
+      nestMax: 3,
+      vote: true,
+      voteDown: true,
+      uaBadge: false
       //useBackendConf: true,
     });
 

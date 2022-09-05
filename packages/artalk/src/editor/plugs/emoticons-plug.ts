@@ -223,6 +223,7 @@ export default class EmoticonsPlug extends EditorPlug {
           const imgEl = document.createElement('img')
           imgEl.src = item.val
           imgEl.alt = item.key
+          imgEl.setAttribute('atk-emoticon', item.key)
           $item.append(imgEl)
         } else {
           $item.innerText = item.val

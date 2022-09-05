@@ -45,6 +45,8 @@ export default class Artalk {
     this.conf = Artalk.HandelBaseConf(customConf)
     if (this.conf.el instanceof HTMLElement) this.$root = this.conf.el
 
+    this.showOwoBig(this.conf.el as Node)
+
     /* 初始化 Context */
     this.ctx = new ConcreteContext(this.conf, this.$root)
 
@@ -53,6 +55,67 @@ export default class Artalk {
 
     /* 初始化组件 */
     this.initComponents()
+  }
+
+  /** 表情包放大  */
+  private showOwoBig(target:Node) {
+    const max = 2
+    const div = document.createElement('div')
+    const body = document.querySelector('body') || document.createElement('body')
+    let flag = 1
+    let owoTime = 0
+    div.id = 'owo-big'
+    body.appendChild(div)
+    const observer = new MutationObserver(mutations => {
+      for (let i = 0; i < mutations.length; i++){
+        const dom = mutations[i].addedNodes
+        if(dom[0]?.classList?.contains('atk-grp') || dom[0]?.classList?.contains('atk-comment-wrap')) {
+          dom[0].onmouseover = (e) => {
+            // 如果需要只放大表情包可以添加  && !!e.target.attributes['atk-emoticon']
+            if (flag && e.target.tagName === 'IMG') {
+              flag = 0;
+              owoTime = setTimeout(() => {
+                const height = e.path[0].clientHeight * max
+                const width = e.path[0].clientWidth * max
+                let tempWidth = 0;
+                let tempHeight = 0;
+                if(width / height >= 1) {
+                  if(width >= 200) {
+                    tempWidth = 200
+                    tempHeight = (height * 200) / width
+                  } else {
+                    tempWidth = width
+                    tempHeight = height
+                  }
+                } else {
+                  if(height >= 200) {
+                    tempHeight = 200
+                    tempWidth = (width * 200) / height
+                  } else {
+                    tempWidth = width
+                    tempHeight = height
+                  }
+                }
+                const top = e.y - e.offsetY
+                let  left = (e.x - e.offsetX) - (tempWidth - e.path[0].clientWidth) / 2
+                if ((left + tempWidth) > body.clientWidth) left -= ((left + tempWidth) - body.clientWidth + 10)
+                if (left < 0) left = 10
+                if (width <= 200 && height <= 200) {
+                  div.style.cssText = `display:flex;height:${tempHeight}px;width:${tempWidth}px;left:${left}px;top:${top}px;`;
+                  div.innerHTML = `<img src="${e.target.src}">`
+                }
+              }, 300);
+            }
+          };
+          dom[0].onmouseout = () => {
+            flag = 1
+            div.style.display = 'none'
+            clearTimeout(owoTime)
+          }
+        }
+      }
+    })
+    observer.observe(target, { subtree: true, childList: true }) // 监听的 元素 和 配置项
   }
 
   /** 组件初始化 */
