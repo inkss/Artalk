@@ -62,13 +62,14 @@ export default class Artalk {
     const max = 2
     const div = document.createElement('div')
     const body = document.querySelector('body') || document.createElement('body')
-    let flag = 1
-    let owoTime = 0
+
     div.id = 'owo-big'
     body.appendChild(div)
     const observer = new MutationObserver(mutations => {
       for (let i = 0; i < mutations.length; i++){
         const dom = mutations[i].addedNodes
+        let flag = 1
+        let owoTime = 0
         if(dom[0]?.classList?.contains('atk-grp') || dom[0]?.classList?.contains('atk-comment-wrap')) {
           dom[0].onmouseover = (e) => {
             // 如果需要只放大表情包可以添加  && !!e.target.attributes['atk-emoticon']
@@ -77,6 +78,7 @@ export default class Artalk {
               owoTime = setTimeout(() => {
                 const height = e.path[0].clientHeight * max
                 const width = e.path[0].clientWidth * max
+                const alt = e.path[0].alt || '';
                 let tempWidth = 0;
                 let tempHeight = 0;
                 if(width / height >= 1) {
@@ -100,9 +102,10 @@ export default class Artalk {
                 let  left = (e.x - e.offsetX) - (tempWidth - e.path[0].clientWidth) / 2
                 if ((left + tempWidth) > body.clientWidth) left -= ((left + tempWidth) - body.clientWidth + 10)
                 if (left < 0) left = 10
+                if (alt !== '') tempHeight += 10
                 if (width <= 200 && height <= 200) {
-                  div.style.cssText = `display:flex;height:${tempHeight}px;width:${tempWidth}px;left:${left}px;top:${top}px;`;
-                  div.innerHTML = `<img src="${e.target.src}">`
+                  div.style.cssText = `display:block;height:${tempHeight}px;width:${tempWidth}px;left:${left}px;top:${top}px;`;
+                  div.innerHTML = `<img src="${e.target.src}"><p>${alt}</p>`
                 }
               }, 300);
             }

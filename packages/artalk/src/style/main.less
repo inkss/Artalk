@@ -553,8 +553,18 @@ img[atk-emoticon] {
   transform: translate(0, -105%);
   overflow: hidden;
   animation: owoIn 0.3s cubic-bezier(0.42, 0, 0.3, 1.11);
+  padding: 1rem;
   img {
     width: 100%;
+  }
+  p {
+    color: var(--at-color-meta);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: center;
+    font-size: 12px;
+    margin: 0;
   }
 }
 
