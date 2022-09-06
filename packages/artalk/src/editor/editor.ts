@@ -183,6 +183,10 @@ export default class Editor extends Component {
   }
 
   public insertContent(val: string) {
+    const owoBig = document.querySelector('#owo-big');
+    if(owoBig && owoBig.style) {
+      owoBig.style.display = 'none'
+    }
     if ((document as any).selection) {
       this.$textarea.focus();
       (document as any).selection.createRange().text = val

@@ -71,7 +71,17 @@ export default class Artalk {
         const dom = mutations[i].addedNodes
         let flag = 1
         let owoTime = 0
-        if(dom[0]?.classList?.contains('atk-grp') || dom[0]?.classList?.contains('atk-comment-wrap')) {
+        /**
+         * 放大项：
+         * ① 表情包
+         * ② 评论行
+         * ③ 预览窗（只有一张图）
+         * ④ 预览窗（任意）
+         */
+        if(dom[0]?.classList?.contains('atk-grp')
+            || dom[0]?.classList?.contains('atk-comment-wrap')
+            || (!!dom[0]?.attributes && !!dom[0]?.attributes['atk-emoticon'])
+            || (typeof dom[0]?.querySelector === 'function' && dom[0]?.querySelector('img[atk-emoticon]'))) {
           dom[0].onmouseover = (e) => {
             // 如果需要只放大表情包可以添加  && !!e.target.attributes['atk-emoticon']
             if (flag && e.target.tagName === 'IMG') {
