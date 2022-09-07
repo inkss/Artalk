@@ -149,10 +149,10 @@ export default class Layer extends Component {
 }
 
 export function GetLayerWrap(ctx: Context): { $wrap: HTMLElement, $mask: HTMLElement } {
-  let $wrap = document.querySelector<HTMLElement>(`.atk-layer-wrap#ctx-${ctx.cid}`)
+  let $wrap = document.querySelector<HTMLElement>(`.atk-layer-wrap`)
   if (!$wrap) {
     $wrap = Utils.createElement(
-      `<div class="atk-layer-wrap" id="ctx-${ctx.cid}" style="display: none;"><div class="atk-layer-mask"></div></div>`
+      `<div class="atk-layer-wrap" style="display: none;"><div class="atk-layer-mask"></div></div>`
     )
     document.body.appendChild($wrap)
   }

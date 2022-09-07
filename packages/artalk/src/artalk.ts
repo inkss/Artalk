@@ -61,11 +61,16 @@ export default class Artalk {
   private showOwoBig(target:Node) {
     const ratio = 2
     const maxLength = 200
-    const div = document.createElement('div')
-    const body = document.querySelector('body') || document.createElement('body')
+    const body = document.querySelector('body')
 
-    div.id = 'owo-big'
-    body.appendChild(div)
+    let div = document.createElement('div')
+    if (document.querySelector('#owo-big')) {
+      div = document.querySelector('#owo-big')
+    } else {
+      div.id = 'owo-big'
+      body.appendChild(div)
+    }
+
     const observer = new MutationObserver(mutations => {
       for (let i = 0; i < mutations.length; i++){
         const dom = mutations[i].addedNodes
