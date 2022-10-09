@@ -1,5 +1,3 @@
-import '@/style/editor.less'
-
 import { CommentData } from '~/types/artalk-data'
 import Context from '~/types/context'
 import Component from '../lib/component'
@@ -331,7 +329,7 @@ export default class Editor extends Component {
   /** 创建评论 */
   public async submitAdd() {
     try {
-      const nComment = await this.ctx.getApi().add({
+      const nComment = await this.ctx.getApi().comment.add({
         content: this.getFinalContent(),
         nick: this.user.data.nick,
         email: this.user.data.email,
@@ -369,7 +367,7 @@ export default class Editor extends Component {
         email: this.$email.value,
         link: this.$link.value,
       }
-      const nComment = await this.ctx.getApi().commentEdit({
+      const nComment = await this.ctx.getApi().comment.commentEdit({
         ...this.editComment, ...saveData
       })
       this.ctx.updateComment(nComment)

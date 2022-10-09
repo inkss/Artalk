@@ -1,5 +1,3 @@
-import '../style/sidebar-layer.less'
-
 import Context from '~/types/context'
 import Component from '@/lib/component'
 import * as Utils from '@/lib/utils'
@@ -62,7 +60,7 @@ export default class SidebarLayer extends Component {
 
     // 管理员身份验证 (若身份失效，弹出验证窗口)
     ;(async () => {
-      const resp = await this.ctx.getApi().loginStatus()
+      const resp = await this.ctx.getApi().user.loginStatus()
       if (resp.is_admin && !resp.is_login) {
         this.layer?.hide()
         this.firstShow = true

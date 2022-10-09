@@ -12,12 +12,13 @@ export const internal = {
   'zh-CN': zhCN,
 }
 
-export const external = {
-  'jp-JP': {},
-  'zh-TW': {},
-  'fr-FR': {},
-  'de-DE': {},
-  'bn-IN': {},
+const GLOBAL_LOCALES_KEY = "ArtalkI18n";
+
+export function defineLocaleExternal(lang: string, locale: I18n, aliases?: string[]) {
+  if (!window[GLOBAL_LOCALES_KEY]) window[GLOBAL_LOCALES_KEY] = {}
+  window[GLOBAL_LOCALES_KEY][lang] = locale
+  if (aliases) aliases.forEach(l => { window[GLOBAL_LOCALES_KEY][l] = locale })
+  return locale
 }
 
 /**
@@ -30,12 +31,19 @@ function getLocaleSet(lang: string): I18n {
     (_, p1: string, p2: string) => (p1.toLowerCase() + (p2 || '').toUpperCase())
   )
 
-  // case not found
-  if (!internal[lang]) {
-    return internal.en // use `en` by default
+  // internal finding
+  if (internal[lang]) {
+    return internal[lang]
   }
 
-  return internal[lang]
+  // external finding
+  if (window[GLOBAL_LOCALES_KEY] && window[GLOBAL_LOCALES_KEY][lang]) {
+    return window[GLOBAL_LOCALES_KEY][lang]
+  }
+
+  // case when not found:
+  // use `en` by default
+  return internal.en
 }
 
 /**
@@ -52,5 +60,5 @@ function getI18n(locale: I18n|string, key: keyof I18n, args: {[key: string]: str
   return str
 }
 
-export { getLocaleSet, getI18n }
+export { getLocaleSet }
 export default getI18n

@@ -1,7 +1,7 @@
 {
   "name": "artalk",
-  "version": "2.3.4",
-  "backendMinVersion": "2.1.10",
+  "version": "2.4.2",
+  "backendMinVersion": "2.2.0",
   "license": "LGPL-3.0",
   "description": "A Selfhosted Comment System",
   "keywords": [
@@ -25,8 +25,9 @@
   "types": "./dist/src/main.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "npm run lint && vite build",
+    "build": "npm run lint && vite build && npm run build:i18n",
     "build:lite": "vite build --config vite-lite.config.ts",
+    "build:i18n": "node scripts/build-i18n.mjs",
     "build:demo": "vite build --config vite-demo.config.ts",
     "serve": "vite preview",
     "deploy": "gh-pages -d deploy",

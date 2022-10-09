@@ -1,7 +1,6 @@
-import '../style/list.less'
-
 import { ListData, NotifyData } from '~/types/artalk-data'
 import Context from '~/types/context'
+import { version as ARTALK_VERSION } from '../../package.json'
 import * as Utils from '../lib/utils'
 import * as Ui from '../lib/ui'
 import ListHTML from './list.html?raw'
@@ -143,7 +142,7 @@ export default class List extends ListLite {
     // 已阅 API
     const notifyKey = Utils.getQueryParam('atk_notify_key')
     if (notifyKey) {
-      this.ctx.getApi().markRead(notifyKey)
+      this.ctx.getApi().user.markRead(notifyKey)
         .then(() => {
           this.unread = this.unread.filter(o => o.comment_id !== commentId)
           this.updateUnread(this.unread)
@@ -175,7 +174,7 @@ export default class List extends ListLite {
     if (!this.data || !this.data.page) return
 
     this.ctx.editorShowLoading()
-    this.ctx.getApi().pageEdit(this.data.page)
+    this.ctx.getApi().page.pageEdit(this.data.page)
       .then((page) => {
         if (this.data)
           this.data.page = { ...page }
