@@ -10,12 +10,6 @@
 import { bootParams } from '../global'
 
 const router = useRouter()
-const LinkMap: {[key:string]:string} = {
-  comments: '/comments',
-  pages: '/pages',
-  sites: '/sites',
-  settings: '/settings'
-}
 
 onMounted(() => {
   if (bootParams.view) {
@@ -24,6 +18,12 @@ onMounted(() => {
     if (splitted[1]) bootParams.viewParams = JSON.parse(splitted[1])
   }
 
+  const LinkMap: {[key:string]:string} = {
+    comments: '/comments',
+    pages: '/pages',
+    sites: '/sites',
+    settings: '/settings'
+  }
   router.replace(LinkMap[bootParams.view] || '/comments')
 })
 </script>

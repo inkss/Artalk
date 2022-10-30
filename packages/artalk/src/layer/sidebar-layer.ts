@@ -53,11 +53,6 @@ export default class SidebarLayer extends Component {
     // viewWrap 滚动条归位
     // this.$viewWrap.scrollTo(0, 0)
 
-    // 执行动画
-    setTimeout(() => {
-      this.$el.style.transform = 'translate(0, 0)'
-    }, 20)
-
     // 管理员身份验证 (若身份失效，弹出验证窗口)
     ;(async () => {
       const resp = await this.ctx.getApi().user.loginStatus()
@@ -75,9 +70,6 @@ export default class SidebarLayer extends Component {
         })
       }
     })()
-
-    // 清空 unread
-    this.ctx.updateNotifies([])
 
     // 第一次加载
     if (this.firstShow) {
@@ -114,6 +106,16 @@ export default class SidebarLayer extends Component {
         this.iframeLoad(this.$iframe!.src.replace('&darkMode=1', ''))
     }
 
+    // 执行滑动显示动画
+    setTimeout(() => {
+      this.$el.style.transform = 'translate(0, 0)'
+    }, 200)
+
+    // 清空 unread
+    setTimeout(() => {
+      this.ctx.updateNotifies([])
+    }, 0)
+
     this.ctx.trigger('sidebar-show')
   }
 
@@ -122,9 +124,11 @@ export default class SidebarLayer extends Component {
     // 执行动画
     this.$el.style.transform = ''
 
-    this.layer?.hide()
-
-    this.ctx.trigger('sidebar-hide')
+    // 执行滑动显示动画
+    setTimeout(() => {
+      this.layer?.hide()
+      this.ctx.trigger('sidebar-hide')
+    }, 200)
   }
 
   private iframeLoad(src: string) {

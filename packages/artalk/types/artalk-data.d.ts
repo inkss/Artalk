@@ -159,6 +159,29 @@ export interface UserData {
 
   /** 是否属于管理员 */
   is_admin: boolean
+
+  /** 所属站点名 */
+  site_names: string[]
+
+  /** 所属站点名 (字符串) */
+  site_names_raw: string,
+
+  /** 是否允许接收邮件通知 */
+  receive_email: boolean
+}
+
+export interface UserDataForAdmin extends UserData {
+  /** 最后一次操作 IP */
+  last_ip: string
+
+  /** 最后一次操作 UA */
+  last_ua: string
+
+  /** 是否存在于配置文件中 */
+  is_in_conf: boolean
+
+  /** 评论数 */
+  comment_count: number
 }
 
 export interface NotifyData {

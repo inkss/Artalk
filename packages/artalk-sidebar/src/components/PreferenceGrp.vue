@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import settings from '../lib/settings'
 
+const router = useRouter()
+
 const props = defineProps<{
   tplData: Object|Array<any>
   path: (string|number)[]
 }>()
 
-const emits = defineEmits<{
-  (evt: 'toggle', path?: string): void
-}>()
-
-const desc = computed(() => settings.extractItemDescFromComment(props.path))
+const desc = computed(() => settings.get().extractItemDescFromComment(props.path))
 const level = computed(() => props.path.length)
 
 const expanded = ref(true)
@@ -24,7 +22,7 @@ function onHeadClick(evt: Event) {
   if (!expanded.value) {
     expanded.value = true
     // nextTick(() => {
-    //   nav.scrollToEl(evt.target as HTMLElement)
+    //   nav.scrollPageToEl(evt.target as HTMLElement)
     // })
   } else {
     expanded.value = false
@@ -41,18 +39,20 @@ function onHeadClick(evt: Event) {
     <div v-show="expanded" class="pf-body">
       <!-- Array -->
       <template v-if="Array.isArray(tplData)">
-        <div v-if="path.join('.') === 'admin_users'" class="coming-soon">暂不支持编辑，敬请期待 😉（<b>咕咕咕</b></div>
-        <PreferenceArr v-else :tpl-data="tplData" :path="path" />
+        <PreferenceArr :tpl-data="tplData" :path="path" />
       </template>
       <!-- Object -->
       <template v-else>
         <div v-for="[key, value] in Object.entries(tplData)">
+          <!-- Admin Users -->
+          <template v-if="key === 'admin_users'"></template>
+          <!-- Grp -->
           <PreferenceGrp
-            v-if="value !== null && typeof value === 'object'"
+            v-else-if="value !== null && typeof value === 'object'"
             :tpl-data="value"
             :path="[...path, key]"
-            :toggle="emits('toggle')"
           />
+          <!-- Item Input -->
           <PreferenceItem
             v-else
             :tpl-data="value"
@@ -154,19 +154,6 @@ function onHeadClick(evt: Event) {
   & > .sub-title {
     font-size: 14px;
     margin-top: 5px;
-  }
-}
-
-.coming-soon {
-  b {
-    font-weight: normal;
-    color: #000;
-    background: #000;
-    transition: .1s ease background;
-
-    &:hover {
-      background: transparent;
-    }
   }
 }
 </style>

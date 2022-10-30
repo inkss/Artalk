@@ -1,4 +1,4 @@
-import { UserData, NotifyData } from '~/types/artalk-data'
+import { UserData, NotifyData, UserDataForAdmin } from '~/types/artalk-data'
 import ApiBase from './api-base'
 import { ToFormData } from './request'
 
@@ -15,7 +15,7 @@ export default class UserApi extends ApiBase {
     if (this.ctx.conf.site) params.site_name = this.ctx.conf.site
 
     const data = await this.POST<any>('/login', params)
-    return (data.token as string)
+    return data as { token: string, user: UserData }
   }
 
   /** 用户 · 获取  */
@@ -71,5 +71,62 @@ export default class UserApi extends ApiBase {
     }
 
     return this.POST(`/mark-read`, params)
+  }
+
+  /** 用户 · 列表 */
+  public async userList(offset?: number, limit?: number, type?: 'all'|'admin'|'in_conf') {
+    const params: any = {
+      offset: offset || 0,
+      limit: limit || 15,
+    }
+
+    if (type) params.type = type
+
+    const d = await this.POST<any>('/admin/user-get', params)
+    return (d as { users: UserDataForAdmin[], total: number })
+  }
+
+  /** 用户 · 新增 */
+  public async userAdd(user: Partial<UserDataForAdmin>, password?: string) {
+    const params: any = {
+      name: user.name || '',
+      email: user.email || '',
+      password: password || '',
+      link: user.link || '',
+      is_admin: user.is_admin || false,
+      site_names: user.site_names_raw || '',
+      receive_email: user.receive_email || true,
+      badge_name: user.badge_name || '',
+      badge_color: user.badge_color || '',
+    }
+
+    const d = await this.POST<any>('/admin/user-add', params)
+    return (d.user as UserDataForAdmin)
+  }
+
+  /** 用户 · 修改 */
+  public async userEdit(user: Partial<UserDataForAdmin>, password?: string) {
+    const params: any = {
+      id: user.id,
+      name: user.name || '',
+      email: user.email || '',
+      password: password || '',
+      link: user.link || '',
+      is_admin: user.is_admin || false,
+      site_names: user.site_names_raw || '',
+      receive_email: user.receive_email || true,
+      badge_name: user.badge_name || '',
+      badge_color: user.badge_color || '',
+    }
+
+    const d = await this.POST<any>('/admin/user-edit', params)
+    return (d.user as UserDataForAdmin)
+  }
+
+  /** 用户 · 删除 */
+  public userDel(userID: number) {
+    return this.POST('/admin/user-del', {
+      id: String(userID)
+    })
   }
 }

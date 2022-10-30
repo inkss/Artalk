@@ -7,29 +7,34 @@ const props = defineProps<{
 }>()
 
 const ci = getCurrentInstance()
+const customValue = ref<string[]>([])
 
-const customValue = ref([])
-const update = () => {
-  customValue.value = (settings.customs.value?.getIn(props.path) as any)?.items || []
-  ci?.proxy?.$forceUpdate()
+function update() {
+  customValue.value = (settings.get().customs.value?.getIn(props.path) as any)?.items || []
 }
-watch(settings.customs, (customs) => {
+
+function save() {
+  settings.get().customs.value?.setIn([...props.path], customValue.value)
+}
+
+watch(settings.get().customs, (customs) => {
   update()
+  ci?.proxy?.$forceUpdate()
 })
 
 function onChange(index: number, val: string) {
-  settings.customs.value?.setIn([...props.path, index], val)
+  customValue.value[index] = val
+  save()
 }
 
 function remove(index: number) {
-  settings.customs.value?.deleteIn([...props.path, index])
-  update()
+  customValue.value.splice(index, 1)
+  save()
 }
 
 function add() {
-  if (!customValue.value) settings.customs.value?.setIn([...props.path], [''])
-  else settings.customs.value?.setIn([...props.path, customValue.value.length], '')
-  update()
+  customValue.value.push('')
+  save()
 }
 </script>
 

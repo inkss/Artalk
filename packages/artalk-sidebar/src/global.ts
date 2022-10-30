@@ -1,5 +1,6 @@
 import Artalk from 'artalk'
 import type { LocalUser } from 'artalk/types/artalk-config'
+import { useUserStore } from './stores/user'
 
 export let artalk: Artalk|null = null
 
@@ -26,19 +27,34 @@ export function createArtalkInstance() {
   Artalk.DisabledComponents = ['list']
   return new Artalk({
     el: artalkEl,
-    server: (import.meta.env.DEV) ? 'http://localhost:23366' : '/',
-    pageKey: 'https://artalk.js.org/guide/intro.html',
+    server: (import.meta.env.DEV) ? 'http://localhost:23366' : '../',
+    pageKey: bootParams.pageKey,
     site: bootParams.site,
     darkMode: bootParams.darkMode,
     useBackendConf: true
-  }) as unknown as Promise<Artalk>
+  })
+}
+
+export function importUserDataFromArtalkInstance() {
+  if (!artalk) throw Error("the artalk instance is not exist")
+  if (!artalk.ctx.user.data.email) throw Error("the user data in artalk instance is invalid")
+
+  const userData = artalk.ctx.user.data
+  useUserStore().$patch((state) => {
+    state.site = '__ATK_SITE_ALL'
+    state.name = userData.nick
+    state.email = userData.email
+    state.isAdmin = userData.isAdmin
+    state.token = userData.token
+  })
 }
 
 export default {
   createArtalkInstance,
-  getArtalk: () => artalk,
+  getArtalk: () => artalk!,
   setArtalk: (artalkInstance: Artalk) => {
     artalk = artalkInstance
   },
-  getBootParams: () => bootParams
+  getBootParams: () => bootParams,
+  importUserDataFromArtalkInstance,
 }

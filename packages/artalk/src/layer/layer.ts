@@ -71,7 +71,11 @@ export default class Layer extends Component {
   hide () {
     if (this.afterHide) this.afterHide()
     this.$wrap.classList.add('atk-fade-out')
-    this.$el.style.display = 'none'
+    this.$el.style.transform = ''
+    setTimeout(() => {
+
+      this.$el.style.display = 'none'
+    }, 200)
 
     // body style 禁止滚动解除
     this.pageBodyScrollBarShow()
