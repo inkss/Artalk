@@ -570,14 +570,17 @@ img[atk-emoticon] {
   position: fixed;
   align-items: center;
   background-color:var(--at-color-owo);
-  border: 1px #aaa solid;
-  border-radius: 10px;
+  backdrop-filter: saturate(200%) blur(6px);
+  border: 1px solid var(--at-color-bg-light);
+  border-radius: 12px;
+  box-shadow: 0 0 12px 4px rgb(0 0 0 / 5%);
   z-index: 9999;
   display: none;
   transform: translate(0, -105%);
   overflow: hidden;
   animation: owoIn 0.3s cubic-bezier(0.42, 0, 0.3, 1.11);
   padding: 16px;
+  user-select: none;
   img {
     width: 100%;
     border-radius: 10px;
