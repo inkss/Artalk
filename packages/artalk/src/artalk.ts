@@ -85,8 +85,8 @@ export default class Artalk {
             || (!!dom[0]?.attributes && !!dom[0]?.attributes['atk-emoticon'])
             || (typeof dom[0]?.querySelector === 'function' && dom[0]?.querySelector('img[atk-emoticon]'))) {
           dom[0].onmouseover = (e) => {
-            // 如果需要只放大表情包可以添加  && !!e.target.attributes['atk-emoticon']
-            if (flag && e.target.tagName === 'IMG') {
+            // 如果需要只放大表情包可以添加
+            if (flag && e.target.tagName === 'IMG' && !!e.target.attributes['atk-emoticon']) {
               flag = 0;
               owoTime = setTimeout(() => {
                 const alt = e.path[0].alt || '';

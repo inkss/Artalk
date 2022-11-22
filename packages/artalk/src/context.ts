@@ -263,7 +263,7 @@ export default class Context implements ContextApi {
   }
 
   public setDarkMode(darkMode: boolean): void {
-    if (this.conf.darkMode === darkMode) return
+    //if (this.conf.darkMode === darkMode) return
 
     const darkModeClassName = 'atk-dark-mode'
     const owoShow = document.querySelector('#owo-big')

@@ -53,7 +53,8 @@
     img {
       width: 48px;
       height: 48px;
-      border-radius: 3px;
+      border-radius: 50%;
+      transition: all .5s ease;
       &.error:before {
         width: 48px !important;
         height: 48px !important;
@@ -61,6 +62,10 @@
       }
       &.error:after {
         display: none;
+      }
+      &:hover {
+        transform: scale(1.2);
+        border-radius: 4px;
       }
     }
   }
@@ -372,7 +377,6 @@
       right: 10px;
 
       .atk-actions {
-        background-color: var(--at-color-bg);
         padding-left: 10px;
         padding-bottom: 5px;
         margin-bottom: unset;
