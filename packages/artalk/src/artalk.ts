@@ -89,7 +89,7 @@ export default class Artalk {
             if (flag && e.target.tagName === 'IMG' && !!e.target.attributes['atk-emoticon']) {
               flag = 0;
               owoTime = setTimeout(() => {
-                const alt = e.path[0].alt || '';
+                const alt = e.path[0].getAttribute("notitle") === "true" ? '' : e.path[0].alt || '';
                 const clientHeight = e.path[0].clientHeight
                 const clientWidth = e.path[0].clientWidth
                 if(clientHeight <= maxLength && clientWidth <= maxLength) {

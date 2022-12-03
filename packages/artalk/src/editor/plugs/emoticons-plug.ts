@@ -9,7 +9,7 @@ import Editor from '../editor'
 type OwOFormatType = {
   [key: string] : {
     type: 'emoticon'|'emoji'|'image',
-    container: {icon: string, text: string}[]
+    container: {icon: string, text: string, notitle: string}[]
   }
 }
 
@@ -193,7 +193,7 @@ export default class EmoticonsPlug extends EditorPlug {
           const find = /src=["'](.*?)["']/.exec(iconStr)
           if (find && find.length > 1) item.icon = find[1]
         }
-        nGrp.items.push({ key: item.text || `${grpName} ${index+1}`, val: item.icon })
+        nGrp.items.push({ key: item.text || `${grpName} ${index+1}`, val: item.icon, notitle: item.notitle })
       })
       dest.push(nGrp)
     })
@@ -224,6 +224,7 @@ export default class EmoticonsPlug extends EditorPlug {
           imgEl.src = item.val
           imgEl.alt = item.key.replace(/\s[0-9]/i,'')
           imgEl.setAttribute('atk-emoticon', item.key)
+          if (item.notitle) imgEl.setAttribute('notitle', item.notitle)
           $item.append(imgEl)
         } else {
           $item.innerText = item.val
@@ -290,7 +291,9 @@ export default class EmoticonsPlug extends EditorPlug {
     this.emoticons.forEach((grp) => {
       if (grp.type !== 'image') return
       Object.entries(grp.items).forEach(([index, item]) => {
-        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" alt="${item.key.replace(/\s[0-9]/i,'')}" atk-emoticon="${item.key}">`) // replaceAll(...)
+        text = item.notitle === 'true' ?
+          text.split(`:[${item.key}]`).join(`<img src="${item.val}" atk-emoticon="${item.key}">`)
+          : text.split(`:[${item.key}]`).join(`<img src="${item.val}" alt="${item.key.replace(/\s[0-9]/i,'')}" atk-emoticon="${item.key}">`)
       })
     })
 

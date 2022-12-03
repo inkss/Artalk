@@ -207,7 +207,7 @@ export interface NotifyData {
 export type EmoticonGrpData = {
   name: string,
   type: 'emoticon'|'image'|'emoji'
-  items: {key: string, val: string}[]
+  items: {key: string, val: string, notitle: string}[]
 }
 
 export type EmoticonListData = EmoticonGrpData[]
