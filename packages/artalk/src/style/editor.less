@@ -71,9 +71,9 @@
 
     & > .atk-send-reply {
       z-index: 2;
-      position: absolute;
-      right: 7px;
-      bottom: 2px;
+      position: relative;
+      float: right;
+      width: min-content;
       max-width: (100% - 20px);
       height: 30px;
       line-height: 30px;
@@ -85,6 +85,7 @@
       white-space: nowrap;
       cursor: pointer;
       border-radius: (@block-radius / 2);
+      transition: opacity 0.3s ease-in-out;
 
       .atk-text {
       }
@@ -164,23 +165,23 @@
       }
     }
 
-    .atk-send-btn {
-      background: var(--at-color-main);
-      color: #fff;
-      font-size: @font-size;
-      border: none;
-      padding: 0 1em;
-      margin: 0;
-      height: 30px;
-      cursor: pointer;
-      transition: opacity 0.3s ease-in-out;
-      outline: none;
-      border-radius: (@block-radius / 2);
-
-      &:active {
-        opacity: 0.9;
-      }
-    }
+    //.atk-send-btn {
+    //  background: var(--at-color-main);
+    //  color: #fff;
+    //  font-size: @font-size;
+    //  border: none;
+    //  padding: 0 1em;
+    //  margin: 0;
+    //  height: 30px;
+    //  cursor: pointer;
+    //  transition: opacity 0.3s ease-in-out;
+    //  outline: none;
+    //  border-radius: (@block-radius / 2);
+    //
+    //  &:active {
+    //    opacity: 0.9;
+    //  }
+    //}
   }
 
   & > .atk-notify-wrap {
@@ -190,5 +191,50 @@
     bottom: 40px;
     width: 225px;
     opacity: 0.83;
+  }
+}
+
+.atk-main-editor > .atk-textarea-wrap {
+
+  .atk-textarea {
+    &:not(:placeholder-shown) {
+      ~ .atk-send-btn, ~ .atk-send-reply {
+        opacity: 1;
+      }
+    }
+    &:placeholder-shown {
+      ~ .atk-send-btn, ~ .atk-send-reply {
+        opacity: 0;
+      }
+    }
+  }
+
+  .atk-send-btn {
+    background: var(--at-color-main);
+    color: #fff;
+    font-size: @font-size;
+    border: none;
+    padding: 0 1em;
+    margin: 0 0 0 12px;
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+    transition: opacity 0.3s ease-in-out;
+    outline: none;
+    border-radius: (@block-radius / 2);
+    position: relative;
+    float: right;
+    right: 6px;
+
+    &:active {
+      opacity: 0.9;
+    }
+  }
+
+}
+
+.atk-header input {
+  &:focus-within {
+    border-bottom: 1px solid var(--at-color-border);
   }
 }
