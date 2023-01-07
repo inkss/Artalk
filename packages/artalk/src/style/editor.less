@@ -87,6 +87,12 @@
       border-radius: (@block-radius / 2);
       transition: opacity 0.3s ease-in-out;
 
+      @media screen and (max-width: 500px) {
+        position: absolute;
+        right: 6px;
+        bottom: 6px;
+      }
+
       .atk-text {
       }
 
@@ -111,6 +117,7 @@
     overflow: hidden;
     animation: 0.3s both atkFadeIn;
     transition: 0.2s height ease-in-out;
+    display: contents;
   }
 
   & > .atk-bottom {
