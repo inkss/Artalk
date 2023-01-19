@@ -89,12 +89,12 @@ export default class Artalk {
             if (flag && e.target.tagName === 'IMG' && !!e.target.attributes['atk-emoticon']) {
               flag = 0;
               owoTime = setTimeout(() => {
-                const alt = e.path[0].getAttribute("notitle") === "true" ? '' : e.path[0].alt || '';
-                const clientHeight = e.path[0].clientHeight
-                const clientWidth = e.path[0].clientWidth
+                const alt = e.target.getAttribute("notitle") === "true" ? '' : e.target.alt || '';
+                const clientHeight = e.target.clientHeight
+                const clientWidth = e.target.clientWidth
                 if(clientHeight <= maxLength && clientWidth <= maxLength) {
-                  const naturalHeight = e.path[0].naturalHeight
-                  const naturalWidth = e.path[0].naturalWidth
+                  const naturalHeight = e.target.naturalHeight
+                  const naturalWidth = e.target.naturalWidth
                   const zoomHeight = clientHeight * ratio
                   const zoomWidth = clientWidth * ratio
                   // eslint-disable-next-line no-nested-ternary
@@ -125,7 +125,7 @@ export default class Artalk {
                     }
                   }
                   const top = e.y - e.offsetY
-                  let  left = (e.x - e.offsetX) - (tempWidth - e.path[0].clientWidth) / 2
+                  let  left = (e.x - e.offsetX) - (tempWidth - e.target.clientWidth) / 2
                   if ((left + tempWidth) > body.clientWidth) left -= ((left + tempWidth) - body.clientWidth + 10)
                   if (left < 0) left = 10
                   if (alt !== '') tempHeight += 10
