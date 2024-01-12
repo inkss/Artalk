@@ -44,13 +44,6 @@
   <div class="card billboard atk-fade-in">
     <div class="title"><a href="https://github.com/ArtalkJS/Artalk" target="_blank"><span>『 </span>Artalk<span> 』</span></a></div>
     <div class="desc">一款简洁的自托管评论系统 <span id="ArtalkPV"></span> | <span id="ArtalkCount"></span></div>
-    <div class="social">
-      <a href="https://www.npmjs.com/package/artalk" aria-label="npm package version" target="_blank"><img src="https://img.shields.io/npm/v/artalk.svg?style=flat-square"></a>
-      <a href="https://www.npmjs.com/package/artalk" aria-label="npm package download number" target="_blank"><img src="https://img.shields.io/npm/dt/artalk.svg?style=flat-square"></a>
-      <a href="https://github.com/ArtalkJS/Artalk/commits/master" aria-label="last commit" target="_blank"><img src="https://img.shields.io/github/last-commit/ArtalkJS/Artalk?style=flat-square"></a>
-      <a href="https://github.com/ArtalkJS/Artalk/blob/master/LICENSE" aria-label="open source license" target="_blank"><img src="https://img.shields.io/github/license/ArtalkJS/Artalk.svg?style=flat-square"></a>
-      <a href="https://github.com/ArtalkJS/Artalk" aria-label="GitHub star number" target="_blank"><img src="https://img.shields.io/github/stars/ArtalkJS/Artalk?style=flat-square"></a>
-    </div>
   </div>
   <div class="card atk-fade-in">
     <div id="comments"></div>
@@ -62,10 +55,11 @@
     import Artalk from './src/main'
     var artalk = Artalk.init({
       el: '#comments',
-      pageKey: 'https://artalk.js.org/guide/intro.html',
+      pageKey: 'http://localhost:3000/',
       pageTitle: 'Artalk Home',
-      server: (import.meta.env.DEV) ? 'http://localhost:23366' : 'https://artalk.qwqaq.com',
-      site: 'ArtalkDocs',
+      server: 'http://10.0.10.2:23366',
+      site: '本地测试',
+      nestMax: 3
       //useBackendConf: true,
     });
 

@@ -18,6 +18,9 @@ export function getFileName(name: string, format: string) {
 const name = process.env.ARTALK_LITE ? 'ArtalkLite' : 'Artalk'
 
 export default defineConfig({
+  server: {
+    port: 3000
+  },
   root: __dirname,
   build: {
     target: 'es2015',
