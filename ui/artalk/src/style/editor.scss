@@ -229,6 +229,7 @@
   }
 
   .atk-send-btn {
+    display: none;
     background: var(--at-color-main);
     color: #fff;
     font-size: $font-size;

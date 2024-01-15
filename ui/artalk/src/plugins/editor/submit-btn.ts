@@ -14,6 +14,8 @@ export default class SubmitBtn extends EditorPlug {
       // apply the submit button text from user custom config
       this.kit.useUI().$submitBtn.innerText = this.kit.useConf().sendBtn || $t('send')
 
+      this.kit.useUI().$submitBtn.style.display = "block"
+
       // bind the event when click the submit button
       this.kit.useUI().$submitBtn.addEventListener('click', onClick)
     })
