@@ -10,6 +10,7 @@ const en = {
   emoticon: 'Emoji',
   preview: 'Preview',
   image: 'Image',
+  refresh: 'Refresh',
   uploadFail: 'Upload Failed',
   commentFail: 'Failed to comment',
   restoredMsg: 'Content has been restored',

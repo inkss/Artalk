@@ -24,6 +24,7 @@ export default class Render {
   public $content!: HTMLElement
   public $childrenWrap!: HTMLElement|null
   public $actions!: HTMLElement
+  public $actionNormal!: HTMLElement
   public voteBtnUp?: ActionBtn
   public voteBtnDown?: ActionBtn
 
@@ -43,6 +44,7 @@ export default class Render {
     this.$body = this.$el.querySelector('.atk-body')!
     this.$content = this.$body.querySelector('.atk-content')!
     this.$actions = this.$el.querySelector('.atk-actions')!
+    this.$actionNormal = this.$el.querySelector('.atk-actions-normal')!
 
     this.$el.setAttribute('id', `atk-comment-${this.data.id}`)
 

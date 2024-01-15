@@ -44,6 +44,9 @@ export default class Artalk {
 
     // Trigger inited event
     this.ctx.trigger('inited')
+
+    // 表情包放大
+    this.ctx.showOwoBig(handledConf.el as Node)
   }
 
   /** Get the config of Artalk */

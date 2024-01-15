@@ -87,4 +87,7 @@ export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
 
   /** 更新配置 */
   updateConf(conf: Partial<ArtalkConfig>): void
+
+  /** 表情包放大  */
+  showOwoBig(target:Node): void
 }

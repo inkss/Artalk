@@ -10,7 +10,7 @@ import type PlugKit from './_kit'
 type OwOFormatType = {
   [key: string] : {
     type: 'emoticon'|'emoji'|'image',
-    container: {icon: string, text: string}[]
+    container: {icon: string, text: string, notitle: string}[]
   }
 }
 
@@ -193,7 +193,7 @@ export default class Emoticons extends EditorPlug {
           const find = /src=["'](.*?)["']/.exec(iconStr)
           if (find && find.length > 1) item.icon = find[1]
         }
-        nGrp.items.push({ key: item.text || `${grpName} ${index+1}`, val: item.icon })
+        nGrp.items.push({ key: item.text || `${grpName} ${index+1}`, val: item.icon, notitle: item.notitle })
       })
       dest.push(nGrp)
     })
@@ -216,19 +216,22 @@ export default class Emoticons extends EditorPlug {
         const $item = Utils.createElement(`<span class="atk-item"></span>`)
         $grp.append($item)
 
-        if (!!item.key && !(new RegExp(`^(${grp.name})?\\s?[0-9]+$`).test(item.key)))
-          $item.setAttribute('title', item.key)
+        // if (!!item.key && !(new RegExp(`^(${grp.name})?\\s?[0-9]+$`).test(item.key)))
+        //   $item.setAttribute('title', item.key)
 
         if (grp.type === 'image') {
           const imgEl = document.createElement('img')
           imgEl.src = item.val
-          imgEl.alt = item.key
+          imgEl.alt = item.key.replace(/\s[0-9]/i,'')
+          imgEl.setAttribute('atk-emoticon', item.key)
+          if (item.notitle) imgEl.setAttribute('notitle', item.notitle)
           $item.append(imgEl)
         } else {
           $item.innerText = item.val
         }
 
-        $item.onclick = () => {
+        $item.onclick = e => {
+          e.stopPropagation();
           if (grp.type === 'image') {
             this.kit.useEditor().insertContent(`:[${item.key}]`)
           } else {
@@ -246,7 +249,10 @@ export default class Emoticons extends EditorPlug {
         const $item = Utils.createElement('<span />')
         $item.innerText = grp.name
         $item.setAttribute('data-index', String(index))
-        $item.onclick = () => (this.openGrp(index))
+        $item.onclick = e => {
+          e.stopPropagation();
+          this.openGrp(index)
+        }
         this.$grpSwitcher.append($item)
       })
     }
@@ -285,7 +291,9 @@ export default class Emoticons extends EditorPlug {
     this.emoticons.forEach((grp) => {
       if (grp.type !== 'image') return
       Object.entries(grp.items).forEach(([index, item]) => {
-        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" alt="${item.key}" title="${item.key}" atk-emoticon="${item.key}">`) // replaceAll(...)
+        text = item.notitle === 'true' ?
+        text.split(`:[${item.key}]`).join(`<img src="${item.val}" atk-emoticon="${item.key}">`)
+        : text.split(`:[${item.key}]`).join(`<img src="${item.val}" alt="${item.key.replace(/\s[0-9]/i,'')}" atk-emoticon="${item.key}">`)
       })
     })
 

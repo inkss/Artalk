@@ -3,6 +3,7 @@ import EventManager from '@/lib/event-manager'
 import { ENABLED_PLUGS, getDisabledPlugByConf } from './editor'
 import EditorPlug from './editor/_plug'
 import PlugKit from './editor/_kit'
+import Emoticons from './editor/emoticons'
 
 export interface EditorEventPayloadMap {
   'mounted': undefined
@@ -138,6 +139,19 @@ export class PlugManager {
 
     this.editor.getUI().$plugPanelWrap.style.display = ''
     this.openedPlug = plug
+
+    window.setTimeout(() => {
+      if(plug instanceof Emoticons) {
+        // 为表情弹窗添加关闭事件监听
+        document.addEventListener('click', () => {
+          this.closePlugPanel()
+          // 移除按钮激活
+          this.editor.getUI().$plugBtnWrap
+            .querySelectorAll('.active')
+            .forEach(item => item.classList.remove('active'))
+        }, { once: true })
+      }
+    }, 100)
   }
 
   /** Close the editor plug panel */

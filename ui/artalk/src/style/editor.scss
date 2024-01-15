@@ -1,7 +1,7 @@
 .atk-main-editor {
   $editor-padding: 10px;
   position: relative;
-  overflow: hidden;
+  // overflow: hidden;
   background: var(--at-color-bg);
   border: 1px solid var(--at-color-border);
   border-radius: $block-radius;
@@ -34,6 +34,10 @@
 
       &:not(:last-child) {
         margin-right: 2px;
+      }
+
+      &:focus-within {
+        border-bottom: 1px solid var(--at-color-border);
       }
     }
   }
@@ -71,9 +75,9 @@
 
     & > .atk-send-reply {
       z-index: 2;
-      position: absolute;
-      right: 7px;
-      bottom: 2px;
+      position: relative;
+      float: right;
+      width: min-content;
       max-width: calc(100% - 20px);
       height: 30px;
       line-height: 30px;
@@ -85,6 +89,13 @@
       white-space: nowrap;
       cursor: pointer;
       border-radius: calc($block-radius / 2);
+      transition: opacity 0.3s ease-in-out;
+
+      @media screen and (max-width: 500px) {
+        position: absolute;
+        right: 6px;
+        bottom: 6px;
+      }
 
       .atk-text {
       }
@@ -107,20 +118,17 @@
   }
 
   & > .atk-plug-panel-wrap {
-    position: relative;
-    height: 180px;
-    width: 100%;
     overflow: hidden;
-    border-top: 1px solid var(--at-color-border);
     animation: 0.3s both atkFadeIn;
     transition: 0.2s height ease-in-out;
+    display: contents;
   }
 
   & > .atk-bottom {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 5px 5px 5px 10px;
+    padding: 5px;
 
     & > .atk-item {
       display: flex;
@@ -136,9 +144,13 @@
       font-size: $font-size;
       user-select: none;
       border-radius: calc($block-radius / 2);
+      display: inline-flex;
+      align-content: center;
+      justify-content: center;
 
       &:not(:last-child) {
         margin-right: 2px;
+        border-right: 1px solid var(--at-color-border);
       }
 
       &:hover {
@@ -164,23 +176,23 @@
       }
     }
 
-    .atk-send-btn {
-      background: var(--at-color-main);
-      color: #fff;
-      font-size: $font-size;
-      border: none;
-      margin: 0;
-      height: 30px;
-      width: 8em;
-      cursor: pointer;
-      transition: opacity 0.3s ease-in-out;
-      outline: none;
-      border-radius: calc($block-radius / 2);
+    // .atk-send-btn {
+    //   background: var(--at-color-main);
+    //   color: #fff;
+    //   font-size: $font-size;
+    //   border: none;
+    //   margin: 0;
+    //   height: 30px;
+    //   padding: 0 1em;
+    //   cursor: pointer;
+    //   transition: opacity 0.3s ease-in-out;
+    //   outline: none;
+    //   border-radius: calc($block-radius / 2);
 
-      &:active {
-        opacity: 0.9;
-      }
-    }
+    //   &:active {
+    //     opacity: 0.9;
+    //   }
+    // }
   }
 
   & > .atk-notify-wrap {
@@ -190,5 +202,52 @@
     bottom: 40px;
     width: 225px;
     opacity: 0.83;
+  }
+}
+
+
+.atk-main-editor > .atk-textarea-wrap {
+
+  .atk-textarea {
+    &:not(:placeholder-shown) {
+      ~ .atk-send-btn, ~ .atk-send-reply {
+        opacity: 1;
+      }
+    }
+    &:placeholder-shown {
+      ~ .atk-send-btn, ~ .atk-send-reply {
+        opacity: 0;
+        display: none;
+      }
+    }
+  }
+
+  .atk-send-btn {
+    background: var(--at-color-main);
+    color: #fff;
+    font-size: $font-size;
+    border: none;
+    padding: 0 1em;
+    margin: 0 0 0 12px;
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+    transition: opacity 0.3s ease-in-out;
+    outline: none;
+    border-radius: calc($block-radius / 2);
+    position: relative;
+    float: right;
+    right: 6px;
+
+    &:active {
+      opacity: 0.9;
+    }
+  }
+
+}
+
+.atk-header input {
+  &:focus-within {
+    border-bottom: 1px solid var(--at-color-border);
   }
 }

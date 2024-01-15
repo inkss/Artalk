@@ -12,6 +12,7 @@ export default defineLocaleExternal('zh-TW', {
   emoticon: '表情',
   preview: '預覽',
   image: '圖片',
+  refresh: '刷新',
   uploadFail: '上傳失敗',
   commentFail: '評論失敗',
   restoredMsg: '內容已自動恢復',

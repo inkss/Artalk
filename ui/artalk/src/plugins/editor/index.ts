@@ -14,6 +14,7 @@ import Mover from './mover'
 import Emoticons from './emoticons'
 import Upload from './upload'
 import Preview from './preview'
+import Refresh from './refresh'
 
 /** The default enabled plugs */
 export const ENABLED_PLUGS: (typeof EditorPlug)[] = [
@@ -26,7 +27,7 @@ export const ENABLED_PLUGS: (typeof EditorPlug)[] = [
   Closable,
 
   // Extensions
-  Emoticons, Upload, Preview
+  Emoticons, Upload, Preview, Refresh
 ]
 
 /** Get the name list of disabled plugs */

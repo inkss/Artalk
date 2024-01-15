@@ -54,6 +54,10 @@ class Editor extends Component implements EditorApi {
   }
 
   insertContent(val: string) {
+    const owoBig = document.querySelector('#owo-big') as HTMLElement;
+    if(owoBig && owoBig.style) {
+      owoBig.style.display = 'none'
+    }
     if ((document as any).selection) {
       this.ui.$textarea.focus();
       (document as any).selection.createRange().text = val

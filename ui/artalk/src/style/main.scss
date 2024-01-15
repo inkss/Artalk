@@ -41,7 +41,7 @@
   }
 
   pre {
-    margin: 10px 0 0 0;
+    margin: 5px 0 0 0;
     padding: 0;
     line-height: 0;
   }
@@ -53,8 +53,84 @@
     padding: 10px 15px;
     white-space: pre-wrap !important;
     background-color: var(--at-color-bg-grey);
-    color: var(--at-color-font);
+    color: var(--at-color-meta);
     margin: 0;
+    border-radius: 2px;
+    word-break: break-all;
+    font-size: .875rem;
+    width: auto;
+    &:before {
+      position: absolute;
+      font-size: 13px;
+      padding: 4px 8px;
+      right: 0;
+    }
+    &.language-plaintext:before {
+      content: 'TXT'
+    }
+    &.language-conf:before {
+      content: 'CONF'
+    }
+    &.language-json:before {
+      content: 'JSON'
+    }
+    &.language-js:before {
+      content: 'JS'
+    }
+    &.language-css:before {
+      content: 'CSS'
+    }
+    &.language-html:before {
+      content: 'HTML'
+    }
+    &.language-c:before {
+      content: 'C'
+    }
+    &.language-cpp:before {
+      content: 'C++'
+    }
+    &.language-java:before {
+      content: 'Java'
+    }
+    &.language-md:before {
+      content: 'MarkDown'
+    }
+    &.language-shell:before {
+      content: 'Shell'
+    }
+    &.language-php:before {
+      content: 'PHP'
+    }
+    &.language-less:before {
+      content: 'Less'
+    }
+    &.language-ejs:before {
+      content: 'EJS'
+    }
+    &.language-xml:before {
+      content: 'XML'
+    }
+    &.language-sql:before {
+      content: 'SQL'
+    }
+    &.language-python:before {
+      content: 'Python'
+    }
+    &.language-lua:before {
+      content: 'Lua'
+    }
+    &.language-yml:before {
+      content: 'YML'
+    }
+    &.language-yaml:before {
+      content: 'YAML'
+    }
+    &.language-stylus:before {
+      content: 'Stylus'
+    }
+    &.language-scss:before {
+      content: 'SCSS'
+    }
   }
 
   a {
@@ -481,6 +557,50 @@ i.atk-icon {
 }
 
 img[atk-emoticon] {
+  width: 3em;
+  height: auto;
   max-height: 60px;
   display: initial;
+}
+
+
+#owo-big {
+  position: fixed;
+  align-items: center;
+  background-color:var(--at-color-owo);
+  backdrop-filter: saturate(200%) blur(6px);
+  border: 1px solid var(--at-color-bg-light);
+  border-radius: 12px;
+  box-shadow: 0 0 12px 4px rgb(0 0 0 / 5%);
+  z-index: 9999;
+  display: none;
+  transform: translate(0, -105%);
+  overflow: hidden;
+  animation: owoIn 0.3s cubic-bezier(0.42, 0, 0.3, 1.11);
+  padding: 16px;
+  user-select: none;
+  img {
+    width: 100%;
+    border-radius: 10px;
+  }
+  p {
+    color: var(--at-color-meta);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: center;
+    font-size: 12px;
+    margin: 0;
+  }
+}
+
+@keyframes owoIn {
+  0% {
+    transform: translate(0, -95%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(0, -105%);
+    opacity: 1;
+  }
 }

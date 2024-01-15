@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
 import type { ArtalkConfig, CommentData, ListFetchParams, ContextApi, EventPayloadMap, SidebarShowPayload } from '@/types'
 import type { TInjectedServices } from './service'
 import Api from './api'
@@ -131,6 +132,10 @@ class Context implements ContextApi {
     // this.updateConf({ ...this.conf, darkMode })
     this.conf.darkMode = darkMode
     this.events.trigger('dark-mode-changed', darkMode)
+
+    const owoShow = document.querySelector('#owo-big')
+    if (this.conf.darkMode) owoShow?.classList.add('atk-dark-mode')
+    else owoShow?.classList.remove('atk-dark-mode')
   }
 
   public updateConf(nConf: Partial<ArtalkConfig>): void {
@@ -148,6 +153,99 @@ class Context implements ContextApi {
 
   public getMarked() {
     return marked.getInstance()
+  }
+
+  public showOwoBig(target:Node) {
+    console.log(target)
+    const ratio = 2
+    const maxLength = 200
+    const body = document.querySelector('body') || document.createElement('body')
+    let div = document.createElement('div')
+    if (document.querySelector('#owo-big')) {
+      div = document.querySelector('#owo-big') as HTMLDivElement
+    } else {
+      div.id = 'owo-big'
+      body.appendChild(div)
+    }
+
+    const observer = new MutationObserver(mutations => {
+      for (let i = 0; i < mutations.length; i++){
+        let flag = 1
+        let owoTime = 0
+        /**
+         * 放大项：
+         * ① 表情包
+         * ② 评论行
+         * ③ 预览窗（只有一张图）
+         * ④ 预览窗（任意）
+         */
+        const dom = mutations[i].addedNodes.forEach(node => {
+          const addedNodes = node as any;
+          if (addedNodes.classList?.contains('atk-grp') 
+                || addedNodes.classList?.contains('atk-comment-wrap')
+                || (!!addedNodes.attributes && addedNodes.attributes['atk-emoticon'])
+                || (typeof addedNodes.querySelector === 'function' && addedNodes.querySelector('img[atk-emoticon]'))) {
+            addedNodes.onmouseover = e => {
+              const eve = (e as any).target
+              if (flag && eve.tagName === 'IMG' && eve.attributes['atk-emoticon']) {
+                flag = 0;
+                owoTime = window.setTimeout(() => {
+                  const alt = eve.getAttribute("notitle") === "true" ? '' : eve.alt || '';
+                  const clientHeight = eve.clientHeight
+                  const clientWidth = eve.clientWidth
+                  if (clientHeight <= maxLength && clientWidth <= maxLength) {
+                    const naturalHeight = eve.naturalHeight
+                    const naturalWidth = eve.naturalWidth
+                    const zoomHeight = clientHeight * ratio
+                    const zoomWidth = clientWidth * ratio
+                    // eslint-disable-next-line no-nested-ternary
+                    const height = naturalHeight > clientHeight
+                      ? zoomHeight < naturalHeight && naturalHeight < maxLength ? zoomHeight : naturalHeight
+                      : clientHeight
+                    // eslint-disable-next-line no-nested-ternary
+                    const width = naturalWidth > clientWidth
+                      ? zoomWidth < naturalWidth && naturalWidth < maxLength ? zoomWidth : naturalWidth
+                      : clientWidth
+                    let tempWidth = 0;
+                    let tempHeight = 0;
+                    if (width / height >= 1) {
+                      if (width >= maxLength) {
+                        tempWidth = maxLength
+                        tempHeight = (height * maxLength) / width
+                      } else {
+                        tempWidth = width
+                        tempHeight = height
+                      }
+                    } else {
+                      if (height >= maxLength) {
+                        tempHeight = maxLength
+                        tempWidth = (width * maxLength) / height
+                      } else {
+                        tempWidth = width
+                        tempHeight = height
+                      }
+                    }
+                    const top = e.y - e.offsetY
+                    let left = (e.x - e.offsetX) - (tempWidth - eve.clientWidth) / 2
+                    if ((left + tempWidth) > body.clientWidth) left -= ((left + tempWidth) - body.clientWidth + 10)
+                    if (left < 0) left = 10
+                    if (alt !== '') tempHeight += 10
+                    div.style.cssText = `display:block;height:${tempHeight + 34}px;width:${tempWidth + 34}px;left:${left}px;top:${top}px;`;
+                    div.innerHTML = `<img src="${eve.src}"><p>${alt}</p>`
+                  }
+                }, 300);
+              }
+            }
+          }
+          addedNodes.onmouseout = () => {
+            flag = 1
+            div.style.display = 'none'
+            clearTimeout(owoTime)
+          }
+        })
+      }
+    })
+    observer.observe(target, { subtree: true, childList: true })
   }
 }
 

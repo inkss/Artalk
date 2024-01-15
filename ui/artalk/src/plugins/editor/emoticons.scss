@@ -1,19 +1,32 @@
 .atk-editor-plug-emoticons {
-  height: 100%;
+  height: 232px;
   width: 100%;
+  position: absolute;
+  max-width: 468px;
+  top: 98%;
+  left: 1rem;
+  z-index: 1;
+  border: 1px solid var(--at-color-border);
+  border-radius: 12px;
+  box-shadow: 0 0 12px 4px rgb(0 0 0 / 5%);
+  background-color: var(--at-color-bg);
+  @media screen and (max-width: 840px) {
+    max-width: 100%;
+    left: 0;
+  }
 
   & > .atk-grp-wrap {
     @extend .atk-slim-scrollbar;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 100%; // calc(100% - 30px);
+    height: calc(100% - 30px);
     width: 100%;
 
     & > .atk-grp {
       display: flex;
       flex-wrap: wrap;
       flex-direction: row;
-      padding: 5px 10px 35px 10px;
+      padding: 5px 10px;
 
       &[data-type="image"] > .atk-item {
         height: 63px;
@@ -49,10 +62,13 @@
     bottom: 0;
     left: 0;
     width: 100%;
+    height: 30px;
     background: var(--at-color-bg-transl);
     height: 30px;
     border-top: 1px solid var(--at-color-border);
-    border-bottom: 1px solid var(--at-color-border);
+    // border-bottom: 1px solid var(--at-color-border);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 
     & > span {
       user-select: none;
@@ -62,6 +78,8 @@
       display: block;
       cursor: pointer;
       font-size: $font-size;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
 
       &:hover,
       &.active {

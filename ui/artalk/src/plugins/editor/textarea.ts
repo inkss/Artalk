@@ -34,9 +34,9 @@ export default class Textarea extends EditorPlug {
 
   // 按下 Tab 输入内容，而不是失去焦距
   private onKeydown(e: KeyboardEvent) {
-    const keyCode = e.keyCode || e.which
+    const keyCode = e.code
 
-    if (keyCode === 9) {
+    if (keyCode === "Tab") {
       e.preventDefault()
       this.kit.useEditor().insertContent('\t')
     }

@@ -21,14 +21,14 @@ function renderVote(r: Render) {
   if (!r.ctx.conf.vote) return // 关闭投票功能
 
   // 赞同按钮
-  r.voteBtnUp = new ActionBtn(() => `${r.ctx.$t('voteUp')} (${r.data.vote_up || 0})`).appendTo(r.$actions)
+  r.voteBtnUp = new ActionBtn(() => `${r.ctx.$t('voteUp')} (${r.data.vote_up || 0})`).appendTo(r.$actionNormal)
   r.voteBtnUp.setClick(() => {
     r.comment.getActions().vote('up')
   })
 
   // 反对按钮
   if (r.ctx.conf.voteDown) {
-    r.voteBtnDown = new ActionBtn(() => `${r.ctx.$t('voteDown')} (${r.data.vote_down || 0})`).appendTo(r.$actions)
+    r.voteBtnDown = new ActionBtn(() => `${r.ctx.$t('voteDown')} (${r.data.vote_down || 0})`).appendTo(r.$actionNormal)
     r.voteBtnDown.setClick(() => {
       r.comment.getActions().vote('down')
     })
@@ -40,7 +40,7 @@ function renderReply(r: Render) {
   if (!r.data.is_allow_reply) return // 不允许回复
 
   const replyBtn = Utils.createElement(`<span>${r.ctx.$t('reply')}</span>`)
-  r.$actions.append(replyBtn)
+  r.$actionNormal.append(replyBtn)
   replyBtn.addEventListener('click', (e) => {
     e.stopPropagation() // 防止穿透
     if (!r.cConf.onReplyBtnClick) {

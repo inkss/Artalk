@@ -12,6 +12,7 @@ export default defineLocaleExternal('jp', {
   emoticon: '絵文字',
   preview: 'プレビュー',
   image: '画像',
+  refresh: 'フラッシュ',
   uploadFail: 'アップロードに失敗しました',
   commentFail: 'コメントに失敗しました',
   restoredMsg: 'コンテンツが復元されました',

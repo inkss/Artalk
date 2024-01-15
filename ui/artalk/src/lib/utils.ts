@@ -95,7 +95,7 @@ export function timeAgo(date: Date, $t: Function = (n: string) => n) {
     }
     if (days < 0) return $t('now')
 
-    if (days < 8) {
+    if (days < 30) {
       return `${days} ${$t('days')}`
     }
 
