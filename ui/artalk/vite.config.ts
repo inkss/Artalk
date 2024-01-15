@@ -19,7 +19,7 @@ const name = process.env.ARTALK_LITE ? 'ArtalkLite' : 'Artalk'
 
 export default defineConfig({
   server: {
-    port: 3000
+    port: 5500
   },
   root: __dirname,
   build: {

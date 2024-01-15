@@ -42,9 +42,9 @@ export class LayerWrap {
     this.$wrap.style.display = 'block'
     this.$mask.style.display = 'block'
     this.$mask.classList.add('atk-fade-in')
-    this.$mask.onclick = () => {
-      if (this.allowMaskClose) this.hide()
-    }
+    // this.$mask.onclick = () => {
+    //   if (this.allowMaskClose) this.hide()
+    // }
     getScrollbarHelper().lock()
   }
 

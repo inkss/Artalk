@@ -27,17 +27,21 @@ export default class Closable extends EditorPlug {
   }
 
   private close() {
+    const commentClosed = Utils.createElement(`<div class="atk-comment-closed">${$t('onlyAdminCanReply')}</div>`)
     if (!this.kit.useUI().$textareaWrap.querySelector('.atk-comment-closed'))
-      this.kit.useUI().$textareaWrap.prepend(Utils.createElement(`<div class="atk-comment-closed">${$t('onlyAdminCanReply')}</div>`))
-
-    if (!this.kit.useUser().getData().isAdmin) {
+      this.kit.useUI().$textareaWrap.prepend(commentClosed)
+    
+      if (!this.kit.useUser().getData().isAdmin) {
       this.kit.useUI().$textarea.style.display = 'none'
-      this.kit.useEvents().trigger('panel-close')
       this.kit.useUI().$bottom.style.display = 'none'
+      this.kit.useUI().$el.style.borderBottomLeftRadius = '10px';
+      this.kit.useUI().$el.style.borderBottomRightRadius = '10px';
+      this.kit.useEvents().trigger('panel-close')
     } else {
       // 管理员一直打开评论
       this.kit.useUI().$textarea.style.display = ''
       this.kit.useUI().$bottom.style.display = ''
+      commentClosed.style.display = 'none'
     }
   }
 }

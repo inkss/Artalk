@@ -65,7 +65,7 @@ export default class SidebarLayer extends Component {
     // 执行滑动显示动画
     setTimeout(() => {
       this.$el.style.transform = 'translate(0, 0)'
-    }, 100)
+    }, 200)
 
     // 清空 unread
     setTimeout(() => {
@@ -80,9 +80,11 @@ export default class SidebarLayer extends Component {
     // 执行动画
     this.$el.style.transform = ''
 
-    this.layer?.hide()
-
-    this.ctx.trigger('sidebar-hide')
+    // 执行滑动显示动画
+    setTimeout(() => {
+      this.layer?.hide()
+      this.ctx.trigger('sidebar-hide')
+    }, 200)
   }
 
   // --------------------------------------------------
@@ -119,7 +121,7 @@ export default class SidebarLayer extends Component {
     const $iframe = Utils.createElement<HTMLIFrameElement>('<iframe referrerpolicy="strict-origin-when-cross-origin"></iframe>')
 
     // 准备 Iframe 参数
-    const baseURL = (import.meta.env.DEV)  ? 'http://localhost:23367/'
+    const baseURL = (import.meta.env.DEV)  ? 'http://10.0.10.2:23366/'
       : Utils.getURLBasedOnApi({
         base: this.ctx.conf.server,
         path: '/sidebar/',
