@@ -21,7 +21,8 @@ class EditorPlug {
 
   /** Use plug btn will add a btn on the bottom of editor */
   useBtn(html: string = '<div></div>') {
-    this.$btn = Utils.createElement(`<span class="atk-plug-btn">${html}</span>`)
+    const htmlDecoded = Utils.htmlDecode(html);
+    this.$btn = Utils.createElement(`<span class="atk-plug-btn">${htmlDecoded}</span>`)
     return this.$btn
   }
 
