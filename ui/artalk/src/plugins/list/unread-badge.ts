@@ -14,13 +14,13 @@ export const UnreadBadge: ArtalkPlugin = (ctx) => {
     }
   }
 
-  ctx.on('conf-loaded', () => {
+  ctx.on('mounted', () => {
     const list = ctx.get('list')
 
     $unreadBadge = list.$el.querySelector<HTMLElement>('.atk-unread-badge')
   })
 
-  ctx.on('unreads-updated', (unreads) => {
-    showUnreadBadge(unreads.length || 0)
+  ctx.on('notifies-updated', (notifies) => {
+    showUnreadBadge(notifies.length || 0)
   })
 }

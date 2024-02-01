@@ -1,8 +1,7 @@
-import type Api from '@/api'
+import type { Api } from '@/api'
 import Dialog from '@/components/dialog'
 import $t from '@/i18n'
 import type { ContextApi } from '@/types'
-import type { Layer } from '@/layer'
 import type User from '@/lib/user'
 import * as Utils from '@/lib/utils'
 import CaptchaChecker from './captcha'
@@ -14,7 +13,7 @@ export interface CheckerCaptchaPayload extends CheckerPayload {
 }
 
 export interface CheckerPayload {
-  onSuccess?: (inputVal: string, dialogEl?: HTMLElement) => void
+  onSuccess?: () => void
   onMount?: (dialogEl: HTMLElement) => void
   onCancel?: () => void
 }
@@ -22,8 +21,24 @@ export interface CheckerPayload {
 export interface CheckerLauncherOptions {
   getCtx: () => ContextApi
   getApi: () => Api
-  getIframeURLBase: () => string
+  getCaptchaIframeURL: () => string
   onReload: () => void
+}
+
+function wrapPromise<P extends CheckerPayload = CheckerPayload>(fn: (p: P) => void) {
+  return (payload: P) => new Promise<void>((resolve, reject) => {
+    const cancelFn = payload.onCancel
+    payload.onCancel = () => {
+      cancelFn && cancelFn()
+      reject(new Error('user canceled the checker'))
+    }
+    const successFn = payload.onSuccess
+    payload.onSuccess = () => {
+      successFn && successFn()
+      resolve()
+    }
+    fn(payload)
+  })
 }
 
 /**
@@ -32,21 +47,25 @@ export interface CheckerLauncherOptions {
 export default class CheckerLauncher {
   constructor(private opts: CheckerLauncherOptions) { }
 
-  public checkCaptcha(payload: CheckerCaptchaPayload) {
-    this.fire(CaptchaChecker, payload, (ctx) => {
-      ctx.set('img_data', payload.imgData)
-      ctx.set('iframe', payload.iframe)
+  public checkCaptcha: ((payload: CheckerCaptchaPayload) => Promise<void>) = wrapPromise((p) => {
+    this.fire(CaptchaChecker, p, (ctx) => {
+      ctx.set('img_data', p.imgData)
+      ctx.set('iframe', p.iframe)
     })
-  }
+  })
 
-  public checkAdmin(payload: CheckerPayload) {
-    this.fire(AdminChecker, payload)
-  }
+  public checkAdmin: ((payload: CheckerPayload) => Promise<void>) = wrapPromise((p) => {
+    this.fire(AdminChecker, p)
+  })
 
   public fire(checker: Checker, payload: CheckerPayload, postFire?: (c: CheckerCtx) => void) {
     // 显示层
     const layer = this.opts.getCtx().get('layerManager').create(`checker-${new Date().getTime()}`)
     layer.show()
+
+    const close = () => {
+      layer.destroy()
+    }
 
     // 构建 Checker 的上下文
     const checkerStore: CheckerStore = {}
@@ -61,12 +80,12 @@ export default class CheckerLauncher {
         hideInteractInput = true
       },
       triggerSuccess: () => {
-        this.close(checker, layer)
+        close()
         if (checker.onSuccess) checker.onSuccess(checkerCtx, "", "", formEl)
-        if (payload.onSuccess) payload.onSuccess("", dialog.$el)
+        if (payload.onSuccess) payload.onSuccess()
       },
       cancel: () => {
-        this.close(checker, layer)
+        close()
         if (payload.onCancel) payload.onCancel()
       }
     }
@@ -121,10 +140,10 @@ export default class CheckerLauncher {
         .request(checkerCtx, inputVal)
         .then((data) => {
           // 请求成功
-          this.close(checker, layer)
+          close()
 
           if (checker.onSuccess) checker.onSuccess(checkerCtx, data, inputVal, formEl)
-          if (payload.onSuccess) payload.onSuccess(inputVal, dialog.$el)
+          if (payload.onSuccess) payload.onSuccess()
         })
         .catch((err) => {
           // 请求失败
@@ -145,7 +164,7 @@ export default class CheckerLauncher {
 
     // 取消按钮
     dialog.setNo(() => {
-      this.close(checker, layer)
+      close()
       if (payload.onCancel) payload.onCancel()
       return false
     })
@@ -161,20 +180,15 @@ export default class CheckerLauncher {
     // onMount 回调
     if (payload.onMount) payload.onMount(dialog.$el)
   }
-
-  // 关闭 checker 对话框
-  private close(checker: Checker, layer: Layer) {
-    layer.destroy()
-  }
 }
 
-export interface Checker {
+export interface Checker<T = any> {
   el?: HTMLElement
   inputType?: 'password' | 'text'
   body: (checker: CheckerCtx) => HTMLElement
-  request: (checker: CheckerCtx, inputVal: string) => Promise<string>
-  onSuccess?: (checker: CheckerCtx, respData: string, inputVal: string, formEl: HTMLElement) => void
-  onError?: (checker: CheckerCtx, err: any, inputVal: string, formEl: HTMLElement) => void
+  request: (checker: CheckerCtx, inputVal: string) => Promise<T>
+  onSuccess?: (checker: CheckerCtx, respData: T, inputVal: string, formEl: HTMLElement) => void
+  onError?: (checker: CheckerCtx, errData: any, inputVal: string, formEl: HTMLElement) => void
 }
 
 interface CheckerStore {

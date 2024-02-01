@@ -4,7 +4,7 @@ import { Paginator } from './paginator'
 import ReadMorePaginator from './paginator/read-more'
 import UpDownPaginator from './paginator/up-down'
 
-function createPaginatorByConf(conf: ArtalkConfig): Paginator {
+function createPaginatorByConf(conf: Pick<ArtalkConfig, 'pagination'>): Paginator {
   if (conf.pagination.readMore) return new ReadMorePaginator()
   return new UpDownPaginator()
 }
@@ -15,7 +15,7 @@ function getPageDataByLastData(ctx: ContextApi): { offset: number, total: number
   if (!last) return r
 
   r.offset = last.params.offset
-  if (last.data) r.total = last.params.flatMode ? last.data.total : last.data.total_roots
+  if (last.data) r.total = last.params.flatMode ? last.data.count : last.data.roots_count
 
   return r
 }
@@ -24,7 +24,7 @@ export const initListPaginatorFunc = (ctx: ContextApi) => {
   let paginator: Paginator|null = null
 
   // Init paginator when conf loaded
-  ctx.on('conf-loaded', (conf) => {
+  ctx.watchConf(['pagination', 'locale'], (conf) => {
     const list = ctx.get('list')
 
     if (paginator) paginator.dispose() // if had been init, dispose it
@@ -63,7 +63,7 @@ export const initListPaginatorFunc = (ctx: ContextApi) => {
   })
 
   // When list error
-  ctx.on('list-error', () => {
+  ctx.on('list-failed', () => {
     paginator?.showErr?.($t('loadFail'))
   })
 

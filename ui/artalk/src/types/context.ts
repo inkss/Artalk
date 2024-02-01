@@ -3,13 +3,12 @@ import type { CheckerCaptchaPayload, CheckerPayload } from '@/components/checker
 import type { EventManagerFuncs } from '@/lib/event-manager'
 import type { TMarked } from '@/lib/marked'
 import type { I18n } from '@/i18n'
-import type Api from '@/api'
+import type { Api } from '@/api'
+import type { CommentNode } from '@/comment'
 import type { SidebarShowPayload, EventPayloadMap, ArtalkConfig, CommentData, DataManagerApi, ListFetchParams, NotifyLevel } from '.'
 
 /**
- * Context 接口
- *
- * (面向接口的编程)
+ * Artalk Context
  */
 export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
   /** Artalk 根元素对象 */
@@ -49,6 +48,24 @@ export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
   /** 列表滚动到第一个评论的位置 */
   listGotoFirst(): void
 
+  /** Get the comment data list */
+  getComments(): CommentData[]
+
+  /** Get the comment node list */
+  getCommentNodes(): CommentNode[]
+
+  /**
+   * Get the comment data list
+   * @deprecated Use `getComments()` instead
+   */
+  getCommentDataList(): CommentData[]
+
+  /**
+   * Get the comment node list
+   * @deprecated Use `getCommentNodes()` instead
+   */
+  getCommentList(): CommentNode[]
+
   /** 显示侧边栏 */
   showSidebar(payload?: SidebarShowPayload): void
 
@@ -68,10 +85,10 @@ export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
   editorResetState(): void
 
   /** 验证码检测 */
-  checkCaptcha(payload: CheckerCaptchaPayload): void
+  checkCaptcha(payload: CheckerCaptchaPayload): Promise<void>
 
   /** 管理员检测 */
-  checkAdmin(payload: CheckerPayload): void
+  checkAdmin(payload: CheckerPayload): Promise<void>
 
   /** i18n 翻译 */
   $t(key: keyof I18n, args?: {[key: string]: string}): string
@@ -87,6 +104,9 @@ export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
 
   /** 更新配置 */
   updateConf(conf: Partial<ArtalkConfig>): void
+
+  /** 监听配置更新 */
+  watchConf<T extends (keyof ArtalkConfig)[]>(keys: T, effect: (val: Pick<ArtalkConfig, T[number]>) => void): void
 
   /** 表情包放大  */
   showOwoBig(target:Node): void

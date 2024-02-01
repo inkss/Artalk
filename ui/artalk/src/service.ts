@@ -20,8 +20,8 @@ const services = {
   i18n(ctx: ContextApi) {
     I18n.setLocale(ctx.conf.locale)
 
-    ctx.on('conf-loaded', () => {
-      I18n.setLocale(ctx.conf.locale)
+    ctx.watchConf(['locale'], (conf) => {
+      I18n.setLocale(conf.locale)
     })
   },
 
@@ -45,8 +45,10 @@ const services = {
     const checkerLauncher = new CheckerLauncher({
       getCtx: () => ctx,
       getApi: () => ctx.getApi(),
-      getIframeURLBase: () => ctx.conf.server,
-      onReload: () => ctx.reload()
+      onReload: () => ctx.reload(),
+
+      // make sure suffix with a slash, because it will be used as a base url when call `fetch`
+      getCaptchaIframeURL: () => `${ctx.conf.server}/api/v2/captcha/?t=${+new Date()}`
     })
     return checkerLauncher
   },

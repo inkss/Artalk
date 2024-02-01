@@ -1,17 +1,28 @@
-import type { LayerWrap } from './wrap'
+export interface LayerOptions {
+  onShow: () => void
+  onHide: () => void
+}
 
 export class Layer {
-  private $el: HTMLElement
-  private wrap: LayerWrap
+  private allowMaskClose = true
   private onAfterHide?: () => void
 
-  constructor(wrap: LayerWrap, name: string, el?: HTMLElement) {
-    this.wrap = wrap
-    this.$el = this.wrap.createItem(name, el)
+  constructor(
+    private $el: HTMLElement,
+    private opts: LayerOptions
+  ) {
   }
 
   setOnAfterHide(func: () => void) {
     this.onAfterHide = func
+  }
+
+  setAllowMaskClose(allow: boolean) {
+    this.allowMaskClose = allow
+  }
+
+  getAllowMaskClose() {
+    return this.allowMaskClose
   }
 
   getEl() {
@@ -19,21 +30,19 @@ export class Layer {
   }
 
   show() {
+    this.opts.onShow()
     this.$el.style.display = ''
-    this.wrap.show()
   }
 
-  hide() {
-    this.wrap.hide(() => {
-      this.$el.style.display = 'none'
-      this.onAfterHide && this.onAfterHide()
-    })
+  async hide() {
+    this.opts.onHide()
+    this.$el.style.display = 'none'
+    this.onAfterHide && this.onAfterHide()
   }
 
-  destroy() {
-    this.wrap.hide(() => {
-      this.$el.remove()
-      this.onAfterHide && this.onAfterHide()
-    })
+  async destroy() {
+    this.opts.onHide()
+    this.$el.remove()
+    this.onAfterHide && this.onAfterHide()
   }
 }

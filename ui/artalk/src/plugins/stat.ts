@@ -1,9 +1,10 @@
-import type { ContextApi, ArtalkPlugin } from '@/types'
-import Api from '../api'
+import type { ContextApi, ArtalkPlugin, ArtalkConfig } from '@/types'
+import { Api } from '@/api'
 
 export interface CountOptions {
   getApi(): Api
 
+  siteName: string
   pageKey: string
   countEl: string
   pvEl: string
@@ -13,13 +14,16 @@ export interface CountOptions {
 }
 
 export const PvCountWidget: ArtalkPlugin = (ctx: ContextApi) => {
-  ctx.on('conf-loaded', () => {
+  ctx.watchConf([
+    'site', 'pageKey', 'countEl', 'pvEl',
+  ], (conf) => {
     initCountWidget({
       getApi: () => ctx.getApi(),
-      pageKey: ctx.conf.pageKey,
-      countEl: ctx.conf.countEl,
-      pvEl: ctx.conf.pvEl,
-      pvAdd: true,
+      siteName: conf.site,
+      pageKey: conf.pageKey,
+      countEl: conf.countEl,
+      pvEl: conf.pvEl,
+      pvAdd: (typeof ctx.conf.pvAdd === 'boolean' ? ctx.conf.pvAdd : true),
     })
   })
 }
@@ -33,7 +37,11 @@ export async function initCountWidget(opt: CountOptions) {
 
   // PV
   const initialData = opt.pvAdd ? {
-    [opt.pageKey]: (await opt.getApi().page.pv()) // pv+1 and get pv count
+    [opt.pageKey]: (await opt.getApi().pages.logPv({
+      page_key: opt.pageKey,
+      page_title: opt.pageKey,
+      site_name: opt.siteName,
+    })).data.pv // pv+1 and get pv count
   } : undefined
 
   if (opt.pvEl && document.querySelector(opt.pvEl)) {
@@ -66,7 +74,10 @@ async function refreshStatCount(
 
   // Fetch count data from server
   if (queryPageKeys.length > 0) {
-    const res = await opt.getApi().page.stat(args.query, queryPageKeys) as CountData
+    const res = (await opt.getApi().stats.getStats(args.query, {
+      page_keys: queryPageKeys.join(','),
+      site_name: opt.siteName,
+    })).data.data as CountData
     data = { ...data, ...res }
   }
 

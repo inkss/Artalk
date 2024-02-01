@@ -20,8 +20,7 @@ type Config struct {
 	SSL            SSLConf                `koanf:"ssl" json:"ssl"`                         // SSL
 	SiteDefault    string                 `koanf:"site_default" json:"site_default"`       // 默认站点名（当请求无指定 site_name 时使用）
 	AdminUsers     []AdminUserConf        `koanf:"admin_users" json:"admin_users"`         // 管理员账户
-	LoginTimeout   int                    `koanf:"login_timeout" json:"login_timeout"`     // 登陆超时
-	Cookie         CookieConf             `koanf:"cookie" json:"cookie"`                   // Cookie
+	LoginTimeout   int                    `koanf:"login_timeout" json:"login_timeout"`     // 登录超时
 	Moderator      ModeratorConf          `koanf:"moderator" json:"moderator"`             // 评论审查
 	Captcha        CaptchaConf            `koanf:"captcha" json:"captcha"`                 // 验证码
 	Email          EmailConf              `koanf:"email" json:"email"`                     // 邮箱提醒
@@ -93,18 +92,13 @@ type SSLConf struct {
 }
 
 type AdminUserConf struct {
-	Name         string   `koanf:"name" json:"name"`
-	Email        string   `koanf:"email" json:"email"`
-	Link         string   `koanf:"link" json:"link"`
-	Password     string   `koanf:"password" json:"password"`
-	BadgeName    string   `koanf:"badge_name" json:"badge_name"`
-	BadgeColor   string   `koanf:"badge_color" json:"badge_color"`
-	ReceiveEmail *bool    `koanf:"receive_email" json:"receive_email"`
-	Sites        []string `koanf:"sites" json:"sites"`
-}
-
-type CookieConf struct {
-	Enabled bool `koanf:"enabled" json:"enabled"`
+	Name         string `koanf:"name" json:"name"`
+	Email        string `koanf:"email" json:"email"`
+	Link         string `koanf:"link" json:"link"`
+	Password     string `koanf:"password" json:"password"`
+	BadgeName    string `koanf:"badge_name" json:"badge_name"`
+	BadgeColor   string `koanf:"badge_color" json:"badge_color"`
+	ReceiveEmail *bool  `koanf:"receive_email" json:"receive_email"`
 }
 
 type ModeratorConf struct {
@@ -297,6 +291,7 @@ type AdminNotifyConf struct {
 	Slack         NotifySlackConf    `koanf:"slack" json:"slack"`                   // slack
 	LINE          NotifyLINEConf     `koanf:"line" json:"line"`                     // LINE
 	WebHook       NotifyWebHookConf  `koanf:"webhook" json:"webhook"`               // WebHook
+	NotifyPending bool               `koanf:"notify_pending" json:"notify_pending"` // 待审核评论通知
 	NoiseMode     bool               `koanf:"noise_mode" json:"noise_mode"`         // 嘈杂模式 (非回复管理员的评论也发送通知)
 }
 

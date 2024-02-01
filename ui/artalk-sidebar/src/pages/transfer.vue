@@ -23,7 +23,7 @@ const importTaskApiURL = ref('')
 const uploadedFilename = ref('')
 
 const importTaskStarted = ref(false)
-const importTaskParams = ref<{[k:string]:string}>({})
+const importTaskParams = ref<Record<string, string>>({})
 
 const exportTaskStarted = ref(false)
 
@@ -39,8 +39,8 @@ onMounted(() => {
     }
   })
 
-  uploadApiURL.value = `${artalk?.ctx.conf.server}/api/admin/import-upload`
-  importTaskApiURL.value = `${artalk?.ctx.conf.server}/api/admin/import`
+  uploadApiURL.value = `${artalk?.ctx.conf.server}/api/v2/transfer/upload`
+  importTaskApiURL.value = `${artalk?.ctx.conf.server}/api/v2/transfer/import`
 })
 
 function setError(msg: string) {
@@ -53,7 +53,7 @@ function fileUploaded(filename: string) {
 
 function startImportTask() {
   if (!uploadedFilename.value) {
-    setError(`请先上传 Artrans 数据文件`)
+    setError(`Please upload a data file first`)
     return
   }
 
@@ -69,22 +69,22 @@ function startImportTask() {
     try {
       rData = JSON.parse(payload)
     } catch (err) {
-      setError(`Payload JSON 格式有误：${String(err)}`)
+      setError(`Payload JSON invalid: ${err}`)
       return
     }
 
     if (typeof rData !== 'object' || Array.isArray(rData)) {
-      setError(`Payload 需为 JSON 对象`)
+      setError(`Payload should be an object`)
       return
     }
   }
-  if (siteName) rData.t_name = siteName
-  if (siteURL) rData.t_url = siteURL
+  if (siteName) rData.target_site_name = siteName
+  if (siteURL) rData.target_site_url = siteURL
   rData.json_file = uploadedFilename.value
 
   // 创建导入会话
   importTaskParams.value = {
-    payload: JSON.stringify(rData),
+    ...rData,
     token: user.token,
   }
   importTaskStarted.value = true
@@ -99,8 +99,8 @@ async function startExportTask() {
   exportTaskStarted.value = true
   isLoading.value = true
   try {
-    const data = await artalk!.ctx.getApi().site.export()
-    downloadFile(`backup-${getYmdHisFilename()}.artrans`, data)
+    const res = await artalk!.ctx.getApi().transfer.exportArtrans()
+    downloadFile(`backup-${getYmdHisFilename()}.artrans`, res.data.artrans)
   } catch (err: any) {
     console.log(err)
     window.alert(`${String(err)}`)
@@ -141,6 +141,8 @@ function padWithZeros(vNumber: number, width: number) {
   }
   return numAsString
 }
+
+const artransferToolHint = computed(() => t('artransferToolHint', { link: '__LINK__' }).replace('__LINK__', `<a href="https://artalk.js.org/guide/transfer.html" target="_blank">${t('artransfer')}</a>`))
 </script>
 
 <template>
@@ -150,7 +152,7 @@ function padWithZeros(vNumber: number, width: number) {
     <div class="atk-label atk-data-file-label">Artrans {{ t('dataFile') }}</div>
     <FileUploader :api-url="uploadApiURL" @done="fileUploaded">
       <template v-slot:tip>
-        使用「<a href="https://artalk.js.org/guide/transfer.html" target="_blank">转换工具</a>」将评论数据转为 Artrans 格式
+        <span v-html="artransferToolHint" />
       </template>
       <template v-slot:done-msg>
         {{ t('uploadReadyToImport') }}
@@ -175,7 +177,7 @@ function padWithZeros(vNumber: number, width: number) {
     <div class="atk-label">{{ t('payload') }} ({{ t('optional') }})</div>
     <textarea name="AtkPayload" v-model="importParams.payload"></textarea>
     <span class="atk-desc">
-      参考「<a href="https://artalk.js.org/guide/transfer.html" target="_blank">文档 · 数据迁移</a>」
+      <a href="https://artalk.js.org/guide/transfer.html" target="_blank">{{ t('moreDetails') }}</a>
     </span>
     <button class="atk-btn" name="AtkSubmit" @click="startImportTask()">{{ t('import') }}</button>
   </div>

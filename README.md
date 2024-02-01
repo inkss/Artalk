@@ -69,9 +69,10 @@ npm install artalk
 import Artalk from 'artalk'
 
 Artalk.init({
-  el:     '#Comments',
-  site:   'Artalk 的博客',
-  server: 'https://artalk.example.com'
+  el:      '#Comments',
+  site:    'Artalk 的博客',
+  server:  'https://artalk.example.com'
+  pageKey: '/2018/10/02/hello-world.html'
 })
 ```
 
@@ -202,7 +203,7 @@ see [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [x] 用户鉴权机制
 - [x] 跨域非法请求阻止
 - [x] 全局验证码操作次数限制
-- [x] JWT 登陆状态验证
+- [x] JWT 登录状态验证
 - [x] 时区自定义
 - [x] 只看作者功能
 - [x] 图片上传

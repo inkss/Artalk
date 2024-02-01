@@ -7,7 +7,7 @@ import { handelCustomConf, convertApiOptions } from './config'
 import Services from './service'
 import { DefaultPlugins } from './plugins'
 import * as Stat from './plugins/stat'
-import Api from './api'
+import { Api } from './api'
 import type { TInjectedServices } from './service'
 
 /** Global Plugins for all instances */
@@ -42,8 +42,8 @@ export default class Artalk {
       if (typeof plugin === 'function') plugin(this.ctx)
     })
 
-    // Trigger inited event
-    this.ctx.trigger('inited')
+    // Trigger created event
+    this.ctx.trigger('created')
 
     // 表情包放大
     this.ctx.showOwoBig(handledConf.el as Node)
@@ -72,7 +72,7 @@ export default class Artalk {
 
   /** Destroy instance of Artalk */
   public destroy() {
-    this.ctx.trigger('destroy')
+    this.ctx.trigger('unmounted')
     this.ctx.$root.remove()
   }
 
@@ -117,6 +117,7 @@ export default class Artalk {
 
     Stat.initCountWidget({
       getApi: () => new Api(convertApiOptions(conf)),
+      siteName: conf.site,
       pageKey: conf.pageKey,
       countEl: conf.countEl,
       pvEl: conf.pvEl,

@@ -2,7 +2,6 @@ package notify_pusher
 
 import (
 	"github.com/ArtalkJS/Artalk/internal/entity"
-	"golang.org/x/exp/slices"
 )
 
 func (pusher *NotifyPusher) checkNeedSendEmailToUser(comment *entity.Comment, parentComment *entity.Comment) bool {
@@ -35,6 +34,11 @@ func (pusher *NotifyPusher) checkNeedSendEmailToAdmin(comment *entity.Comment, p
 		return false
 	}
 
+	// 待审评论不发送通知
+	if comment.IsPending && !pusher.conf.NotifyPending {
+		return false
+	}
+
 	// 管理员自己回复自己，不提醒
 	if comment.UserID == admin.ID {
 		return false
@@ -52,9 +56,10 @@ func (pusher *NotifyPusher) checkNeedSendEmailToAdmin(comment *entity.Comment, p
 	}
 
 	// 只发送给对应站点管理员
-	if admin.SiteNames != "" && !slices.Contains(pusher.dao.CookUser(admin).SiteNames, comment.SiteName) {
-		return false
-	}
+	// TODO admin.SiteNames had removed, so temporarily disabled
+	// if admin.SiteNames != "" && !slices.Contains(pusher.dao.CookUser(admin).SiteNames, comment.SiteName) {
+	// 	return false
+	// }
 
 	// 该管理员单独设定关闭接收邮件
 	if !admin.ReceiveEmail {
@@ -70,6 +75,11 @@ func (pusher *NotifyPusher) checkNeedMultiPush(comment *entity.Comment, pComment
 	// 忽略来自管理员的评论
 	coUser := pusher.dao.FetchUserForComment(comment)
 	if coUser.IsAdmin {
+		return false
+	}
+
+	// 待审评论不发送通知
+	if comment.IsPending && !pusher.conf.NotifyPending {
 		return false
 	}
 

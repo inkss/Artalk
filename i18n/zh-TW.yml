@@ -27,7 +27,7 @@
 "Invalid request. Please check your `trusted_domains` config.": 請求無效, 請檢查 `trusted_domains` 配置項
 "Invalid {{name}}": 無效的{{name}}
 "Link": 鏈接
-"Login failed": 登陸失敗
+"Login failed": 登錄失敗
 "Name": 名稱
 "New version available": 有更新可用
 "Nickname": 暱稱
@@ -40,6 +40,7 @@
 "Password update failed": 密碼修改失敗
 "Password updated": 密碼已修改
 "Password": 密碼
+"Pending": 待審核
 "Please review": 請過目
 "Retype {{name}}": 重新輸入{{name}}
 "Save failed": 保存失敗
