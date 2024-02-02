@@ -36,7 +36,7 @@ export class Layer {
 
   async hide() {
     this.opts.onHide()
-    this.$el.style.display = 'none'
+    // this.$el.style.display = 'none'
     this.onAfterHide && this.onAfterHide()
   }
 
