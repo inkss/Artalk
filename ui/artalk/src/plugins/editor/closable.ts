@@ -33,15 +33,16 @@ export default class Closable extends EditorPlug {
     
       if (!this.kit.useUser().getData().isAdmin) {
       this.kit.useUI().$textarea.style.display = 'none'
+      this.kit.useUI().$notifyWrap.style.display = 'none'
       this.kit.useUI().$bottom.style.display = 'none'
-      this.kit.useUI().$el.style.borderBottomLeftRadius = '10px';
-      this.kit.useUI().$el.style.borderBottomRightRadius = '10px';
+      this.kit.useUI().$textarea.value = ''
+      this.kit.useUI().$el.style.borderRadius = '10px';
       this.kit.useEvents().trigger('panel-close')
     } else {
       // 管理员一直打开评论
       this.kit.useUI().$textarea.style.display = ''
       this.kit.useUI().$bottom.style.display = ''
-      commentClosed.style.display = 'none'
+      commentClosed.remove()
     }
   }
 }
