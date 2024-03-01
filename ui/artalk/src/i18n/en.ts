@@ -11,6 +11,7 @@ const en = {
   preview: 'Preview',
   image: 'Image',
   refresh: 'Refresh',
+  uploadImage: 'Upload Image',
   uploadFail: 'Upload Failed',
   commentFail: 'Failed to comment',
   restoredMsg: 'Content has been restored',

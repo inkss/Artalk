@@ -4,8 +4,8 @@ export default defineLocaleExternal('zh-TW', {
   /* Editor */
   placeholder: '輸入內容...',
   noComment: '「此時無聲勝有聲」',
-  send: '發送評論',
-  save: '保存評論',
+  send: '發送',
+  save: '保存',
   nick: '暱稱',
   email: '電子郵件',
   link: '網址',
@@ -13,6 +13,7 @@ export default defineLocaleExternal('zh-TW', {
   preview: '預覽',
   image: '圖片',
   refresh: '刷新',
+  uploadImage: '上傳圖片',
   uploadFail: '上傳失敗',
   commentFail: '評論失敗',
   restoredMsg: '內容已自動恢復',
