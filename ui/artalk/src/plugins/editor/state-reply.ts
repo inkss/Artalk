@@ -72,6 +72,22 @@ export default class StateReply extends EditorPlug {
       })
       ui.$textareaWrap.append(ui.$sendReply)
     }
+    // if (!ui.$sendReplyBtn) {
+    //   const $btn = Utils.createElement(
+    //     `<span class="atk-state-btn">` +
+    //       `<span class="atk-text-wrap">` +
+    //       `${$t('reply')} <span class="atk-text"></span>` +
+    //       `</span>` +
+    //       `<span class="atk-cancel">×</span>` +
+    //     `</span>`
+    //   )
+    //   $btn.querySelector<HTMLElement>('.atk-text')!.innerText = `@${commentData.nick}`
+    //   $btn.addEventListener('click', () => {
+    //     this.kit.useEditor().resetState()
+    //   })
+    //   ui.$stateWrap.append($btn)
+    //   ui.$sendReplyBtn = $btn
+    // }
 
     this.comment = commentData
 
@@ -86,6 +102,10 @@ export default class StateReply extends EditorPlug {
       ui.$sendReply.remove()
       ui.$sendReply = undefined
     }
+    // if (ui.$sendReplyBtn) {
+    //   ui.$sendReplyBtn.remove()
+    //   ui.$sendReplyBtn = undefined
+    // }
     this.comment = undefined
   }
 }
