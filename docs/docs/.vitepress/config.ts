@@ -28,20 +28,20 @@ export default defineConfig({
     [
       "link",
       {
-        href: "https://npm.elemecdn.com/lightgallery@2.3.0/css/lightgallery.css",
+        href: "https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0/css/lightgallery.css",
         rel: "stylesheet",
       },
     ],
     [
       "script",
       {
-        src: "https://npm.elemecdn.com/lightgallery@2.3.0/lightgallery.min.js",
+        src: "https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0/lightgallery.min.js",
       },
     ],
     // katex
-    // ['link', { href: "https://npm.elemecdn.com/katex@0.15.3/dist/katex.min.css", rel: 'stylesheet' }],
-    // ['script', { src: 'https://npm.elemecdn.com/katex@0.15.3/dist/katex.min.js' }],
-    // ['script', { src: 'https://npm.elemecdn.com/@artalkjs/plugin-katex/dist/artalk-plugin-katex.js' }],
+    ['link', { href: "https://unpkg.com/katex@0.15.3/dist/katex.min.css", rel: 'stylesheet' }],
+    ['script', { src: 'https://unpkg.com/katex@0.15.3/dist/katex.min.js' }],
+    ['script', { src: 'https://unpkg.com/@artalk/plugin-katex/dist/artalk-plugin-katex.js' }],
   ],
 
   lastUpdated: true,
@@ -118,7 +118,7 @@ export default defineConfig({
             { text: "浏览量统计", link: "/guide/frontend/pv.md" },
             { text: "Latex", link: "/guide/frontend/latex.md" },
             { text: "图片灯箱", link: "/guide/frontend/lightbox.md" },
-            { text: "IP 归属地", link: "/guide/frontend/ip-region.md" },
+            { text: "IP 属地", link: "/guide/frontend/ip-region.md" },
             { text: "精简版本", link: "/guide/frontend/artalk-lite.md" },
             { text: "置入博客", link: "/guide/frontend/import-blog.md" },
             { text: "置入框架", link: "/guide/frontend/import-framework.md" },
@@ -215,10 +215,10 @@ export default defineConfig({
             text: "代码仓库",
             link: "https://github.com/ArtalkJS/Artalk",
           },
-          {
-            text: "文档镜像 (国内)",
-            link: "https://artalk-docs.qwqaq.com",
-          },
+          // {
+          //   text: "文档镜像 (国内)",
+          //   link: "https://artalk-docs.qwqaq.com",
+          // },
         ],
       },
     ],

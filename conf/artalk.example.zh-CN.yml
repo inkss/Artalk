@@ -44,6 +44,8 @@ db:
   table_prefix: ""
   # 启用 SSL
   ssl: false
+  # 预编译语句
+  prepare_stmt: true
 
 # 日志
 log:
@@ -162,9 +164,9 @@ captcha:
     captcha_id: ""
     captcha_key: ""
 
-# IP 归属地
+# IP 属地
 ip_region:
-  # 启用 IP 归属地展示
+  # 启用 IP 属地展示
   enabled: false
   # 数据文件路径 (.xdb 格式)
   db_path: "./data/ip2region.xdb"
@@ -276,7 +278,7 @@ admin_notify:
       - "USER_ID_1"
       - "GROUP_ID_1"
 
-# 前端配置
+# 界面配置
 frontend:
   # 评论框占位文字
   placeholder: ""

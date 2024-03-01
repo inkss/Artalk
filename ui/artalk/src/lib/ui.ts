@@ -7,7 +7,7 @@ export function showLoading(parentElem: HTMLElement, conf?: { transparentBg?: bo
   let $loading = parentElem.querySelector<HTMLElement>(':scope > .atk-loading')
   if (!$loading) {
     $loading = Utils.createElement(
-    `<div class="atk-loading atk-fade-in" style="display: none;">
+    `<div class="atk-loading" style="display: none;">
       <div class="atk-loading-spinner">
         <svg viewBox="25 25 50 50"><circle cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"></circle></svg>
       </div>
@@ -22,7 +22,7 @@ export function showLoading(parentElem: HTMLElement, conf?: { transparentBg?: bo
   if ($spinner) {
     $spinner.style.display = 'none'
     window.setTimeout(() => {
-      $spinner.style.display = ''
+      if ($spinner.isConnected) $spinner.style.display = ''
     }, 500)
   }
 }
@@ -60,8 +60,7 @@ export function scrollIntoView(elem: HTMLElement, enableAnim: boolean = true, re
   if (relativeTo) {
     const containerRect = relativeTo.getBoundingClientRect()
     const elementRect = elem.getBoundingClientRect()
-    top = elementRect.top - containerRect.top + relativeTo.scrollTop
-    top += Utils.getHeight(relativeTo) / 2 - Utils.getHeight(elem) / 2
+    top = elementRect.top - containerRect.top + relativeTo.scrollTop - relativeTo.clientHeight / 2 + elem.clientHeight / 2
   } else {
     const rect = elem.getBoundingClientRect()
     const elemTop = rect.top + window.scrollY
