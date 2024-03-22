@@ -216,7 +216,7 @@ email:
     access_key_secret: ""
     account_name: "noreply@example.com"
 
-# Multi-push
+# Multi-Push
 admin_notify:
   # Notification template (set to file path to use custom template)
   notify_tpl: "default"
@@ -329,3 +329,5 @@ frontend:
   reqTimeout: 15000
   # Version check
   versionCheck: true
+  # Plugins
+  pluginURLs: []

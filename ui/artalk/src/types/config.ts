@@ -1,5 +1,6 @@
-import { I18n } from '@/i18n'
-import { CommentData } from './data'
+import type { I18n } from '@/i18n'
+import type { CommentData } from './data'
+import type { EditorApi } from './editor'
 
 export interface ArtalkConfig {
   /** 装载元素 */
@@ -119,6 +120,9 @@ export interface ArtalkConfig {
   /** 后端版本 (系统数据，用户不允许更改) */
   apiVersion?: string
 
+  /** Plugin script urls */
+  pluginURLs?: string[]
+
   /** Replacer for marked */
   markedReplacers?: ((raw: string) => string)[]
 
@@ -129,8 +133,8 @@ export interface ArtalkConfig {
   remoteConfModifier?: (conf: Partial<ArtalkConfig>) => void
   listUnreadHighlight?: boolean
   scrollRelativeTo?: () => HTMLElement
-  immediateFetch?: boolean
   pvAdd?: boolean
+  beforeSubmit?: (editor: EditorApi, next: () => void) => void
 }
 
 /**

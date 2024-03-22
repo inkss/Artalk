@@ -787,6 +787,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/conf/domain": {
+            "get": {
+                "description": "Get Domain Info",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Get Domain Info",
+                "operationId": "GetDomain",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Domain URL",
+                        "name": "url",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ResponseConfDomain"
+                        }
+                    }
+                }
+            }
+        },
         "/notifies": {
             "get": {
                 "description": "Get a list of notifies for user",
@@ -2387,7 +2416,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Account"
+                    "Auth"
                 ],
                 "summary": "Get User Info",
                 "operationId": "GetUser",
@@ -2443,7 +2472,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Account"
+                    "Auth"
                 ],
                 "summary": "Get Access Token",
                 "operationId": "Login",
@@ -2475,7 +2504,7 @@ const docTemplate = `{
                                 {
                                     "type": "object",
                                     "properties": {
-                                        " data": {
+                                        "data": {
                                             "type": "object",
                                             "properties": {
                                                 "need_name_select": {
@@ -2494,8 +2523,8 @@ const docTemplate = `{
                             ]
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "allOf": [
                                 {
@@ -2545,7 +2574,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Account"
+                    "Auth"
                 ],
                 "summary": "Get Login Status",
                 "operationId": "GetUserStatus",
@@ -3190,6 +3219,7 @@ const docTemplate = `{
                 "is_collapsed",
                 "is_pending",
                 "is_pinned",
+                "is_verified",
                 "link",
                 "nick",
                 "page_key",
@@ -3237,6 +3267,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "is_pinned": {
+                    "type": "boolean"
+                },
+                "is_verified": {
                     "type": "boolean"
                 },
                 "link": {
@@ -3545,8 +3578,7 @@ const docTemplate = `{
                 "is_pinned",
                 "page_key",
                 "rid",
-                "site_name",
-                "ua"
+                "site_name"
             ],
             "properties": {
                 "content": {
@@ -3950,6 +3982,7 @@ const docTemplate = `{
                 "is_collapsed",
                 "is_pending",
                 "is_pinned",
+                "is_verified",
                 "link",
                 "nick",
                 "page_key",
@@ -3997,6 +4030,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "is_pinned": {
+                    "type": "boolean"
+                },
+                "is_verified": {
                     "type": "boolean"
                 },
                 "link": {
@@ -4100,6 +4136,7 @@ const docTemplate = `{
                 "is_collapsed",
                 "is_pending",
                 "is_pinned",
+                "is_verified",
                 "link",
                 "nick",
                 "page_key",
@@ -4149,6 +4186,9 @@ const docTemplate = `{
                 "is_pinned": {
                     "type": "boolean"
                 },
+                "is_verified": {
+                    "type": "boolean"
+                },
                 "link": {
                     "type": "string"
                 },
@@ -4181,6 +4221,23 @@ const docTemplate = `{
                 },
                 "vote_up": {
                     "type": "integer"
+                }
+            }
+        },
+        "handler.ResponseConfDomain": {
+            "type": "object",
+            "required": [
+                "is_trusted",
+                "origin"
+            ],
+            "properties": {
+                "is_trusted": {
+                    "description": "Is the domain trusted",
+                    "type": "boolean"
+                },
+                "origin": {
+                    "description": "The origin of the domain",
+                    "type": "string"
                 }
             }
         },

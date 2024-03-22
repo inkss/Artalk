@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-loop-func */
 import type { ArtalkConfig, CommentData, ListFetchParams, ContextApi, EventPayloadMap, SidebarShowPayload } from '@/types'
 import type { TInjectedServices } from './service'
-import { Api } from './api'
+import { Api, ApiHandlers } from './api'
 
 import * as marked from './lib/marked'
 import { mergeDeep } from './lib/merge-deep'
@@ -11,7 +11,7 @@ import { DataManager } from './data'
 import * as I18n from './i18n'
 
 import EventManager from './lib/event-manager'
-import { convertApiOptions, handelCustomConf } from './config'
+import { convertApiOptions, createNewApiHandlers, handelCustomConf } from './config'
 import { watchConf } from './lib/watch-conf'
 
 // Auto dependency injection
@@ -54,6 +54,12 @@ class Context implements ContextApi {
 
   getApi() {
     return new Api(convertApiOptions(this.conf, this))
+  }
+
+  private apiHandlers = <ApiHandlers|null> null
+  getApiHandlers() {
+    if (!this.apiHandlers) this.apiHandlers = createNewApiHandlers(this)
+    return this.apiHandlers
   }
 
   getData() {

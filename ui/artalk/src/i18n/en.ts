@@ -68,6 +68,7 @@ const en = {
   /* Sidebar */
   msgCenter: 'Messages',
   ctrlCenter: 'Admin',
+  emailVerified: 'Email has been verified',
 
   /* General */
   frontend: 'Frontend',

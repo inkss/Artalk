@@ -57,11 +57,11 @@ func Serve(app *core.App) (*fiber.App, error) {
 		Format: "[${status}] ${method} ${path} ${latency} ${ip} ${reqHeader:X-Request-ID} ${referer} ${ua}\n",
 		Output: io.Discard,
 		Done: func(c *fiber.Ctx, logString []byte) {
-			statusOK := c.Response().StatusCode() >= 200 && c.Response().StatusCode() <= 302
-			if !statusOK {
-				log.StandardLogger().WriterLevel(log.ErrorLevel).Write(logString)
-			} else {
+			code := c.Response().StatusCode()
+			if (code >= 200 && code <= 299) || (code >= 300 && code <= 308) {
 				log.StandardLogger().WriterLevel(log.DebugLevel).Write(logString)
+			} else {
+				log.StandardLogger().WriterLevel(log.ErrorLevel).Write(logString)
 			}
 		},
 	}))
@@ -90,6 +90,7 @@ func Serve(app *core.App) (*fiber.App, error) {
 
 		h.Conf(app, api)
 		h.Version(app, api)
+		h.ConfDomain(app, api)
 
 		// captcha
 		h.Captcha(app, api)

@@ -36,14 +36,24 @@ func getCorsAllowOrigins(app *core.App) []string {
 	return allowOrigins
 }
 
-func isOriginAllowed(app *core.App, origin string) bool {
+func CheckOriginTrusted(app *core.App, origin string) bool {
 	return slices.Contains(getCorsAllowOrigins(app), origin)
+}
+
+func CheckURLTrusted(app *core.App, targetUrl string) (trusted bool, origin string, err error) {
+	u, err := url.Parse(targetUrl)
+	if err != nil {
+		return false, "", fmt.Errorf("invalid URL")
+	}
+	origin = u.Scheme + "://" + u.Host
+	trusted = CheckOriginTrusted(app, origin)
+	return trusted, origin, nil
 }
 
 func CorsMiddleware(app *core.App) func(*fiber.Ctx) error {
 	return cors.New(cors.Config{
 		AllowOriginsFunc: func(origin string) bool {
-			return isOriginAllowed(app, origin)
+			return CheckOriginTrusted(app, origin)
 		},
 	})
 }

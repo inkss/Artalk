@@ -42,6 +42,7 @@ export interface EntityCookedComment {
   is_collapsed: boolean
   is_pending: boolean
   is_pinned: boolean
+  is_verified: boolean
   link: string
   nick: string
   page_key: string
@@ -162,7 +163,7 @@ export interface HandlerParamsCommentUpdate {
   /** The site name of your content scope */
   site_name: string
   /** The comment ua */
-  ua: string
+  ua?: string
 }
 
 export interface HandlerParamsEmailSend {
@@ -320,6 +321,7 @@ export interface HandlerResponseCommentCreate {
   is_collapsed: boolean
   is_pending: boolean
   is_pinned: boolean
+  is_verified: boolean
   link: string
   nick: string
   page_key: string
@@ -360,6 +362,7 @@ export interface HandlerResponseCommentUpdate {
   is_collapsed: boolean
   is_pending: boolean
   is_pinned: boolean
+  is_verified: boolean
   link: string
   nick: string
   page_key: string
@@ -371,6 +374,13 @@ export interface HandlerResponseCommentUpdate {
   visible: boolean
   vote_down: number
   vote_up: number
+}
+
+export interface HandlerResponseConfDomain {
+  /** Is the domain trusted */
+  is_trusted: boolean
+  /** The origin of the domain */
+  origin: string
 }
 
 export interface HandlerResponseNotifyList {
@@ -1102,6 +1112,30 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<CommonConfData, any>({
         path: `/conf`,
         method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * @description Get Domain Info
+     *
+     * @tags System
+     * @name GetDomain
+     * @summary Get Domain Info
+     * @request GET:/conf/domain
+     * @response `200` `HandlerResponseConfDomain` OK
+     */
+    getDomain: (
+      query?: {
+        /** Domain URL */
+        url?: string
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<HandlerResponseConfDomain, any>({
+        path: `/conf/domain`,
+        method: 'GET',
+        query: query,
         format: 'json',
         ...params,
       }),
@@ -1878,7 +1912,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
  * @description Get user info to prepare for login or check current user status
  *
- * @tags Account
+ * @tags Auth
  * @name GetUser
  * @summary Get User Info
  * @request GET:/user
@@ -1915,23 +1949,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
  * @description Login user by name or email
  *
- * @tags Account
+ * @tags Auth
  * @name Login
  * @summary Get Access Token
  * @request POST:/user/access_token
  * @response `200` `HandlerResponseUserLogin` OK
  * @response `400` `(HandlerMap & {
-    " data"?: {
+    data?: {
     need_name_select?: (string)[],
 
 },
     msg?: string,
 
 })` Multiple users with the same email address are matched
- * @response `403` `(HandlerMap & {
+ * @response `401` `(HandlerMap & {
     msg?: string,
 
-})` Forbidden
+})` Unauthorized
  * @response `500` `(HandlerMap & {
     msg?: string,
 
@@ -1941,7 +1975,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<
         HandlerResponseUserLogin,
         | (HandlerMap & {
-            ' data'?: {
+            data?: {
               need_name_select?: string[]
             }
             msg?: string
@@ -1961,7 +1995,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * @description Get user login status by header Authorization
      *
-     * @tags Account
+     * @tags Auth
      * @name GetUserStatus
      * @summary Get Login Status
      * @request GET:/user/status
