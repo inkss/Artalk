@@ -59,21 +59,6 @@ export default class StateReply extends EditorPlug {
 
   private setReply(commentData: CommentData) {
     const ui = this.kit.useUI()
-    if (!ui.$sendReplyBtn) {
-      const $btn = Utils.createElement(
-        `<span class="atk-state-btn">` +
-          `<span class="atk-text-wrap">` +
-          `${$t('reply')} <span class="atk-text"></span>` +
-          `</span>` +
-          `<span class="atk-cancel atk-icon-close atk-icon"></span>` +
-        `</span>`
-      )
-      ui.$sendReply.querySelector<HTMLElement>('.atk-text')!.innerText = `@${commentData.nick}`
-      ui.$sendReply.addEventListener('click', () => {
-        this.kit.useEditor().resetState()
-      })
-      ui.$textareaWrap.append(ui.$sendReply)
-    }
     // if (!ui.$sendReplyBtn) {
     //   const $btn = Utils.createElement(
     //     `<span class="atk-state-btn">` +
