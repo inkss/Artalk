@@ -181,7 +181,6 @@ class Context implements ContextApi {
   }
 
   showOwoBig(target:Node) {
-    console.log(target)
     const ratio = 2
     const maxLength = 200
     const body = document.querySelector('body') || document.createElement('body')
