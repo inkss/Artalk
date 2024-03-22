@@ -31,13 +31,17 @@
   code {
     font-family: $codeFont;
     margin: 0 .05em;
-    padding: 0 .4em;
+    padding: .1em .4em;
     display: inline-block;
     vertical-align: middle;
     font-size: .9em;
     background-color: var(--at-color-bg-grey);
     color: var(--at-color-font);
-    border-radius: 2px;
+    border-radius: 4px;
+  }
+
+  p code {
+    vertical-align: inherit;
   }
 
   pre {
@@ -59,14 +63,16 @@
     word-break: break-all;
     font-size: .875rem;
     width: auto;
+    position: relative;
+    border-radius: 4px;
     &:before {
       position: absolute;
-      font-size: 13px;
-      padding: 4px 8px;
-      right: 0;
+      font-size: .8em;
+      right: 5px;
       top: 0;
     }
-    &.language-plaintext:before {
+    &.language-plaintext:before,
+    &.language-txt:before {
       content: 'TXT'
     }
     &.language-conf:before {
