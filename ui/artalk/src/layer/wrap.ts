@@ -56,6 +56,7 @@ export class LayerWrap {
   showWrap() {
     this.$wrap.style.display = 'block'
     this.$mask.style.display = 'block'
+    this.$mask.style.backdropFilter = 'blur(10px)'
     this.$mask.classList.add('atk-fade-in')
     getScrollbarHelper().lock()
   }
@@ -65,8 +66,10 @@ export class LayerWrap {
     if (this.items.map(l => l.getEl()).filter(e => e !== $el && e.isConnected && e.style.display !== 'none').length > 0) {
       return
     }
-
-    this.$wrap.style.display = 'none'
-    getScrollbarHelper().unlock()
+    this.$mask.style.backdropFilter = 'blur(0)'
+    setTimeout(() => {
+      this.$wrap.style.display = 'none'
+      getScrollbarHelper().unlock()
+    }, 350)
   }
 }

@@ -545,6 +545,7 @@
     z-index: 99998;
     background: rgba(0, 0, 0, .3);
     backdrop-filter: blur(10px);
+    transition: all .2s ease-out;
   }
 
   .atk-layer-item {
