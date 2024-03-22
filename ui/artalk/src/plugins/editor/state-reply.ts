@@ -59,23 +59,19 @@ export default class StateReply extends EditorPlug {
 
   private setReply(commentData: CommentData) {
     const ui = this.kit.useUI()
-    // if (!ui.$sendReplyBtn) {
-    //   const $btn = Utils.createElement(
-    //     `<span class="atk-state-btn">` +
-    //       `<span class="atk-text-wrap">` +
-    //       `${$t('reply')} <span class="atk-text"></span>` +
-    //       `</span>` +
-    //       `<span class="atk-cancel">×</span>` +
-    //     `</span>`
-    //   )
-    //   $btn.querySelector<HTMLElement>('.atk-text')!.innerText = `@${commentData.nick}`
-    //   $btn.addEventListener('click', () => {
-    //     this.kit.useEditor().resetState()
-    //   })
-    //   ui.$stateWrap.append($btn)
-    //   ui.$sendReplyBtn = $btn
-    // }
-
+    if (!ui.$sendReply) {
+      ui.$sendReply = Utils.createElement(
+        `<div class="atk-send-reply">` +
+          `${$t('reply')} ` +
+          `<span class="atk-text"></span><span class="atk-cancel">×</span>` +
+        `</div>`
+      )
+      ui.$sendReply.querySelector<HTMLElement>('.atk-text')!.innerText = `@${commentData.nick}`
+      ui.$sendReply.addEventListener('click', () => {
+        this.kit.useEditor().resetState()
+      })
+      ui.$textareaWrap.append(ui.$sendReply)
+    }
     this.comment = commentData
 
     ui.$textarea.focus()
