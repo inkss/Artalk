@@ -18,6 +18,7 @@
   --at-color-green: #4caf50;
   --at-color-gradient: linear-gradient(180deg, transparent, rgba(255, 255, 255));
   --at-color-owo: rgba(255, 255, 255, 0.5);
+  --color-img-error: #f5f5f5;
 
   &.atk-dark-mode {
     --at-color-font: rgba(238, 238, 238, 0.9);
@@ -39,5 +40,6 @@
     --at-color-green: #4caf50;
     --at-color-gradient: linear-gradient(180deg, transparent, rgba(30, 34, 36, 1));
     --at-color-owo: rgba(74, 74, 74, 0.5);
+    --color-img-error: #0a0a0a;
   }
 }
