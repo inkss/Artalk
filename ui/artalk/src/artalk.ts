@@ -31,8 +31,11 @@ export default class Artalk {
       obj && this.ctx.inject(name as keyof TInjectedServices, obj) // auto inject deps to ctx
     })
 
-    if (import.meta.env.DEV && import.meta.env.VITEST) global.devLoadArtalk = () => load(this.ctx)
-    else load(this.ctx)
+    if (import.meta.env.DEV && import.meta.env.VITEST) {
+      global.devLoadArtalk = () => load(this.ctx)
+    } else {
+      load(this.ctx)
+    }
 
     // 表情包放大
     this.ctx.showOwoBig(handledConf.el as Node)
@@ -62,7 +65,9 @@ export default class Artalk {
   /** Destroy instance of Artalk */
   public destroy() {
     this.ctx.trigger('unmounted')
-    this.ctx.$root.remove()
+    while (this.ctx.$root.firstChild) {
+      this.ctx.$root.removeChild(this.ctx.$root.firstChild)
+    }
   }
 
   /** Add an event listener */
