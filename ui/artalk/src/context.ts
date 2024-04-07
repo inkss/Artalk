@@ -56,7 +56,7 @@ class Context implements ContextApi {
     return new Api(convertApiOptions(this.conf, this))
   }
 
-  private apiHandlers = <ApiHandlers|null> null
+  private apiHandlers = <ApiHandlers | null>null
   getApiHandlers() {
     if (!this.apiHandlers) this.apiHandlers = createNewApiHandlers(this)
     return this.apiHandlers
@@ -147,11 +147,11 @@ class Context implements ContextApi {
   }
 
   /* i18n */
-  $t(key: I18n.I18nKeys, args: {[key: string]: string} = {}): string {
+  $t(key: I18n.I18nKeys, args: { [key: string]: string } = {}): string {
     return I18n.t(key, args)
   }
 
-  setDarkMode(darkMode: boolean|'auto'): void {
+  setDarkMode(darkMode: boolean | 'auto'): void {
     this.updateConf({ darkMode })
 
     const owoShow = document.querySelector('#owo-big')
@@ -180,7 +180,7 @@ class Context implements ContextApi {
     watchConf(this, keys, effect)
   }
 
-  showOwoBig(target:Node) {
+  showOwoBig(target: Node) {
     const ratio = 2
     const maxLength = 200
     const body = document.querySelector('body') || document.createElement('body')
@@ -193,7 +193,7 @@ class Context implements ContextApi {
     }
 
     const observer = new MutationObserver(mutations => {
-      for (let i = 0; i < mutations.length; i++){
+      for (let i = 0; i < mutations.length; i++) {
         let flag = 1
         let owoTime = 0
         /**
@@ -205,10 +205,10 @@ class Context implements ContextApi {
          */
         const dom = mutations[i].addedNodes.forEach(node => {
           const addedNodes = node as any;
-          if (addedNodes.classList?.contains('atk-grp') 
-                || addedNodes.classList?.contains('atk-comment-wrap')
-                || (!!addedNodes.attributes && addedNodes.attributes['atk-emoticon'])
-                || (typeof addedNodes.querySelector === 'function' && addedNodes.querySelector('img[atk-emoticon]'))) {
+          if (addedNodes.classList?.contains('atk-grp')
+            || addedNodes.classList?.contains('atk-comment-wrap')
+            || (!!addedNodes.attributes && addedNodes.attributes['atk-emoticon'])
+            || (typeof addedNodes.querySelector === 'function' && addedNodes.querySelector('img[atk-emoticon]'))) {
             addedNodes.onmouseover = e => {
               const eve = (e as any).target
               if (flag && eve.tagName === 'IMG' && eve.attributes['atk-emoticon']) {
@@ -255,7 +255,7 @@ class Context implements ContextApi {
                     if (left < 0) left = 10
                     if (alt !== '') tempHeight += 10
                     div.style.cssText = `display:block;height:${tempHeight + 34}px;width:${tempWidth + 34}px;left:${left}px;top:${top}px;`;
-                    div.innerHTML = `<img src="${eve.src}"><p>${alt}</p>`
+                    div.innerHTML = `<img src="${eve.src}" onerror="this.classList.add('error')"><p>${alt}</p>`
                   }
                 }, 300);
               }
@@ -270,6 +270,18 @@ class Context implements ContextApi {
       }
     })
     observer.observe(target, { subtree: true, childList: true })
+  }
+
+  handleImageLoadFailure(target: Node) {
+    target.addEventListener('error', e => {
+      const elem = e.target as any;
+      if (elem?.tagName.toLowerCase() === 'img') {
+        elem.classList.add('error');
+        if(elem?.alt === '' && elem.getAttribute('atk-emoticon') !== null) {
+          elem.alt = '表情加载失败'
+        }
+      }
+    }, true)
   }
 }
 

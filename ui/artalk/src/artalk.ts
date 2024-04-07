@@ -39,6 +39,9 @@ export default class Artalk {
 
     // 表情包放大
     this.ctx.showOwoBig(handledConf.el as Node)
+
+    // 图片加载失败处理
+    this.ctx.handleImageLoadFailure(handledConf.el as Node)
   }
 
   /** Get the config of Artalk */

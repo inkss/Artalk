@@ -16,7 +16,7 @@ export const markedLinkRenderer = (renderer: any, orgLinkRenderer: Function) => 
 
 export const markedCodeRenderer = () => (block: string, lang: string | undefined): string => {
   // Colorize the block only if the language is known to highlight.js
-  const realLang = (!lang ? 'plaintext' : lang)
+  const realLang = (!lang ? 'TXT' : lang.toUpperCase())
   let colorized = block
   if ((window as any).hljs) {
     if (realLang && (window as any).hljs.getLanguage(realLang)) {
@@ -27,6 +27,7 @@ export const markedCodeRenderer = () => (block: string, lang: string | undefined
   }
 
   return `<pre rel="${realLang}">\n`
-    + `<code class="hljs language-${realLang}">${colorized.replace(/&amp;/g, '&')}</code>\n`
+    // + `<code class="hljs language-${realLang}">${colorized.replace(/&amp;/g, '&')}</code>\n`
+    + `<code language="${realLang}">${colorized.replace(/&amp;/g, '&')}</code>\n`
     + `</pre>`
 }

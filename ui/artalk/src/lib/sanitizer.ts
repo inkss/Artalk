@@ -19,15 +19,16 @@ const insaneOptions = {
   allowedAttributes: {
     '*': ['title', 'accesskey'],
     a: ['href', 'name', 'target', 'aria-label', 'rel'],
-    img: ['src', 'alt', 'title', 'atk-emoticon', 'aria-label'],
+    img: ['src', 'alt', 'title', 'atk-emoticon', 'aria-label', 'notitle'],
     // for code highlight
-    code: ['class'],
+    // code: ['class'],
+    code: ['language'],
     span: ['class', 'style'],
   },
   filter: node => {
     // allow hljs style
     const allowed = [
-      [ 'code', /^hljs\W+language-(.*)$/ ],
+      // [ 'code', /^hljs\W+language-(.*)$/ ],
       [ 'span', /^(hljs-.*)$/ ]
     ]
     allowed.forEach(([ tag, reg ]) => {

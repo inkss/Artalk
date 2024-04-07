@@ -113,4 +113,7 @@ export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
 
   /** 表情包放大  */
   showOwoBig(target:Node): void
+
+  /** 图片加载失败处理 */
+  handleImageLoadFailure(target:Node): void
 }

@@ -222,10 +222,14 @@ export default class Emoticons extends EditorPlug {
 
         if (grp.type === 'image') {
           const imgEl = document.createElement('img')
+          const temp = item?.key.replace(/\s[0-9]/i,'');
+          if (item.notitle) {
+            imgEl.setAttribute('notitle', item.notitle)
+          } else {
+            imgEl.alt = temp.slice(temp.indexOf('-') + 1)
+          }
           imgEl.src = item.val
-          imgEl.alt = item.key.replace(/\s[0-9]/i,'')
           imgEl.setAttribute('atk-emoticon', item.key)
-          if (item.notitle) imgEl.setAttribute('notitle', item.notitle)
           $item.append(imgEl)
         } else {
           $item.innerText = item.val
@@ -292,9 +296,10 @@ export default class Emoticons extends EditorPlug {
     this.emoticons.forEach((grp) => {
       if (grp.type !== 'image') return
       Object.entries(grp.items).forEach(([index, item]) => {
-        text = item.notitle === 'true' ?
-        text.split(`:[${item.key}]`).join(`<img src="${item.val}" atk-emoticon="${item.key}">`)
-        : text.split(`:[${item.key}]`).join(`<img src="${item.val}" alt="${item.key.replace(/\s[0-9]/i,'')}" atk-emoticon="${item.key}">`)
+        const temp = item?.key.replace(/\s[0-9]/i,'');
+        const alt = item.notitle === 'true' ? undefined : temp.slice(temp.indexOf('-') + 1);
+        const eleAlt = alt === undefined ? '' : `alt="${alt}"`
+        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" ${eleAlt} atk-emoticon="${item.key}">`)
       })
     })
 

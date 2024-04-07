@@ -54,14 +54,6 @@
       border-radius: 50%;
       transition: all .3s ease;
 
-      &.error:before {
-        width: 48px !important;
-        height: 48px !important;
-        border-radius: 50%;
-      }
-      &.error:after {
-        display: none;
-      }
       &:hover {
         transform: scale(1.2);
         border-radius: 4px;
@@ -477,10 +469,6 @@
       padding-right: 0;
       padding-bottom: 0;
       padding-left: 0;
-    }
-    .atk-avatar img.error:before {
-      width: 36px !important;
-      height: 36px !important;
     }
   }
 }
