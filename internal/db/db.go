@@ -11,10 +11,11 @@ import (
 
 func NewDB(conf config.DBConf) (*gorm.DB, error) {
 	gormConfig := &gorm.Config{
-		Logger: logger.NewGormLogger(),
+		Logger: logger.New(),
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix: conf.TablePrefix,
 		},
+		DisableForeignKeyConstraintWhenMigrating: true,
 	}
 
 	// Enable Prepared Statement by default
@@ -46,7 +47,7 @@ func NewDB(conf config.DBConf) (*gorm.DB, error) {
 }
 
 func NewTestDB() (*gorm.DB, error) {
-	return OpenSQLite("file::memory:?cache=shared", &gorm.Config{})
+	return OpenSQLite("file::memory:?cache=shared", &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true})
 }
 
 func CloseDB(db *gorm.DB) error {

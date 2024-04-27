@@ -29,9 +29,13 @@ export default class Closable extends EditorPlug {
   private close() {
     const commentClosed = Utils.createElement(`<div class="atk-comment-closed">${$t('onlyAdminCanReply')}</div>`)
     if (!this.kit.useUI().$textareaWrap.querySelector('.atk-comment-closed'))
-      this.kit.useUI().$textareaWrap.prepend(commentClosed)
-    
-      if (!this.kit.useUser().getData().isAdmin) {
+      this.kit
+        .useUI()
+        .$textareaWrap.prepend(
+          Utils.createElement(`<div class="atk-comment-closed">${$t('onlyAdminCanReply')}</div>`),
+        )
+
+    if (!this.kit.useUser().getData().isAdmin) {
       this.kit.useUI().$textarea.style.display = 'none'
       this.kit.useUI().$notifyWrap.style.display = 'none'
       this.kit.useUI().$bottom.style.display = 'none'

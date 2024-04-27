@@ -117,7 +117,7 @@ export default class Artalk {
       siteName: conf.site,
       countEl: conf.countEl,
       pvEl: conf.pvEl,
-      pvAdd: false
+      pvAdd: false,
     })
   }
 
@@ -126,8 +126,12 @@ export default class Artalk {
   // ===========================
 
   /** @deprecated Please use `getEl()` instead */
-  public get $root() { return this.ctx.$root }
+  public get $root() {
+    return this.ctx.$root
+  }
 
   /** @description Please use `getConf()` instead */
-  public get conf() { return this.ctx.getConf() }
+  public get conf() {
+    return this.ctx.getConf()
+  }
 }

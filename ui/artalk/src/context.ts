@@ -1,5 +1,11 @@
-/* eslint-disable @typescript-eslint/no-loop-func */
-import type { ArtalkConfig, CommentData, ListFetchParams, ContextApi, EventPayloadMap, SidebarShowPayload } from '@/types'
+import type {
+  ArtalkConfig,
+  CommentData,
+  ListFetchParams,
+  ContextApi,
+  EventPayloadMap,
+  SidebarShowPayload,
+} from '@/types'
 import type { TInjectedServices } from './service'
 import { Api, ApiHandlers } from './api'
 
@@ -15,7 +21,7 @@ import { convertApiOptions, createNewApiHandlers, handelCustomConf } from './con
 import { watchConf } from './lib/watch-conf'
 
 // Auto dependency injection
-interface Context extends TInjectedServices { }
+interface Context extends TInjectedServices {}
 
 /**
  * Artalk Context
@@ -176,7 +182,10 @@ class Context implements ContextApi {
     return marked.getInstance()
   }
 
-  watchConf<T extends (keyof ArtalkConfig)[]>(keys: T, effect: (conf: Pick<ArtalkConfig, T[number]>) => void): void {
+  watchConf<T extends (keyof ArtalkConfig)[]>(
+    keys: T,
+    effect: (conf: Pick<ArtalkConfig, T[number]>) => void,
+  ): void {
     watchConf(this, keys, effect)
   }
 

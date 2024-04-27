@@ -223,11 +223,11 @@ export interface DataManagerApi {
   getLoading(): boolean
   setLoading(val: boolean): void
 
-  getListLastFetch(): ListLastFetchData|undefined
+  getListLastFetch(): ListLastFetchData | undefined
   setListLastFetch(val: ListLastFetchData): void
 
   getComments(): CommentData[]
-  findComment(id: number): CommentData|undefined
+  findComment(id: number): CommentData | undefined
 
   fetchComments(params: Partial<ListFetchParams>): void
   loadComments(comments: CommentData[]): void
@@ -240,11 +240,11 @@ export interface DataManagerApi {
   getNotifies(): NotifyData[]
   updateNotifies(notifies: NotifyData[]): void
 
-  getPage(): PageData|undefined
+  getPage(): PageData | undefined
   updatePage(pageData: PageData): void
 }
 
-export type NotifyLevel = "i" | "s" | "w" | "e"
+export type NotifyLevel = 'i' | 's' | 'w' | 'e'
 
 export interface UserInfoApiResponseData {
   user?: UserData

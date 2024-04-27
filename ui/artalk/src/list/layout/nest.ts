@@ -17,8 +17,9 @@ export const createNestStrategy: LayoutStrategyCreator = (opts) => ({
       // 加载子评论
       const loadChildren = (parentC: CommentNode, parentNode: ListNest.CommentNode) => {
         parentNode.children.forEach((node: ListNest.CommentNode) => {
+          const replyD = comments.find((c) => c.id === node.comment.rid)
           const childD = node.comment
-          const childC = opts.createCommentNode(childD, parentC.getData())
+          const childC = opts.createCommentNode(childD, replyD)
 
           // 插入到父评论中
           parentC.putChild(childC)
@@ -44,7 +45,7 @@ export const createNestStrategy: LayoutStrategyCreator = (opts) => ({
       // 子评论 新增
       const parent = opts.findCommentNode(comment.rid)
       if (parent) {
-        parent.putChild(node, (opts.nestSortBy === 'DATE_ASC' ? 'append' : 'prepend'))
+        parent.putChild(node, opts.nestSortBy === 'DATE_ASC' ? 'append' : 'prepend')
 
         // 若父评论存在 “子评论部分” 限高，取消限高
         node.getParents().forEach((p) => {
@@ -57,5 +58,5 @@ export const createNestStrategy: LayoutStrategyCreator = (opts) => ({
 
     node.scrollIntoView() // 滚动到可以见
     node.getRender().playFadeAnim() // 播放评论渐出动画
-  }
+  },
 })
