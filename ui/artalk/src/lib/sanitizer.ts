@@ -61,7 +61,7 @@ const insaneOptions = {
   allowedAttributes: {
     '*': ['title', 'accesskey'],
     a: ['href', 'name', 'target', 'aria-label', 'rel'],
-    img: ['src', 'alt', 'title', 'atk-emoticon', 'aria-label', 'notitle'],
+    img: ['src', 'alt', 'title', 'atk-emoticon', 'aria-label', 'notitle', 'loading'],
     // for code highlight
     // code: ['class'],
     code: ['language'],

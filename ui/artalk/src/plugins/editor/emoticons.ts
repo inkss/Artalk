@@ -243,6 +243,9 @@ export default class Emoticons extends EditorPlug {
           }
           imgEl.src = item.val
           imgEl.setAttribute('atk-emoticon', item.key)
+          if (!imgEl.hasAttribute('loading')) {
+            imgEl.setAttribute('loading', 'lazy');
+          }
           $item.append(imgEl)
         } else {
           $item.innerText = item.val
@@ -305,18 +308,20 @@ export default class Emoticons extends EditorPlug {
 
   /** 处理评论 content 中的表情内容 */
   public transEmoticonImageText(text: string) {
-    if (!this.emoticons || !Array.isArray(this.emoticons)) return text
+    if (!this.emoticons || !Array.isArray(this.emoticons)) return text;
 
     this.emoticons.forEach((grp) => {
-      if (grp.type !== 'image') return
+      if (grp.type !== 'image') return;
       Object.entries(grp.items).forEach(([index, item]) => {
         const temp = item?.key.replace(/\s[0-9]/i,'');
         const alt = item.notitle === 'true' ? undefined : temp.slice(temp.indexOf('-') + 1);
-        const eleAlt = alt === undefined ? '' : `alt="${alt}"`
-        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" ${eleAlt} atk-emoticon="${item.key}">`)
-      })
-    })
+        const eleAlt = alt === undefined ? '' : `alt="${alt}"`;
+        const loadingAttr = `loading="lazy"`;
+        const imgTag = `<img src="${item.val}" ${eleAlt} ${loadingAttr} atk-emoticon="${item.key}">`;
+        text = text.split(`:[${item.key}]`).join(imgTag);
+      });
+    });
 
-    return text
+    return text;
   }
 }

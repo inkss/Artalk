@@ -10,6 +10,10 @@ export default function renderAvatar(r: Render) {
 
   const avatarURLBuilder = r.opts.avatarURLBuilder
   $avatarImg.src = avatarURLBuilder ? avatarURLBuilder(r.data) : r.comment.getGravatarURL()
+  
+  if (!$avatarImg.hasAttribute('loading')) {
+    $avatarImg.setAttribute('loading', 'lazy');
+  }
 
   if (r.data.link) {
     const $avatarA = Utils.createElement<HTMLLinkElement>(

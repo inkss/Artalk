@@ -44,20 +44,30 @@ export function initMarked() {
 
 /** 解析 markdown */
 export default function marked(src: string): string {
-  let markedContent = getInstance()?.parse(src) as string
+  let markedContent = getInstance()?.parse(src) as string;
   if (!markedContent) {
     // 无 Markdown 模式简单处理
-    markedContent = simpleMarked(src)
+    markedContent = simpleMarked(src);
   }
 
-  let dest = sanitize(markedContent)
+  let dest = sanitize(markedContent);
+
+  // 为内容中的 img 标签添加 loading="lazy"
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = dest;
+  tempDiv.querySelectorAll('img').forEach(img => {
+    if (!img.hasAttribute('loading')) {
+      img.setAttribute('loading', 'lazy');
+    }
+  });
+  dest = tempDiv.innerHTML;
 
   // 内容替换器
   replacers.forEach((replacer) => {
-    if (typeof replacer === 'function') dest = replacer(dest)
-  })
+    if (typeof replacer === 'function') dest = replacer(dest);
+  });
 
-  return dest
+  return dest;
 }
 
 function simpleMarked(src: string) {
