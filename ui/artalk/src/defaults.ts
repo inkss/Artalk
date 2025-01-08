@@ -28,7 +28,7 @@ const defaults: ArtalkConfig = {
   pvEl: '#ArtalkPV',
 
   gravatar: {
-    mirror: 'https://cravatar.cn/avatar/',
+    mirror: 'https://weavatar.com/avatar/',
     params: 'd=mp&s=240',
   },
 

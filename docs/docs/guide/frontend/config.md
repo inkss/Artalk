@@ -343,7 +343,7 @@ gravatar: {
 
 例如：
 
-> Cravatar：https://cravatar.cn/avatar/
+> Cravatar：https://weavatar.com/avatar/
 >
 > V2EX：https://cdn.v2ex.com/gravatar/
 >
