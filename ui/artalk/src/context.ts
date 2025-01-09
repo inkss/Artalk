@@ -303,9 +303,6 @@ class Context implements ContextApi {
       if (dataSrc) {
         img.setAttribute('src', dataSrc);
         (img as HTMLElement).onload = () => {
-          // eslint-disable-next-line no-debugger
-          // debugger;
-          // 移除加载动画
           const parent = img.parentElement;
           if (parent && parent.classList.contains('loading-spinner-wrapper')) {
             parent.replaceWith(img);

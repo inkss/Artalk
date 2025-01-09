@@ -713,10 +713,21 @@ img[atk-emoticon] {
 
 // 图片懒加载占位图 
 .artalk {
+  .atk-content .loading-spinner-wrapper {
+    margin: 4px;
+    &:last-child { 
+      margin: 0; 
+    }
+  }
   .loading-spinner-wrapper {
     position: relative;
     display: inline-block;
     min-height: 40px;
+    min-width: 40px;
+    
+    img {
+      opacity: 0;
+    }
   }
 
   .loading-spinner {
@@ -731,10 +742,6 @@ img[atk-emoticon] {
     border-radius: 50%;
     border-top-color: #3498db;
     animation: spin 1s ease-in-out infinite;
-
-    img {
-      opacity: 0;
-    }
   }
 
   .atk-avatar {
@@ -752,7 +759,7 @@ img[atk-emoticon] {
         width: 36px;
         height: 36px;
         margin-top: -20px;
-        margin-left: -17px;
+        margin-left: -20px;
       }
     }
   }
