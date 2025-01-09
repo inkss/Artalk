@@ -241,7 +241,7 @@ export default class Emoticons extends EditorPlug {
           } else {
             imgEl.alt = temp.slice(temp.indexOf('-') + 1)
           }
-          imgEl.src = item.val
+          imgEl.dataset.src = item.val
           imgEl.setAttribute('atk-emoticon', item.key)
           if (!imgEl.hasAttribute('loading')) {
             imgEl.setAttribute('loading', 'lazy');
@@ -317,7 +317,7 @@ export default class Emoticons extends EditorPlug {
         const alt = item.notitle === 'true' ? undefined : temp.slice(temp.indexOf('-') + 1);
         const eleAlt = alt === undefined ? '' : `alt="${alt}"`;
         const loadingAttr = `loading="lazy"`;
-        const imgTag = `<img src="${item.val}" ${eleAlt} ${loadingAttr} atk-emoticon="${item.key}">`;
+        const imgTag = `<img data-src="${item.val}" ${eleAlt} ${loadingAttr} atk-emoticon="${item.key}">`;
         text = text.split(`:[${item.key}]`).join(imgTag);
       });
     });

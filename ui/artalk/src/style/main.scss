@@ -636,6 +636,7 @@ img[atk-emoticon] {
   }
 }
 
+// 图片加载失败
 .artalk img.error {
   display: inline-block;
   transform: scale(1);
@@ -708,4 +709,57 @@ img[atk-emoticon] {
 .atk-comment-children .atk-avatar img.error {
   min-width: 36px;
   min-height: 36px;
+}
+
+// 图片懒加载占位图 
+.artalk {
+  .loading-spinner-wrapper {
+    position: relative;
+    display: inline-block;
+    min-height: 40px;
+  }
+
+  .loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+    margin-left: -20px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+
+    img {
+      opacity: 0;
+    }
+  }
+
+  .atk-avatar {
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      margin-top: -27px;
+      margin-left: -25px;
+    }
+  }
+
+  .atk-comment-children {
+    .atk-avatar {
+      .loading-spinner {
+        width: 36px;
+        height: 36px;
+        margin-top: -20px;
+        margin-left: -17px;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

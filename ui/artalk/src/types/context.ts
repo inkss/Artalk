@@ -127,4 +127,7 @@ export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
 
   /** 图片加载失败处理 */
   handleImageLoadFailure(target:Node): void
+
+  /** 图片懒加载 */
+  lazyLoadImages(target:Node): void
 }

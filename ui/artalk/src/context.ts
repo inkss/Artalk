@@ -289,9 +289,125 @@ class Context implements ContextApi {
         if(elem?.alt === '' && elem.getAttribute('atk-emoticon') !== null) {
           elem.alt = '表情加载失败'
         }
+        const parent = elem.parentElement;
+        if (parent && parent.classList.contains('loading-spinner-wrapper')) {
+          parent.replaceWith(elem);
+        }
       }
     }, true)
   }
+
+  lazyLoadImages(target: Node) {
+    const loadImg = (img: Element) => {
+      const dataSrc = img.getAttribute('data-src');
+      if (dataSrc) {
+        img.setAttribute('src', dataSrc);
+        (img as HTMLElement).onload = () => {
+          // eslint-disable-next-line no-debugger
+          // debugger;
+          // 移除加载动画
+          const parent = img.parentElement;
+          if (parent && parent.classList.contains('loading-spinner-wrapper')) {
+            parent.replaceWith(img);
+          }
+        };
+      }
+    };
+
+    const wrapImgWithSpinner = (img: Element) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'loading-spinner-wrapper';
+      wrapper.innerHTML = '<div class="loading-spinner"></div>';
+      img.parentNode?.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
+    };
+
+    const lazyLoadHandler = () => {
+      if (target instanceof HTMLElement) {
+        const imgs = target.querySelectorAll('img.lazy-load');
+        imgs.forEach(img => {
+          if (!img.parentElement?.classList.contains('loading-spinner-wrapper')) {
+            wrapImgWithSpinner(img);
+          }
+          const rect = img.getBoundingClientRect();
+          if (rect.top <= window.innerHeight && rect.bottom >= 0 && !(img as HTMLImageElement).src) {
+            loadImg(img);
+          }
+        });
+      }
+    };
+
+    if ('IntersectionObserver' in window) {
+      const ioObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target as HTMLImageElement;
+            loadImg(img);
+            observer.unobserve(img);
+          }
+        });
+      });
+
+      if (target instanceof HTMLElement) {
+        const initialImgs = target.querySelectorAll('img');
+        initialImgs.forEach(img => {
+          if (!img.hasAttribute('loading')) {
+            img.setAttribute('loading', 'lazy');
+          }
+          if (!img.parentElement?.classList.contains('loading-spinner-wrapper')) {
+            wrapImgWithSpinner(img);
+          }
+          ioObserver.observe(img);
+        });
+      }
+
+      const mutationObserver = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          mutation.addedNodes.forEach(node => {
+            if (node instanceof HTMLElement) {
+              const imgs = node.querySelectorAll('img');
+              imgs.forEach(img => {
+                if (!img.hasAttribute('loading')) {
+                  img.setAttribute('loading', 'lazy');
+                }
+                if (!img.parentElement?.classList.contains('loading-spinner-wrapper')) {
+                  wrapImgWithSpinner(img);
+                }
+                ioObserver.observe(img);
+              });
+            }
+          });
+        });
+      });
+
+      mutationObserver.observe(target, { childList: true, subtree: true });
+    } else {
+      lazyLoadHandler();
+
+      const mutationObserver = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          mutation.addedNodes.forEach(node => {
+            if (node instanceof HTMLElement) {
+              const imgs = node.querySelectorAll('img');
+              imgs.forEach(img => {
+                if (!img.parentElement?.classList.contains('loading-spinner-wrapper')) {
+                  wrapImgWithSpinner(img);
+                }
+                loadImg(img);
+              });
+            }
+          });
+        });
+      });
+
+      mutationObserver.observe(target, { childList: true, subtree: true });
+
+      // Listen for scroll and resize events to load images
+      (window as Window).addEventListener('scroll', lazyLoadHandler);
+      (window as Window).addEventListener('resize', lazyLoadHandler);
+    }
+  }
+  
 }
 
 export default Context

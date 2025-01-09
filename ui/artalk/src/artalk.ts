@@ -42,6 +42,9 @@ export default class Artalk {
 
     // 图片加载失败处理
     this.ctx.handleImageLoadFailure(handledConf.el as Node)
+
+    // 图片懒加载
+    this.ctx.lazyLoadImages(handledConf.el as Node)
   }
 
   /** Get the config of Artalk */

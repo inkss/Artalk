@@ -59,6 +59,11 @@ export default function marked(src: string): string {
     if (!img.hasAttribute('loading')) {
       img.setAttribute('loading', 'lazy');
     }
+    const imgSrc = img.getAttribute('src');
+    if (imgSrc) {
+      img.setAttribute('data-src', imgSrc)
+      img.removeAttribute('src')
+    }    
   });
   dest = tempDiv.innerHTML;
 
