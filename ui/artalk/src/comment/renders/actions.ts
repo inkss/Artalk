@@ -33,9 +33,7 @@ function renderVote(r: Render) {
 
   // 反对按钮
   if (r.opts.voteDown) {
-    r.voteBtnDown = new ActionBtn(() => `${$t('voteDown')} (${r.data.vote_down || 0})`).appendTo(
-      r.$actions,
-    )
+    r.voteBtnDown = new ActionBtn(() => `${$t('voteDown')} (${r.data.vote_down || 0})`).appendTo(r.$actionNormal)
     r.voteBtnDown.setClick(() => {
       r.comment.getActions().vote('down')
     })
