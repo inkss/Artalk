@@ -312,25 +312,13 @@ class Context implements ContextApi {
     };
 
     const wrapImgWithSpinner = (img: Element) => {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'loading-spinner-wrapper';
-      wrapper.innerHTML = '<div class="loading-spinner"></div>';
-      img.parentNode?.insertBefore(wrapper, img);
-      wrapper.appendChild(img);
-    };
-
-    const lazyLoadHandler = () => {
-      if (target instanceof HTMLElement) {
-        const imgs = target.querySelectorAll('img.lazy-load');
-        imgs.forEach(img => {
-          if (!img.parentElement?.classList.contains('loading-spinner-wrapper')) {
-            wrapImgWithSpinner(img);
-          }
-          const rect = img.getBoundingClientRect();
-          if (rect.top <= window.innerHeight && rect.bottom >= 0 && !(img as HTMLImageElement).src) {
-            loadImg(img);
-          }
-        });
+      const dataSrc = img.getAttribute('data-src');
+      if (dataSrc) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'loading-spinner-wrapper';
+        wrapper.innerHTML = '<div class="loading-spinner"></div>';
+        img.parentNode?.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
       }
     };
 
@@ -378,30 +366,6 @@ class Context implements ContextApi {
       });
 
       mutationObserver.observe(target, { childList: true, subtree: true });
-    } else {
-      lazyLoadHandler();
-
-      const mutationObserver = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          mutation.addedNodes.forEach(node => {
-            if (node instanceof HTMLElement) {
-              const imgs = node.querySelectorAll('img');
-              imgs.forEach(img => {
-                if (!img.parentElement?.classList.contains('loading-spinner-wrapper')) {
-                  wrapImgWithSpinner(img);
-                }
-                loadImg(img);
-              });
-            }
-          });
-        });
-      });
-
-      mutationObserver.observe(target, { childList: true, subtree: true });
-
-      // Listen for scroll and resize events to load images
-      (window as Window).addEventListener('scroll', lazyLoadHandler);
-      (window as Window).addEventListener('resize', lazyLoadHandler);
     }
   }
   

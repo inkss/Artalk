@@ -52,21 +52,6 @@ export default function marked(src: string): string {
 
   let dest = sanitize(markedContent);
 
-  // 为内容中的 img 标签添加 loading="lazy"
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = dest;
-  tempDiv.querySelectorAll('img').forEach(img => {
-    if (!img.hasAttribute('loading')) {
-      img.setAttribute('loading', 'lazy');
-    }
-    const imgSrc = img.getAttribute('src');
-    if (imgSrc) {
-      img.setAttribute('data-src', imgSrc)
-      img.removeAttribute('src')
-    }    
-  });
-  dest = tempDiv.innerHTML;
-
   // 内容替换器
   replacers.forEach((replacer) => {
     if (typeof replacer === 'function') dest = replacer(dest);

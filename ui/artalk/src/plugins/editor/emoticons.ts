@@ -241,6 +241,8 @@ export default class Emoticons extends EditorPlug {
           } else {
             imgEl.alt = temp.slice(temp.indexOf('-') + 1)
           }
+          // imgEl.src = item.val
+          // 表情图片懒加载
           imgEl.dataset.src = item.val
           imgEl.setAttribute('atk-emoticon', item.key)
           if (!imgEl.hasAttribute('loading')) {
@@ -316,8 +318,9 @@ export default class Emoticons extends EditorPlug {
         const temp = item?.key.replace(/\s[0-9]/i,'');
         const alt = item.notitle === 'true' ? undefined : temp.slice(temp.indexOf('-') + 1);
         const eleAlt = alt === undefined ? '' : `alt="${alt}"`;
-        const loadingAttr = `loading="lazy"`;
-        const imgTag = `<img data-src="${item.val}" ${eleAlt} ${loadingAttr} atk-emoticon="${item.key}">`;
+        // const imgTag = `<img src="${item.val}" ${eleAlt} atk-emoticon="${item.key}">`;
+        // 表情图片懒加载
+        const imgTag = `<img data-src="${item.val}" ${eleAlt} atk-emoticon="${item.key}">`;
         text = text.split(`:[${item.key}]`).join(imgTag);
       });
     });

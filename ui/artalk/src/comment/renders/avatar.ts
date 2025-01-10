@@ -10,6 +10,7 @@ export default function renderAvatar(r: Render) {
 
   const avatarURLBuilder = r.opts.avatarURLBuilder
   // $avatarImg.src = avatarURLBuilder ? avatarURLBuilder(r.data) : r.comment.getGravatarURL()
+  // 头像图片懒加载
   $avatarImg.setAttribute('data-src', avatarURLBuilder ? avatarURLBuilder(r.data) : r.comment.getGravatarURL());
   if (!$avatarImg.hasAttribute('loading')) {
     $avatarImg.setAttribute('loading', 'lazy');

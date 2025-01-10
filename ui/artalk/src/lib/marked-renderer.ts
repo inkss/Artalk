@@ -5,6 +5,7 @@ export function getRenderer() {
   const renderer = new libMarked.Renderer()
   renderer.link = markedLinkRenderer(renderer, renderer.link)
   renderer.code = markedCodeRenderer()
+  renderer.image = markedImageRenderer(renderer, renderer.image)
   return renderer
 }
 
@@ -38,4 +39,12 @@ export const markedCodeRenderer =
       `<code class="hljs language-${realLang}">${colorized.replace(/&amp;/g, '&')}</code>\n` +
       `</pre>`
     )
+  }
+
+// 图片懒加载
+export const markedImageRenderer =
+  (renderer: any, orgImageRenderer: Function) =>
+  (href: string, title: string, text: string): string => {
+    const html = orgImageRenderer.call(renderer, href, title, text) 
+    return html.replace('src=', 'data-src=');
   }
