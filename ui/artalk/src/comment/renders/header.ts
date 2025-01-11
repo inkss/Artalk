@@ -25,6 +25,10 @@ function renderNick(r: Render) {
     )
     $nickA.innerText = r.data.nick
     $nickA.href = Utils.isValidURL(r.data.link) ? r.data.link : `https://${r.data.link}`
+    const myWebName = 'inkss.cn'
+    if (window.location.hostname === myWebName && new URL($nickA.href).hostname !== myWebName) {
+      $nickA.href = `https://inkss.cn/link.html?target=${$nickA.href}`
+    }
     r.$headerNick.append($nickA)
   } else {
     r.$headerNick.innerText = r.data.nick

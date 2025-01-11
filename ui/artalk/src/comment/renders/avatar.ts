@@ -21,6 +21,10 @@ export default function renderAvatar(r: Render) {
       '<a target="_blank" rel="noreferrer noopener nofollow"></a>',
     )
     $avatarA.href = Utils.isValidURL(r.data.link) ? r.data.link : `https://${r.data.link}`
+    const myWebName = 'inkss.cn'
+    if (window.location.hostname === myWebName && new URL($avatarA.href).hostname !== myWebName) {
+      $avatarA.href = `https://inkss.cn/link.html?target=${$avatarA.href}`
+    }
     $avatarA.append($avatarImg)
     $avatar.append($avatarA)
   } else {

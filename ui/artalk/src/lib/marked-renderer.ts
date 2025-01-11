@@ -14,10 +14,14 @@ export const markedLinkRenderer =
   (href: string, title: string, text: string): string => {
     const localLink = href?.startsWith(`${window.location.protocol}//${window.location.hostname}`)
     const html = orgLinkRenderer.call(renderer, href, title, text)
-    return html.replace(
-      /^<a /,
-      `<a target="_blank" ${!localLink ? `rel="noreferrer noopener nofollow"` : ''} `,
-    )
+    const myWebName = 'inkss.cn'
+    let newHref = href
+    if (window.location.hostname === myWebName && new URL(href).hostname !== myWebName) {
+      newHref = `https://inkss.cn/link.html?target=${href}`
+    }
+    return html
+      .replace(/^<a /,`<a target="_blank" ${!localLink ? `rel="noreferrer noopener nofollow"` : ''} `,)
+      .replace(href, newHref)
   }
 
 export const markedCodeRenderer =
