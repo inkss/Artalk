@@ -191,8 +191,8 @@ class Context implements ContextApi {
 
   /** 表情包放大 */
   showOwoBig(target: Node) {
-    const ratio = 2;
-    const maxLength = 200;
+    const RATIO = 2;
+    const MaxLength = 200;
     const body = document.querySelector('body') || document.createElement('body');
     let div = document.querySelector('#owo-big') as HTMLElement;
 
@@ -226,59 +226,77 @@ class Context implements ContextApi {
     function setupHoverEffects(element: HTMLElement) {
       let flag = true;
       let owoTime: number;
+      element.addEventListener('pointerover', (e: PointerEvent) => {
+        if (e.pointerType !== 'mouse') return;
 
-      element.addEventListener('mouseover', (e: MouseEvent) => {
         const imgElement = e.target as HTMLImageElement;
-        
-        if (flag && imgElement.tagName === 'IMG' && imgElement.attributes['atk-emoticon']) {
+        if (flag && imgElement.tagName === 'IMG' && imgElement.hasAttribute('atk-emoticon')) {
           flag = false;
           owoTime = window.setTimeout(() => {
             const alt = imgElement.getAttribute("notitle") === "true" ? '' : imgElement.alt || '';
             const { clientHeight, clientWidth, naturalHeight, naturalWidth } = imgElement;
-            
-            if (clientHeight <= maxLength && clientWidth <= maxLength) {
-              const { tempWidth, tempHeight } = calculateSize(clientHeight, clientWidth, naturalHeight, naturalWidth);
+
+            if (clientHeight <= MaxLength && clientWidth <= MaxLength) {
+              const { tempWidth, tempHeight } = calculateSize(clientHeight, clientWidth, naturalHeight, naturalWidth, RATIO, MaxLength);
               const { top, left } = calculatePosition(e, tempWidth, clientWidth, body);
+              const adjustedTempHeight = alt ? tempHeight + 10 : tempHeight;
 
-              let adjustedTempHeight = tempHeight;
-              if (alt !== '') adjustedTempHeight += 10;
-
-              div.style.cssText = `display:block;height:${adjustedTempHeight + 34}px;width:${tempWidth + 34}px;left:${left}px;top:${top}px;`;
-              div.innerHTML = `<img src="${imgElement.src}" onerror="this.classList.add('error')"><p>${alt}</p>`;
+              div.style.cssText = `
+                display: block;
+                height: ${adjustedTempHeight + 34}px;
+                width: ${tempWidth + 34}px;
+                left: ${left}px;
+                top: ${top}px;
+              `;
+              div.innerHTML = `
+                <img src="${imgElement.src}" onerror="this.classList.add('error')">
+                <p>${alt}</p>
+              `;
             }
-          }, 300);
+          }, 300);          
         }
       });
 
-      element.addEventListener('mouseout', () => {
+      element.addEventListener('pointerout', () => {
         flag = true;
         div.style.display = 'none';
         clearTimeout(owoTime);
       });
     }
 
-    function calculateSize(clientHeight: number, clientWidth: number, naturalHeight: number, naturalWidth: number): { tempWidth: number, tempHeight: number } {
+    function calculateSize(
+      clientHeight: number,
+      clientWidth: number,
+      naturalHeight: number,
+      naturalWidth: number,
+      ratio: number,
+      maxLength: number
+    ): { tempWidth: number, tempHeight: number } {
       const zoomHeight = clientHeight * ratio;
       const zoomWidth = clientWidth * ratio;
-
-      const height = Math.min(naturalHeight, zoomHeight, maxLength, clientHeight);
-      const width = Math.min(naturalWidth, zoomWidth, maxLength, clientWidth);
-      const aspectRatio = width / height;
-
-      const tempWidth = aspectRatio >= 1 ? Math.min(width, maxLength) : Math.min((width * maxLength) / height, width);
-      const tempHeight = aspectRatio < 1 ? Math.min(height, maxLength) : Math.min((height * maxLength) / width, height);
-
+      const constrainedHeight = Math.min(zoomHeight, maxLength, Math.max(clientHeight, naturalHeight));
+      const constrainedWidth = Math.min(zoomWidth, maxLength, Math.max(clientWidth, naturalWidth));
+      const aspectRatio = constrainedWidth / constrainedHeight;
+      const tempWidth = aspectRatio >= 1 
+        ? Math.min(constrainedWidth, maxLength) 
+        : Math.min((constrainedWidth * maxLength) / constrainedHeight, constrainedWidth);
+      const tempHeight = aspectRatio < 1 
+        ? Math.min(constrainedHeight, maxLength) 
+        : Math.min((constrainedHeight * maxLength) / constrainedWidth, constrainedHeight);
       return { tempWidth, tempHeight };
-    }
+    }    
 
-    function calculatePosition(e: MouseEvent, tempWidth: number, clientWidth: number, bodyElement: HTMLElement): { top: number, left: number } {
+    function calculatePosition(
+      e: MouseEvent, 
+      tempWidth: number, 
+      clientWidth: number, 
+      bodyElement: HTMLElement
+    ): { top: number, left: number } {
       const top = e.clientY - e.offsetY;
       let left = e.clientX - e.offsetX - (tempWidth - clientWidth) / 2;
-
       left = Math.max(10, Math.min(left, bodyElement.clientWidth - tempWidth - 10));
-
       return { top, left };
-    }
+    }    
   }
 
   handleImageLoadFailure(target: Node) {
