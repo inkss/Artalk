@@ -239,21 +239,19 @@ class Context implements ContextApi {
             if (clientHeight <= MaxLength && clientWidth <= MaxLength) {
               const { tempWidth, tempHeight } = calculateSize(clientHeight, clientWidth, naturalHeight, naturalWidth, RATIO, MaxLength);
               const { top, left } = calculatePosition(e, tempWidth, clientWidth, body);
-              const adjustedTempHeight = alt ? tempHeight + 10 : tempHeight;
 
               div.style.cssText = `
                 display: block;
-                height: ${adjustedTempHeight + 34}px;
-                width: ${tempWidth + 34}px;
+                width: ${tempWidth + 32}px; // div padding: 16px;
                 left: ${left}px;
                 top: ${top}px;
               `;
               div.innerHTML = `
-                <img src="${imgElement.src}" onerror="this.classList.add('error')">
-                <p>${alt}</p>
+                <img src="${imgElement.src}" style="height: ${tempHeight}px;width: ${tempWidth}px" onerror="this.classList.add('error')">
+                <p>${alt.trim().replace(/\s+/g, ' ').replace(/ /g, '<br>')}</p>
               `;
             }
-          }, 300);          
+          }, 300);
         }
       });
 
@@ -277,26 +275,26 @@ class Context implements ContextApi {
       const constrainedHeight = Math.min(zoomHeight, maxLength, Math.max(clientHeight, naturalHeight));
       const constrainedWidth = Math.min(zoomWidth, maxLength, Math.max(clientWidth, naturalWidth));
       const aspectRatio = constrainedWidth / constrainedHeight;
-      const tempWidth = aspectRatio >= 1 
-        ? Math.min(constrainedWidth, maxLength) 
+      const tempWidth = aspectRatio >= 1
+        ? Math.min(constrainedWidth, maxLength)
         : Math.min((constrainedWidth * maxLength) / constrainedHeight, constrainedWidth);
-      const tempHeight = aspectRatio < 1 
-        ? Math.min(constrainedHeight, maxLength) 
+      const tempHeight = aspectRatio < 1
+        ? Math.min(constrainedHeight, maxLength)
         : Math.min((constrainedHeight * maxLength) / constrainedWidth, constrainedHeight);
       return { tempWidth, tempHeight };
-    }    
+    }
 
     function calculatePosition(
-      e: MouseEvent, 
-      tempWidth: number, 
-      clientWidth: number, 
+      e: MouseEvent,
+      tempWidth: number,
+      clientWidth: number,
       bodyElement: HTMLElement
     ): { top: number, left: number } {
       const top = e.clientY - e.offsetY;
       let left = e.clientX - e.offsetX - (tempWidth - clientWidth) / 2;
       left = Math.max(10, Math.min(left, bodyElement.clientWidth - tempWidth - 10));
       return { top, left };
-    }    
+    }
   }
 
   handleImageLoadFailure(target: Node) {
