@@ -7,7 +7,12 @@ export class LayerManager {
 
   constructor(ctx: ContextApi) {
     this.wrap = new LayerWrap()
-    document.body.appendChild(this.wrap.getWrap())
+
+    // 避免重复添加
+    const className = this.wrap.getWrap().getAttribute('class') || 'atk-layer-wrap'
+    if (!document.body.getElementsByClassName(className).length) {
+      document.body.appendChild(this.wrap.getWrap());
+    }
 
     ctx.on('unmounted', () => {
       this.wrap.getWrap().remove()

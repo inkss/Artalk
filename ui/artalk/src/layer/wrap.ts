@@ -8,9 +8,14 @@ export class LayerWrap {
   private items: Layer[] = []
 
   constructor() {
-    this.$wrap = Utils.createElement(
-      `<div class="atk-layer-wrap" style="display: none;"><div class="atk-layer-mask"></div></div>`,
-    )
+    if (document.querySelector('.atk-layer-wrap')) {
+      this.$wrap = document.querySelector('.atk-layer-wrap')!
+    } else {
+      this.$wrap = Utils.createElement(
+        `<div class="atk-layer-wrap" style="display: none;"><div class="atk-layer-mask"></div></div>`,
+      )
+    }
+    
     this.$mask = this.$wrap.querySelector<HTMLElement>('.atk-layer-mask')!
   }
 
