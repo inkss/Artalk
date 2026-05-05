@@ -1,6 +1,7 @@
-import type { I18n } from '@/i18n'
+import type { MarkedOptions } from 'marked'
 import type { CommentData } from './data'
 import type { EditorApi } from './editor'
+import type { I18n } from '@/i18n'
 
 export interface ArtalkConfig {
   /** 装载元素 */
@@ -81,6 +82,9 @@ export interface ArtalkConfig {
   /** PV 数绑定元素 Selector */
   pvEl: string
 
+  /** 统计组件 PageKey 属性名 */
+  statPageKeyAttr: string
+
   /** 夜间模式 */
   darkMode: boolean | 'auto'
 
@@ -108,6 +112,9 @@ export interface ArtalkConfig {
   /** 图片上传器 */
   imgUploader?: (file: File) => Promise<string>
 
+  /** Image lazy load */
+  imgLazyLoad?: 'native' | 'data-src'
+
   /** 版本检测 */
   versionCheck: boolean
 
@@ -126,8 +133,18 @@ export interface ArtalkConfig {
   /** Replacer for marked */
   markedReplacers?: ((raw: string) => string)[]
 
+  /** Marked options */
+  markedOptions?: MarkedOptions
+
   /** 列表请求参数修改器 */
   listFetchParamsModifier?: (params: any) => void
+
+  /**
+   * Date formatter for custom date format
+   * @param date - Date object
+   * @returns Formatted date string
+   */
+  dateFormatter?: (date: Date) => string
 
   // TODO consider merge list related config into one object, or flatten all to keep simple (keep consistency)
   remoteConfModifier?: (conf: Partial<ArtalkConfig>) => void
@@ -138,22 +155,23 @@ export interface ArtalkConfig {
 }
 
 /**
- * 本地持久化用户数据
- * @note 始终保持一层结构，不支持多层结构
+ * Local User Data (in localStorage)
+ *
+ * @note Keep flat for easy handling
  */
 export interface LocalUser {
-  /** 昵称 */
-  nick: string
+  /** Username (aka. Nickname) */
+  name: string
 
-  /** 邮箱 */
+  /** Email */
   email: string
 
-  /** 链接 */
+  /** Link (aka. Website) */
   link: string
 
-  /** TOKEN */
+  /** Token (for authorization) */
   token: string
 
-  /** 是否为管理员 */
-  isAdmin: boolean
+  /** Admin flag */
+  is_admin: boolean
 }

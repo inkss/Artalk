@@ -1,7 +1,7 @@
 export interface ApiHandlerPayload {
   need_captcha: { img_data?: string; iframe?: string }
-  need_login: {}
-  need_auth_login: {}
+  need_login: object
+  need_auth_login: object
 }
 
 type PayloadKey = keyof ApiHandlerPayload
@@ -16,6 +16,7 @@ export interface ApiHandlers {
     action: T,
     handler: (data: ApiHandlerPayload[T]) => Promise<void>,
   ) => void
+  remove: (action: PayloadKey) => void
   get: () => ApiHandler[]
 }
 
@@ -24,6 +25,10 @@ export function createApiHandlers(): ApiHandlers {
   return {
     add: (action, handler) => {
       handlers.push({ action, handler })
+    },
+    remove: (action) => {
+      const index = handlers.findIndex((h) => h.action === action)
+      if (index !== -1) handlers.splice(index, 1)
     },
     get: () => handlers,
   }

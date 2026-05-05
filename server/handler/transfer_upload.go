@@ -4,9 +4,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/internal/log"
-	"github.com/ArtalkJS/Artalk/server/common"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/log"
+	"github.com/artalkjs/artalk/v2/server/common"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -56,6 +56,7 @@ func TransferUpload(app *core.App, router fiber.Router) {
 			log.Error(err)
 			return common.RespError(c, 500, "tmp file creation failed")
 		}
+		defer tmpFile.Close()
 
 		// Write buffer to temp file
 		tmpFile.Write(buf)

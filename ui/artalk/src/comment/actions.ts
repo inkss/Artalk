@@ -1,6 +1,6 @@
+import type { CommentNode } from '.'
 import ActionBtn from '@/components/action-btn'
 import $t from '@/i18n'
-import type { CommentNode } from '.'
 
 export default class CommentActions {
   private comment: CommentNode
@@ -36,7 +36,7 @@ export default class CommentActions {
       })
       .catch((err) => {
         actionBtn?.setError($t('voteFail'))
-        console.log(err)
+        console.error(err)
       })
   }
 

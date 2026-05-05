@@ -1,58 +1,56 @@
 package cache
 
 import (
+	"fmt"
 	"reflect"
 
-	"github.com/ArtalkJS/Artalk/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/log"
 	"github.com/eko/gocache/lib/v4/store"
 	"golang.org/x/sync/singleflight"
 )
 
-var (
-	cacheFindStoreGroup = new(singleflight.Group)
-)
+var cacheSingleflightGroup = new(singleflight.Group)
 
-func (c *Cache) QueryDBWithCache(name string, dest any, queryDB func()) error {
-	if reflect.TypeOf(dest).Kind() != reflect.Ptr {
-		panic("The 'dest' param in 'QueryDBWithCache' func is expected to pointer type to update its data.")
-	}
+func QueryDBWithCache[T any](c *Cache, name string, queryDB func() (T, error)) (T, error) {
+	// Use SingleFlight to prevent Cache Breakdown
+	v, err, _ := cacheSingleflightGroup.Do(name, func() (any, error) {
+		var val T
 
-	// use SingleFlight to prevent Cache Breakdown
-	v, err, _ := cacheFindStoreGroup.Do(name, func() (any, error) {
-		// query cache
-		err := c.FindCache(name, dest)
+		// Query from cache
+		err := c.FindCache(name, &val)
 
-		if err != nil { // cache miss
+		if err != nil {
+			// Miss cache
 
-			// call queryDB() the dest value will be updated
-			queryDB()
-
-			if err := c.StoreCache(dest, name); err != nil {
+			// Query from db
+			val, err := queryDB()
+			if err != nil {
 				return nil, err
 			}
 
-			// because queryDB() had update dest value,
-			// no need to update it again, so return nil
-			return nil, nil
+			// Store cache
+			if err := c.StoreCache(val, name); err != nil {
+				return nil, err
+			}
+
+			return val, nil
+		} else {
+			// Hit cache
+			return val, nil
 		}
-
-		return dest, nil
 	})
-
 	if err != nil {
-		return err
+		return *new(T), err
 	}
 
-	// update dest value only if cache hit,
-	// if cache miss, `dest` has been updated in `queryDB()` so no need to set again
-	if v != nil {
-		reflect.ValueOf(dest).Elem().Set(reflect.ValueOf(v).Elem()) // similar to `*dest = &v`
-	}
-
-	return nil
+	return v.(T), err
 }
 
 func (c *Cache) FindCache(name string, dest any) error {
+	if reflect.ValueOf(dest).Kind() != reflect.Ptr {
+		return fmt.Errorf("[FindCache] dest must be a pointer")
+	}
+
 	// `Get()` is Thread Safe, so no need to add Mutex
 	// @see https://github.com/go-redis/redis/issues/23
 	_, err := c.marshal.Get(c.ctx, name, dest)

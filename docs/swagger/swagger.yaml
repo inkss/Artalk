@@ -1,5 +1,20 @@
 basePath: /api/v2
 definitions:
+  auth.AuthProviderInfo:
+    properties:
+      icon:
+        type: string
+      label:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+    required:
+    - icon
+    - label
+    - name
+    type: object
   common.ApiVersionData:
     properties:
       app:
@@ -139,6 +154,8 @@ definitions:
     properties:
       admin_only:
         type: boolean
+      date:
+        type: string
       id:
         type: integer
       key:
@@ -157,6 +174,7 @@ definitions:
         type: integer
     required:
     - admin_only
+    - date
     - id
     - key
     - pv
@@ -456,7 +474,7 @@ definitions:
   handler.ParamsTransferImport:
     properties:
       assumeyes:
-        description: Automatically answer yes for all questions.
+        description: Automatically answer yes for all questions
         type: boolean
       json_data:
         description: The JSON data
@@ -470,6 +488,9 @@ definitions:
       target_site_url:
         description: The target site url
         type: string
+      url_keep_domain:
+        description: Keep domain
+        type: boolean
       url_resolver:
         description: Enable URL resolver
         type: boolean
@@ -562,6 +583,62 @@ definitions:
         description: The username
         type: string
     type: object
+  handler.RequestAuthDataMergeApply:
+    properties:
+      user_name:
+        type: string
+    required:
+    - user_name
+    type: object
+  handler.RequestAuthEmailLogin:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    type: object
+  handler.RequestAuthEmailRegister:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - code
+    - email
+    - password
+    type: object
+  handler.RequestAuthEmailSend:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  handler.RequestUserInfoUpdate:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+    required:
+    - email
+    - name
+    type: object
   handler.ResponseAdminUserList:
     properties:
       count:
@@ -573,6 +650,38 @@ definitions:
     required:
     - count
     - users
+    type: object
+  handler.ResponseAuthDataMergeApply:
+    properties:
+      deleted_user_count:
+        type: integer
+      update_comments_count:
+        type: integer
+      update_notifies_count:
+        type: integer
+      update_votes_count:
+        type: integer
+      user_token:
+        description: Empty if login user is target user no need to re-login
+        type: string
+    required:
+    - deleted_user_count
+    - update_comments_count
+    - update_notifies_count
+    - update_votes_count
+    - user_token
+    type: object
+  handler.ResponseAuthDataMergeCheck:
+    properties:
+      need_merge:
+        type: boolean
+      user_names:
+        items:
+          type: string
+        type: array
+    required:
+    - need_merge
+    - user_names
     type: object
   handler.ResponseCaptchaGet:
     properties:
@@ -772,6 +881,18 @@ definitions:
     - vote_down
     - vote_up
     type: object
+  handler.ResponseConfAuthProviders:
+    properties:
+      anonymous:
+        type: boolean
+      providers:
+        items:
+          $ref: '#/definitions/auth.AuthProviderInfo'
+        type: array
+    required:
+    - anonymous
+    - providers
+    type: object
   handler.ResponseConfDomain:
     properties:
       is_trusted:
@@ -800,6 +921,8 @@ definitions:
     properties:
       admin_only:
         type: boolean
+      date:
+        type: string
       id:
         type: integer
       key:
@@ -818,6 +941,7 @@ definitions:
         type: integer
     required:
     - admin_only
+    - date
     - id
     - key
     - pv
@@ -870,6 +994,8 @@ definitions:
     properties:
       admin_only:
         type: boolean
+      date:
+        type: string
       id:
         type: integer
       key:
@@ -888,6 +1014,7 @@ definitions:
         type: integer
     required:
     - admin_only
+    - date
     - id
     - key
     - pv
@@ -899,9 +1026,14 @@ definitions:
     type: object
   handler.ResponseSettingGet:
     properties:
+      envs:
+        items:
+          type: string
+        type: array
       yaml:
         type: string
     required:
+    - envs
     - yaml
     type: object
   handler.ResponseSettingTemplate:
@@ -1052,6 +1184,13 @@ definitions:
     - notifies_count
     - user
     type: object
+  handler.ResponseUserInfoUpdate:
+    properties:
+      user:
+        $ref: '#/definitions/entity.CookedUser'
+    required:
+    - user
+    type: object
   handler.ResponseUserLogin:
     properties:
       token:
@@ -1134,6 +1273,215 @@ info:
   title: Artalk API
   version: "2.0"
 paths:
+  /auth/email/login:
+    post:
+      consumes:
+      - application/json
+      description: Login by email with verify code (Need send email verify code first)
+        or password
+      operationId: LoginByEmail
+      parameters:
+      - description: The data to login
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RequestAuthEmailLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseUserLogin'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Login by email
+      tags:
+      - Auth
+  /auth/email/register:
+    post:
+      consumes:
+      - application/json
+      description: Register by email and verify code (if user exists, will update
+        user, like forget or change password. Need send email verify code first)
+      operationId: RegisterByEmail
+      parameters:
+      - description: The data to register
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RequestAuthEmailRegister'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseUserLogin'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Register by email
+      tags:
+      - Auth
+  /auth/email/send:
+    post:
+      consumes:
+      - application/json
+      description: Send email including verify code to user
+      operationId: SendVerifyEmail
+      parameters:
+      - description: The data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RequestAuthEmailSend'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Send verify email
+      tags:
+      - Auth
+  /auth/merge:
+    get:
+      description: Get all users with same email, if there are more than one user
+        with same email, need merge
+      operationId: CheckDataMerge
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseAuthDataMergeCheck'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Check data merge
+      tags:
+      - Auth
+    post:
+      consumes:
+      - application/json
+      description: This function is to solve the problem of multiple users with the
+        same email address, should be called after user login and then check, and
+        perform data merge.
+      operationId: ApplyDataMerge
+      parameters:
+      - description: The data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RequestAuthDataMergeApply'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseAuthDataMergeApply'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Apply data merge
+      tags:
+      - Auth
   /cache/flush:
     post:
       description: Flush all cache on the server
@@ -1580,6 +1928,29 @@ paths:
       summary: Get System Configs
       tags:
       - System
+  /conf/auth/providers:
+    get:
+      description: Get social login providers
+      operationId: GetSocialLoginProviders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseConfAuthProviders'
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Get Social Login Providers
+      tags:
+      - System
   /conf/domain:
     get:
       description: Get Domain Info
@@ -1752,6 +2123,10 @@ paths:
         in: query
         name: offset
         type: integer
+      - description: Search keywords
+        in: query
+        name: search
+        type: string
       - description: The site name of your content scope
         in: query
         name: site_name
@@ -2551,6 +2926,48 @@ paths:
       summary: Get User Info
       tags:
       - Auth
+    post:
+      consumes:
+      - application/json
+      description: Update user profile when user is logged in
+      operationId: UpdateProfile
+      parameters:
+      - description: The profile data to update
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RequestUserInfoUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseUserInfoUpdate'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update user profile
+      tags:
+      - Auth
   /user/access_token:
     post:
       consumes:
@@ -2822,6 +3239,10 @@ paths:
         in: query
         name: offset
         type: integer
+      - description: Search keywords
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:

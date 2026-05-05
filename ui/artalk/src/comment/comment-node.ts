@@ -1,5 +1,3 @@
-import type { CommentData, ArtalkConfig, ContextApi } from '@/types'
-import $t from '@/i18n'
 import type { Api } from '../api'
 import * as Ui from '../lib/ui'
 import * as Utils from '../lib/utils'
@@ -7,11 +5,13 @@ import marked from '../lib/marked'
 import UADetect from '../lib/detect'
 import CommentUI from './render'
 import CommentActions from './actions'
+import $t from '@/i18n'
+import type { CommentData, ArtalkConfig, ContextApi } from '@/types'
 
 export interface CommentOptions {
   // Hooks
   onAfterRender?: () => void
-  onDelete?: Function
+  onDelete?: (c: CommentNode) => void
 
   /** The comment being replied to (linked comment) */
   replyTo?: CommentData
@@ -26,6 +26,7 @@ export interface CommentOptions {
   heightLimit: ArtalkConfig['heightLimit']
   avatarURLBuilder: ArtalkConfig['avatarURLBuilder']
   scrollRelativeTo: ArtalkConfig['scrollRelativeTo']
+  dateFormatter: ArtalkConfig['dateFormatter']
 
   // TODO: Move to plugin folder and remove from core
   getApi: () => Api
@@ -204,7 +205,7 @@ export default class CommentNode {
     return Utils.getGravatarURL({
       mirror: this.opts.gravatar.mirror,
       params: this.opts.gravatar.params,
-      emailMD5: this.data.email_encrypted,
+      emailHash: this.data.email_encrypted,
     })
   }
 
@@ -215,7 +216,8 @@ export default class CommentNode {
 
   /** 获取格式化后的日期 */
   public getDateFormatted() {
-    return Utils.timeAgo(new Date(this.data.date), $t)
+    const date = new Date(this.data.date)
+    return this.opts.dateFormatter?.(date) || Utils.timeAgo(date, $t)
   }
 
   /** 获取用户 UserAgent 信息 */

@@ -2,7 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { useNavStore } from '../stores/nav'
 import { useUserStore } from '../stores/user'
-import { bootParams } from '@/global'
+import { isOpenFromSidebar } from '@/global'
 
 const el = ref<HTMLElement | null>(null)
 
@@ -69,6 +69,8 @@ watch(curtShow, (value) => {
 })
 
 function logout() {
+  if (!window.confirm(t('logoutConfirm'))) return
+
   useUserStore().logout()
   nextTick(() => {
     router.replace('/login')
@@ -78,7 +80,7 @@ function logout() {
 
 <template>
   <Transition>
-    <div ref="el" v-show="curtShow" class="atk-site-list-floater">
+    <div v-show="curtShow" ref="el" class="atk-site-list-floater">
       <div class="atk-sites">
         <div
           v-for="(site, i) in displaySites"
@@ -92,7 +94,7 @@ function logout() {
         </div>
 
         <!-- Logout Button -->
-        <div v-if="!bootParams.user?.email" class="atk-site-item" @click="logout()">
+        <div v-if="!isOpenFromSidebar()" class="atk-site-item" @click="logout()">
           <svg
             class="atk-site-logo"
             stroke="currentColor"
@@ -105,7 +107,7 @@ function logout() {
               d="M5 22C4.44772 22 4 21.5523 4 21V3C4 2.44772 4.44772 2 5 2H19C19.5523 2 20 2.44772 20 3V6H18V4H6V20H18V18H20V21C20 21.5523 19.5523 22 19 22H5ZM18 16V13H11V11H18V8L23 12L18 16Z"
             ></path>
           </svg>
-          <div class="atk-site-name">{{ $t('logout') }}</div>
+          <div class="atk-site-name">{{ t('logout') }}</div>
         </div>
       </div>
     </div>
@@ -130,6 +132,11 @@ function logout() {
   overflow-y: auto;
   transition: all 0.2s ease;
 
+  @media (min-width: 1024px) {
+    left: 10px;
+    max-width: 260px;
+  }
+
   .atk-sites {
     display: flex;
     flex-direction: column;
@@ -147,7 +154,7 @@ function logout() {
         width: 20px;
         height: 20px;
         line-height: 20px;
-        background: #697182;
+        background: #5b6f7e;
         margin: 10px;
         border-radius: 3px;
         text-align: center;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { ArtalkType } from 'artalk'
 import { useNavStore } from '../stores/nav'
 import { artalk, bootParams } from '../global'
-import type { ArtalkType } from 'artalk'
 
 const nav = useNavStore()
 const sites = ref<ArtalkType.SiteData[]>([])
@@ -24,7 +24,7 @@ onMounted(() => {
       nav.setPageLoading(false)
     })
 
-  // 通过启动参数打开站点创建
+  // Open site create dialog by view params (from URL query)
   const vp = bootParams.viewParams
   if (vp && vp.create_name && vp.create_urls) {
     siteCreateInitVal.value = { name: vp.create_name, urls: vp.create_urls }
@@ -49,7 +49,7 @@ const sitesGrouped = computed(() => {
   for (let i = 0; i < sites.value.length; i++) {
     const item = sites.value[i]
     if (i % 4 === 0) {
-      // 每 4 个一组
+      // Each row has 4 items
       grp.push([])
       j++
     }
@@ -104,10 +104,10 @@ function onSiteItemRemove(id: number) {
       @done="onNewSiteCreated"
     />
     <div class="atk-site-rows-wrap">
-      <template v-for="(sites, i) in sitesGrouped" :key="i">
+      <template v-for="(ss, i) in sitesGrouped" :key="i">
         <template v-if="curtEditSite !== null">
           <SiteEditor
-            v-if="!!sites.includes(curtEditSite)"
+            v-if="!!ss.includes(curtEditSite)"
             :site="curtEditSite"
             @close="curtEditSite = null"
             @update="onSiteItemUpdate"
@@ -116,7 +116,7 @@ function onSiteItemRemove(id: number) {
         </template>
         <div class="atk-site-row">
           <div
-            v-for="site in sites"
+            v-for="site in ss"
             :key="site.id"
             class="atk-site-item"
             :class="{ 'atk-active': curtEditSite === site }"
@@ -192,7 +192,7 @@ function onSiteItemRemove(id: number) {
         height: 65px;
         width: 65px;
         line-height: 65px;
-        background: #687a86;
+        background: #5b6f7e;
         color: #fff;
         border-radius: 4px;
       }
@@ -232,6 +232,13 @@ function onSiteItemRemove(id: number) {
     border-top: 1px solid var(--at-color-border);
     border-bottom: 1px solid var(--at-color-border);
     margin-bottom: -10px;
+
+    @media (min-width: 1024px) {
+      border-left: 1px solid var(--at-color-border);
+      border-right: 1px solid var(--at-color-border);
+      border-radius: 4px;
+      padding-top: 10px;
+    }
 
     .atk-header {
       display: flex;

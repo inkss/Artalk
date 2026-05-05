@@ -1,8 +1,14 @@
-@import "include-media";
+@import 'include-media';
 
-$breakpoints: (sm: 640px, md: 768px, lg: 1024px, xl: 1280px, xxl: 1536px);
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  xxl: 1536px,
+);
 
-@include media(">lg", "<xxl") {
+@include media('>lg', '<xxl') {
   .feature {
     .feature-title {
       padding: 0 40px;
@@ -21,32 +27,63 @@ $breakpoints: (sm: 640px, md: 768px, lg: 1024px, xl: 1280px, xxl: 1536px);
   }
 }
 
-@include media("<=md") {
+@include media('<=md') {
   .app-header {
     padding: 0 25px;
   }
 
-  .app-header .links .link-item:not(:last-child) {
-    margin-right: 24px
+  .app-header .menu-toggle-mobile {
+    display: block;
+  }
+
+  .app-header .links {
+    display: none;
+
+    &.mobile-show {
+      flex: 1;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .link-item:not(:last-child) {
+      margin-right: 0;
+    }
+
+    .link-item .language-toggle {
+      margin-left: 0;
+    }
+  }
+
+  .slogan .slogan-inner {
+    padding: 0 40px;
   }
 
   .slogan .text {
-    zoom: .8;
-    width: 90%;
+    zoom: 0.8;
+    width: 100%;
+  }
+
+  .slogan .demos {
+    display: none;
   }
 
   .slogan .btns {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 
     .btn:not(:last-child) {
-      margin-right: 0;
+      margin-right: 10px;
       margin-bottom: 20px;
     }
   }
 
   .feature {
     padding: 0 30px;
+
+    svg {
+      object-fit: contain;
+      max-height: 300px;
+    }
 
     .content {
       padding: 0;
@@ -64,7 +101,7 @@ $breakpoints: (sm: 640px, md: 768px, lg: 1024px, xl: 1280px, xxl: 1536px);
         width: 100%;
 
         svg {
-          zoom: .8;
+          zoom: 0.8;
         }
       }
     }
@@ -76,17 +113,38 @@ $breakpoints: (sm: 640px, md: 768px, lg: 1024px, xl: 1280px, xxl: 1536px);
     transform: translateX(0) !important;
 
     .item {
+      width: 100%;
+      padding: 30px 40px;
+      margin: 0;
+      font-size: 21px;
+
       &:not(:last-child) {
         margin-bottom: 40px;
       }
-
-      width: 100%;
-      padding: 30px 40px;
     }
   }
 
   .feature.quick .airplane-wrap {
     margin-left: -50px;
+  }
+
+  .feature.quick .extra-desc {
+    display: flex;
+    flex-direction: column;
+    margin: 250px 20px;
+  }
+
+  .feature.quick .extra-desc .golang-icon {
+    margin-top: 50px;
+    zoom: 0.6;
+  }
+
+  .feature.quick .extra-desc .self-compile {
+    text-align: center;
+  }
+
+  .feature.quick .extra-desc .docker-url {
+    font-size: 20px;
   }
 
   .full.feature .folder-icon {
@@ -106,7 +164,7 @@ $breakpoints: (sm: 640px, md: 768px, lg: 1024px, xl: 1280px, xxl: 1536px);
   }
 
   .safe.feature .data-icon {
-    zoom: .5;
+    zoom: 0.5;
     margin-left: 0;
     margin-bottom: 0;
   }
@@ -120,7 +178,16 @@ $breakpoints: (sm: 640px, md: 768px, lg: 1024px, xl: 1280px, xxl: 1536px);
     column-count: 1;
   }
 
+  .feature.quick .deploy-links .item span {
+    font-size: 23px;
+  }
+
+  .feature.quick .deploy-links .item .bold {
+    font-size: 35px;
+  }
+
   .feature-desc {
     text-align: left;
+    font-size: 19px;
   }
 }

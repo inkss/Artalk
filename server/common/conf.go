@@ -2,12 +2,13 @@ package common
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
-	"github.com/ArtalkJS/Artalk/internal/config"
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/internal/utils"
-	"github.com/ArtalkJS/Artalk/server/middleware"
+	"github.com/artalkjs/artalk/v2/internal/config"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/utils"
+	"github.com/artalkjs/artalk/v2/server/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )
@@ -22,7 +23,7 @@ func GetApiVersionDataMap() ApiVersionData {
 	return ApiVersionData{
 		App:        "artalk",
 		Version:    strings.TrimPrefix(config.Version, "v"),
-		CommitHash: config.CommitHash,
+		CommitHash: config.CommitHash(),
 	}
 }
 
@@ -51,12 +52,23 @@ func GetApiPublicConfDataMap(app *core.App, c *fiber.Ctx) ConfData {
 		frontendConf["locale"] = app.Conf().Locale
 	}
 
-	if pluginURLs, ok := frontendConf["pluginURLs"].([]any); ok {
-		frontendConf["pluginURLs"] = handlePluginURLs(app,
-			lo.Map[any, string](pluginURLs, func(u any, _ int) string {
-				return strings.TrimSpace(fmt.Sprintf("%v", u))
-			}))
+	if _, ok := frontendConf["pluginURLs"].([]any); !ok {
+		frontendConf["pluginURLs"] = []any{}
 	}
+	pluginURLs := frontendConf["pluginURLs"].([]any)
+
+	if app.Conf().Auth.Enabled {
+		pluginURLs = append(pluginURLs, "dist/plugins/artalk-plugin-auth.js")
+	}
+
+	if !slices.Contains([]string{"en", "zh-CN", ""}, app.Conf().Locale) {
+		pluginURLs = append(pluginURLs, fmt.Sprintf("dist/i18n/%s.js", app.Conf().Locale))
+	}
+
+	frontendConf["pluginURLs"] = handlePluginURLs(app,
+		lo.Map(pluginURLs, func(u any, _ int) string {
+			return strings.TrimSpace(fmt.Sprintf("%v", u))
+		}))
 
 	return ConfData{
 		FrontendConf: frontendConf,
@@ -65,7 +77,7 @@ func GetApiPublicConfDataMap(app *core.App, c *fiber.Ctx) ConfData {
 }
 
 func handlePluginURLs(app *core.App, urls []string) []string {
-	return lo.Filter[string](urls, func(u string, _ int) bool {
+	return utils.RemoveDuplicates(lo.Filter(urls, func(u string, _ int) bool {
 		if strings.TrimSpace(u) == "" {
 			return false
 		}
@@ -76,5 +88,5 @@ func handlePluginURLs(app *core.App, urls []string) []string {
 			return true
 		}
 		return false
-	})
+	}))
 }

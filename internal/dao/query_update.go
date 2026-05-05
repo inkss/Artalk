@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ArtalkJS/Artalk/internal/entity"
-	"github.com/ArtalkJS/Artalk/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/log"
 )
 
 // 更新评论
@@ -67,4 +67,16 @@ func (dao *Dao) UserNotifyMarkAllAsRead(userID uint) error {
 	})
 
 	return nil
+}
+
+func (dao *Dao) UpdateAuthIdentity(authIdentity *entity.AuthIdentity) error {
+	err := dao.DB().Save(authIdentity).Error
+	if err != nil {
+		log.Error("Update AuthIdentity error: ", err)
+	}
+	// TODO: 更新缓存
+	// dao.CacheAction(func(cache *DaoCache) {
+	// 	cache.AuthIdentityCacheSave(authIdentity)
+	// })
+	return err
 }

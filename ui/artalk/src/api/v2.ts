@@ -9,6 +9,13 @@
  * ---------------------------------------------------------------
  */
 
+export interface AuthAuthProviderInfo {
+  icon: string
+  label: string
+  name: string
+  path?: string
+}
+
 export interface CommonApiVersionData {
   app: string
   commit_hash: string
@@ -67,6 +74,7 @@ export interface EntityCookedNotify {
 
 export interface EntityCookedPage {
   admin_only: boolean
+  date: string
   id: number
   key: string
   pv: number
@@ -227,7 +235,7 @@ export interface HandlerParamsSiteUpdate {
 }
 
 export interface HandlerParamsTransferImport {
-  /** Automatically answer yes for all questions. */
+  /** Automatically answer yes for all questions */
   assumeyes?: boolean
   /** The JSON data */
   json_data?: string
@@ -237,6 +245,8 @@ export interface HandlerParamsTransferImport {
   target_site_name?: string
   /** The target site url */
   target_site_url?: string
+  /** Keep domain */
+  url_keep_domain?: boolean
   /** Enable URL resolver */
   url_resolver?: boolean
 }
@@ -295,9 +305,52 @@ export interface HandlerParamsVote {
   name?: string
 }
 
+export interface HandlerRequestAuthDataMergeApply {
+  user_name: string
+}
+
+export interface HandlerRequestAuthEmailLogin {
+  code?: string
+  email: string
+  password?: string
+}
+
+export interface HandlerRequestAuthEmailRegister {
+  code: string
+  email: string
+  link?: string
+  name?: string
+  password: string
+}
+
+export interface HandlerRequestAuthEmailSend {
+  email: string
+}
+
+export interface HandlerRequestUserInfoUpdate {
+  code?: string
+  email: string
+  link?: string
+  name: string
+}
+
 export interface HandlerResponseAdminUserList {
   count: number
   users: EntityCookedUserForAdmin[]
+}
+
+export interface HandlerResponseAuthDataMergeApply {
+  deleted_user_count: number
+  update_comments_count: number
+  update_notifies_count: number
+  update_votes_count: number
+  /** Empty if login user is target user no need to re-login */
+  user_token: string
+}
+
+export interface HandlerResponseAuthDataMergeCheck {
+  need_merge: boolean
+  user_names: string[]
 }
 
 export interface HandlerResponseCaptchaGet {
@@ -376,6 +429,11 @@ export interface HandlerResponseCommentUpdate {
   vote_up: number
 }
 
+export interface HandlerResponseConfAuthProviders {
+  anonymous: boolean
+  providers: AuthAuthProviderInfo[]
+}
+
 export interface HandlerResponseConfDomain {
   /** Is the domain trusted */
   is_trusted: boolean
@@ -390,6 +448,7 @@ export interface HandlerResponseNotifyList {
 
 export interface HandlerResponsePageFetch {
   admin_only: boolean
+  date: string
   id: number
   key: string
   pv: number
@@ -422,6 +481,7 @@ export interface HandlerResponsePagePV {
 
 export interface HandlerResponsePageUpdate {
   admin_only: boolean
+  date: string
   id: number
   key: string
   pv: number
@@ -433,6 +493,7 @@ export interface HandlerResponsePageUpdate {
 }
 
 export interface HandlerResponseSettingGet {
+  envs: string[]
   yaml: string
 }
 
@@ -499,6 +560,10 @@ export interface HandlerResponseUserInfo {
   user: EntityCookedUser
 }
 
+export interface HandlerResponseUserInfoUpdate {
+  user: EntityCookedUser
+}
+
 export interface HandlerResponseUserLogin {
   token: string
   user: EntityCookedUser
@@ -556,7 +621,9 @@ export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string
   baseApiParams?: Omit<RequestParams, 'baseUrl' | 'cancelToken' | 'signal'>
-  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void
+  securityWorker?: (
+    securityData: SecurityDataType | null,
+  ) => Promise<RequestParams | void> | RequestParams | void
   customFetch?: typeof fetch
 }
 
@@ -614,7 +681,11 @@ export class HttpClient<SecurityDataType = unknown> {
     const query = rawQuery || {}
     const keys = Object.keys(query).filter((key) => 'undefined' !== typeof query[key])
     return keys
-      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
+      .map((key) =>
+        Array.isArray(query[key])
+          ? this.addArrayQueryParam(query, key)
+          : this.addQueryParam(query, key),
+      )
       .join('&')
   }
 
@@ -625,8 +696,11 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === 'object' || typeof input === 'string') ? JSON.stringify(input) : input,
-    [ContentType.Text]: (input: any) => (input !== null && typeof input !== 'string' ? JSON.stringify(input) : input),
+      input !== null && (typeof input === 'object' || typeof input === 'string')
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.Text]: (input: any) =>
+      input !== null && typeof input !== 'string' ? JSON.stringify(input) : input,
     [ContentType.FormData]: (input: any) =>
       Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key]
@@ -635,8 +709,8 @@ export class HttpClient<SecurityDataType = unknown> {
           property instanceof Blob
             ? property
             : typeof property === 'object' && property !== null
-            ? JSON.stringify(property)
-            : `${property}`,
+              ? JSON.stringify(property)
+              : `${property}`,
         )
         return formData
       }, new FormData()),
@@ -700,16 +774,19 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json]
     const responseFormat = format || requestParams.format
 
-    return this.customFetch(`${baseUrl || this.baseUrl || ''}${path}${queryString ? `?${queryString}` : ''}`, {
-      ...requestParams,
-      headers: {
-        ...(requestParams.headers || {}),
-        ...(type && type !== ContentType.FormData ? { 'Content-Type': type } : {}),
+    return this.customFetch(
+      `${baseUrl || this.baseUrl || ''}${path}${queryString ? `?${queryString}` : ''}`,
+      {
+        ...requestParams,
+        headers: {
+          ...(requestParams.headers || {}),
+          ...(type && type !== ContentType.FormData ? { 'Content-Type': type } : {}),
+        },
+        signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
+        body: typeof body === 'undefined' || body === null ? null : payloadFormatter(body),
       },
-      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
-      body: typeof body === 'undefined' || body === null ? null : payloadFormatter(body),
-    }).then(async (response) => {
-      const r = response as HttpResponse<T, E>
+    ).then(async (response) => {
+      const r = response.clone() as HttpResponse<T, E>
       r.data = null as unknown as T
       r.error = null as unknown as E
 
@@ -749,6 +826,174 @@ export class HttpClient<SecurityDataType = unknown> {
  * Artalk is a modern comment system based on Golang.
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  auth = {
+    /**
+ * @description Login by email with verify code (Need send email verify code first) or password
+ *
+ * @tags Auth
+ * @name LoginByEmail
+ * @summary Login by email
+ * @request POST:/auth/email/login
+ * @response `200` `HandlerResponseUserLogin` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    loginByEmail: (data: HandlerRequestAuthEmailLogin, params: RequestParams = {}) =>
+      this.request<
+        HandlerResponseUserLogin,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/auth/email/login`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description Register by email and verify code (if user exists, will update user, like forget or change password. Need send email verify code first)
+ *
+ * @tags Auth
+ * @name RegisterByEmail
+ * @summary Register by email
+ * @request POST:/auth/email/register
+ * @response `200` `HandlerResponseUserLogin` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    registerByEmail: (data: HandlerRequestAuthEmailRegister, params: RequestParams = {}) =>
+      this.request<
+        HandlerResponseUserLogin,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/auth/email/register`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description Send email including verify code to user
+ *
+ * @tags Auth
+ * @name SendVerifyEmail
+ * @summary Send verify email
+ * @request POST:/auth/email/send
+ * @response `200` `(HandlerMap & {
+    msg?: string,
+
+})` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    sendVerifyEmail: (data: HandlerRequestAuthEmailSend, params: RequestParams = {}) =>
+      this.request<
+        HandlerMap & {
+          msg?: string
+        },
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/auth/email/send`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description Get all users with same email, if there are more than one user with same email, need merge
+ *
+ * @tags Auth
+ * @name CheckDataMerge
+ * @summary Check data merge
+ * @request GET:/auth/merge
+ * @secure
+ * @response `200` `HandlerResponseAuthDataMergeCheck` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    checkDataMerge: (params: RequestParams = {}) =>
+      this.request<
+        HandlerResponseAuthDataMergeCheck,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/auth/merge`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description This function is to solve the problem of multiple users with the same email address, should be called after user login and then check, and perform data merge.
+ *
+ * @tags Auth
+ * @name ApplyDataMerge
+ * @summary Apply data merge
+ * @request POST:/auth/merge
+ * @secure
+ * @response `200` `HandlerResponseAuthDataMergeApply` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    applyDataMerge: (data: HandlerRequestAuthDataMergeApply, params: RequestParams = {}) =>
+      this.request<
+        HandlerResponseAuthDataMergeApply,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/auth/merge`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  }
   cache = {
     /**
  * @description Flush all cache on the server
@@ -1117,6 +1362,32 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+ * @description Get social login providers
+ *
+ * @tags System
+ * @name GetSocialLoginProviders
+ * @summary Get Social Login Providers
+ * @request GET:/conf/auth/providers
+ * @response `200` `HandlerResponseConfAuthProviders` OK
+ * @response `404` `(HandlerMap & {
+    msg?: string,
+
+})` Not Found
+ */
+    getSocialLoginProviders: (params: RequestParams = {}) =>
+      this.request<
+        HandlerResponseConfAuthProviders,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/conf/auth/providers`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
      * @description Get Domain Info
      *
      * @tags System
@@ -1268,6 +1539,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         limit?: number
         /** The offset for pagination */
         offset?: number
+        /** Search keywords */
+        search?: string
         /** The site name of your content scope */
         site_name?: string
       },
@@ -1947,6 +2220,40 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+ * @description Update user profile when user is logged in
+ *
+ * @tags Auth
+ * @name UpdateProfile
+ * @summary Update user profile
+ * @request POST:/user
+ * @secure
+ * @response `200` `HandlerResponseUserInfoUpdate` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    updateProfile: (data: HandlerRequestUserInfoUpdate, params: RequestParams = {}) =>
+      this.request<
+        HandlerResponseUserInfoUpdate,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/user`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
  * @description Login user by name or email
  *
  * @tags Auth
@@ -2158,6 +2465,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         limit?: number
         /** The offset for pagination */
         offset?: number
+        /** Search keywords */
+        search?: string
       },
       params: RequestParams = {},
     ) =>

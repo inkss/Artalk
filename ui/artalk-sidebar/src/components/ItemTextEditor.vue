@@ -23,7 +23,7 @@ onMounted(() => {
 })
 
 function onInput() {
-  // 验证器
+  // Input value validator
   if (props.validator) {
     inputInvalid.value = props.validator(inputVal.value)
   }
@@ -31,7 +31,7 @@ function onInput() {
 
 function onKeyUp(evt: KeyboardEvent) {
   if (evt.key === 'Enter' || evt.keyCode === 13) {
-    // 按下回车键
+    // Press Enter to submit
     evt.preventDefault()
     submit('yes')
   }
@@ -60,14 +60,14 @@ async function submit(type: 'yes' | 'no') {
     <div class="atk-edit-form">
       <input
         ref="inputEl"
+        v-model="inputVal"
         class="atk-main-input"
         type="text"
         :placeholder="props.placeholder || t('inputHint')"
         autocomplete="off"
-        v-model="inputVal"
+        :class="{ 'atk-invalid': inputInvalid }"
         @input="onInput()"
         @keyup="onKeyUp"
-        :class="{ 'atk-invalid': inputInvalid }"
       />
     </div>
     <div class="atk-actions">

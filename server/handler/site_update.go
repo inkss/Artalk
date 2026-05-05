@@ -3,12 +3,12 @@ package handler
 import (
 	"strings"
 
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/internal/dao"
-	"github.com/ArtalkJS/Artalk/internal/entity"
-	"github.com/ArtalkJS/Artalk/internal/i18n"
-	"github.com/ArtalkJS/Artalk/internal/utils"
-	"github.com/ArtalkJS/Artalk/server/common"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/dao"
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/i18n"
+	"github.com/artalkjs/artalk/v2/internal/utils"
+	"github.com/artalkjs/artalk/v2/server/common"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -44,10 +44,6 @@ func SiteUpdate(app *core.App, router fiber.Router) {
 		site := app.Dao().FindSiteByID(uint(id))
 		if site.IsEmpty() {
 			return common.RespError(c, 404, i18n.T("{{name}} not found", Map{"name": i18n.T("Site")}))
-		}
-
-		if strings.TrimSpace(p.Name) == "" {
-			return common.RespError(c, 400, i18n.T("{{name}} cannot be empty", Map{"name": "name"}))
 		}
 
 		// 重命名合法性检测

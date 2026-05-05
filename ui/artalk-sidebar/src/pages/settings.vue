@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import YAML from 'yaml'
 import { shallowRef } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useNavStore } from '../stores/nav'
 import { artalk } from '../global'
 import settings, { type OptionNode } from '../lib/settings'
-import { storeToRefs } from 'pinia'
 import LoadingLayer from '../components/LoadingLayer.vue'
 
 const nav = useNavStore()
@@ -31,8 +31,9 @@ onMounted(() => {
   ]).then(([template, custom]) => {
     const yamlObj = YAML.parseDocument(template.data.yaml)
     tree.value = settings.init(yamlObj).getTree()
-    console.log(tree.value)
+    // console.log(tree.value)
     settings.get().setCustoms(custom.data.yaml)
+    settings.get().setEnvs(custom.data.envs)
   })
 })
 
@@ -46,7 +47,7 @@ function save() {
     return
   }
 
-  console.log(yamlStr)
+  // console.log(yamlStr)
   if (!yamlStr) {
     alert('YAML export error: data is empty')
     return
@@ -75,11 +76,13 @@ function save() {
 <template>
   <div class="settings">
     <div class="act-bar">
-      <div class="status-text"></div>
-      <button class="save-btn" @click="save()">
-        <i class="atk-icon atk-icon-yes" />
-        {{ t('apply') }}
-      </button>
+      <div class="atk-sidebar-container">
+        <div class="status-text"></div>
+        <button class="save-btn" @click="save()">
+          <i class="atk-icon atk-icon-yes" />
+          {{ t('apply') }}
+        </button>
+      </div>
       <LoadingLayer v-if="isLoading" />
     </div>
     <div v-if="tree" class="pfs">
@@ -105,10 +108,6 @@ function save() {
   .act-bar {
     z-index: 999;
     position: fixed;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-direction: row;
     height: 55px;
     width: 100%;
     bottom: 0;
@@ -116,6 +115,14 @@ function save() {
     background: var(--at-color-bg-transl);
     border-top: 1px solid var(--at-color-border);
     padding: 0 20px;
+
+    .atk-sidebar-container {
+      display: flex;
+      height: 100%;
+      align-items: center;
+      justify-content: space-between;
+      flex-direction: row;
+    }
 
     .status-text {
       padding: 0 5px;
@@ -130,7 +137,7 @@ function save() {
       cursor: pointer;
       background: transparent;
       border-radius: 2px;
-      background: var(--at-color-main);
+      background: #36abcf;
       color: #fff;
       border: 0;
 
@@ -153,6 +160,7 @@ function save() {
   }
 
   :deep(input[type='text']),
+  :deep(input[type='password']),
   :deep(select) {
     font-size: 17px;
     width: 100%;
@@ -162,6 +170,8 @@ function save() {
     border-bottom: 1px solid var(--at-color-border);
     outline: none;
     background: transparent;
+    -webkit-appearance: none;
+    border-radius: 0;
 
     &:focus {
       border-bottom-color: var(--at-color-main);

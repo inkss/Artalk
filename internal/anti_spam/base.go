@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ArtalkJS/Artalk/internal/config"
-	"github.com/ArtalkJS/Artalk/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/config"
+	"github.com/artalkjs/artalk/v2/internal/log"
 	"github.com/samber/lo"
 )
 
-const LOG_TAG = "[AntiSpam]"
+const LOG_TAG = "[AntiSpam] "
 
 // -------------------------------------------------------------------
 //  AntiSpam
@@ -112,7 +112,7 @@ func (as AntiSpam) getEnabledCheckers() []Checker {
 		checkers = append(checkers, NewKeywordsChecker(&KeywordsCheckerConf{
 			Files:     as.conf.Keywords.Files,
 			FileSep:   as.conf.Keywords.FileSep,
-			ReplaceTo: as.conf.Keywords.ReplacTo,
+			ReplaceTo: as.conf.Keywords.ReplaceTo,
 			Mode:      kwCheckerMode,
 			OnUpdateComment: func(commentID uint, content string) {
 				if as.conf.OnUpdateComment != nil {

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ArtalkJS/Artalk/internal/config"
+	"github.com/artalkjs/artalk/v2/internal/config"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -48,11 +48,11 @@ func TestAntiSpam(t *testing.T) {
 			return &AntiSpamConf{
 				ModeratorConf: config.ModeratorConf{
 					Keywords: config.KeyWordsAntispamConf{
-						Enabled:  true,
-						Pending:  false,
-						Files:    []string{kwFile1},
-						FileSep:  "\n",
-						ReplacTo: "*",
+						Enabled:   true,
+						Pending:   false,
+						Files:     []string{kwFile1},
+						FileSep:   "\n",
+						ReplaceTo: "*",
 					},
 				},
 

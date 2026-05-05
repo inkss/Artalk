@@ -1,19 +1,23 @@
 package dao
 
 import (
-	"github.com/ArtalkJS/Artalk/internal/entity"
-	"github.com/ArtalkJS/Artalk/internal/log"
+	"os"
+
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/log"
 )
 
 func (dao *Dao) MigrateModels() {
 	// Upgrade the database
 	if dao.DB().Migrator().HasTable(&entity.Comment{}) &&
-		!dao.DB().Migrator().HasColumn(&entity.Comment{}, "root_id") {
+		(!dao.DB().Migrator().HasColumn(&entity.Comment{}, "root_id") ||
+			os.Getenv("ATK_DB_MIGRATOR_FUNC_MIGRATE_ROOT_ID") == "1") {
 		dao.MigrateRootID()
 	}
 
 	// Migrate the schema
 	dao.DB().AutoMigrate(&entity.Site{}, &entity.Page{}, &entity.User{},
+		&entity.AuthIdentity{}, &entity.UserEmailVerify{},
 		&entity.Comment{}, &entity.Notify{}, &entity.Vote{})
 
 	// Delete all foreign key constraints
@@ -21,6 +25,11 @@ func (dao *Dao) MigrateModels() {
 	// because there are many different DBs and the implementation of foreign keys may be different,
 	// and the DB may not support foreign keys, so don't rely on the foreign key function of the DB system.
 	dao.DropConstraintsIfExist()
+
+	// Merge pages
+	if os.Getenv("ATK_DB_MIGRATOR_FUNC_MERGE_PAGES") == "1" {
+		dao.MergePages()
+	}
 }
 
 // Remove all constraints
@@ -38,6 +47,7 @@ func (dao *Dao) DropConstraintsIfExist() {
 		{&entity.Comment{}, "fk_comments_page"},
 		{&entity.Comment{}, "fk_comments_user"},
 		{&entity.Page{}, "fk_pages_site"},
+		{&entity.User{}, "fk_comments_user"},
 	}
 
 	for _, item := range list {
@@ -56,33 +66,90 @@ func (dao *Dao) MigrateRootID() {
 
 	log.Info(TAG, "Generating Root IDs...")
 
-	dao.DB().Migrator().AddColumn(&entity.Comment{}, "root_id")
+	if !dao.DB().Migrator().HasColumn(&entity.Comment{}, "root_id") {
+		dao.DB().Migrator().AddColumn(&entity.Comment{}, "root_id")
+	}
 
-	err := dao.DB().Raw(`WITH RECURSIVE CommentHierarchy AS (
+	tbComments := dao.GetTableName(&entity.Comment{})
+	if err := dao.DB().Raw(`WITH RECURSIVE CommentHierarchy AS (
 		SELECT id, id AS root_id, rid
-		FROM comments
+		FROM ` + tbComments + `
 		WHERE rid = 0
 
 		UNION ALL
 
 		SELECT c.id, ch.root_id, c.rid
-		FROM comments c
+		FROM ` + tbComments + ` c
 		INNER JOIN CommentHierarchy ch ON c.rid = ch.id
 	)
-	UPDATE comments SET root_id = (
+	UPDATE ` + tbComments + ` SET root_id = (
 		SELECT root_id
 		FROM CommentHierarchy
-		WHERE comments.id = CommentHierarchy.id
+		WHERE ` + tbComments + `.id = CommentHierarchy.id
 	);
-	`).Scan(&struct{}{}).Error
+	`).Scan(&struct{}{}).Error; err == nil {
+		// no error, then do some patch
+		dao.DB().Model(&entity.Comment{}).Where("id = root_id").Update("root_id", 0)
+	} else {
+		// try backup plan (if recursive CTE is not supported)
+		log.Info(TAG, "Recursive CTE is not supported, trying backup plan... Please wait a moment. This may take a long time if there are many comments.")
 
-	if err != nil {
-		dao.DB().Migrator().DropColumn(&entity.Comment{}, "root_id") // clean up the failed migration
-		log.Fatal(TAG, "Failed to generate root IDs, please feedback this issue to the Artalk team.")
+		comments := []entity.Comment{}
+		if err := dao.DB().Find(&comments).Error; err != nil {
+			log.Fatal(TAG, "Failed to load comments. ", err.Error)
+		}
+
+		// update root_id
+		for _, comment := range comments {
+			if err := dao.DB().Model(&comment).Update("root_id", dao.FindCommentRootID(comment.ID)).Error; err != nil {
+				log.Error(TAG, "Failed to update root ID. ", err.Error, " ID=", comment.ID)
+			}
+		}
 	}
 
-	// do some patch
-	dao.DB().Table("comments").Where("id = root_id").Update("root_id", 0)
-
 	log.Info(TAG, "Root IDs generated successfully.")
+}
+
+func (dao *Dao) MergePages() {
+	// merge pages with same key and site_name, sum pv
+	pages := []*entity.Page{}
+
+	// load all pages
+	if err := dao.DB().Order("id ASC").Find(&pages).Error; err != nil {
+		log.Fatal("Failed to load pages. ", err.Error)
+	}
+	beforeLen := len(pages)
+
+	// merge pages
+	mergedPages := map[string]*entity.Page{}
+	for _, page := range pages {
+		key := page.SiteName + page.Key
+		if _, ok := mergedPages[key]; !ok {
+			mergedPages[key] = page
+		} else {
+			mergedPages[key].PV += page.PV
+			mergedPages[key].VoteUp += page.VoteUp
+			mergedPages[key].VoteDown += page.VoteDown
+		}
+	}
+
+	// delete all pages
+	dao.DB().Where("1 = 1").Delete(&entity.Page{})
+
+	// insert merged pages
+	pages = []*entity.Page{}
+	for _, page := range mergedPages {
+		pages = append(pages, page)
+	}
+	if err := dao.DB().CreateInBatches(pages, 1000); err.Error != nil {
+		log.Fatal("Failed to insert merged pages. ", err.Error)
+	}
+
+	// drop page AccessibleURL column
+	if dao.DB().Migrator().HasColumn(&entity.Page{}, "accessible_url") {
+		dao.DB().Migrator().DropColumn(&entity.Page{}, "accessible_url")
+	}
+
+	log.Info("Pages merged successfully. Before pages: ", beforeLen, ", After pages: ", len(mergedPages), ", Deleted pages: ", beforeLen-len(mergedPages))
+	os.Exit(0)
 }

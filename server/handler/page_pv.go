@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/server/common"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/sync"
+	"github.com/artalkjs/artalk/v2/server/common"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -26,11 +27,17 @@ type ResponsePagePV struct {
 // @Success      200  {object}  ResponsePagePV
 // @Router       /pages/pv  [post]
 func PagePV(app *core.App, router fiber.Router) {
+	mutexMap := sync.NewKeyMutex[string]()
+
 	router.Post("/pages/pv", func(c *fiber.Ctx) error {
 		var p ParamsPagePV
 		if isOK, resp := common.ParamsDecode(c, &p); !isOK {
 			return resp
 		}
+
+		mutex := mutexMap.GetLock(p.PageKey + "_" + p.SiteName)
+		mutex.Lock()
+		defer mutex.Unlock()
 
 		// find page
 		page := app.Dao().FindCreatePage(p.PageKey, p.PageTitle, p.SiteName)

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ArtalkJS/Artalk/internal/cache"
-	"github.com/ArtalkJS/Artalk/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/cache"
+	"github.com/artalkjs/artalk/v2/internal/entity"
 	"golang.org/x/exp/slices"
 )
 
@@ -19,6 +19,7 @@ const (
 	PageByKeySiteNameKey   = "page#key=%s;site_name=%s"
 	CommentByIDKey         = "comment#id=%d"
 	CommentChildIDsByIDKey = "comment_child_ids#id=%d"
+	NotifyByUserCommentKey = "notify#user_id=%d;comment_id=%d"
 )
 
 type DaoCache struct {
@@ -40,6 +41,7 @@ func (c *DaoCache) UserCacheDel(user *entity.User) {
 	c.DelCache(
 		fmt.Sprintf(UserByIDKey, user.ID),
 		fmt.Sprintf(UserByNameEmailKey, strings.ToLower(user.Name), strings.ToLower(user.Email)),
+		fmt.Sprintf(UserIDByEmailKey, strings.ToLower(user.Email)),
 	)
 }
 

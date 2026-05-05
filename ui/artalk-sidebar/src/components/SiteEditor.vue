@@ -17,7 +17,7 @@ const isLoading = ref(false)
 const editFieldKey = ref<keyof ArtalkType.SiteData | null>(null)
 const editFieldVal = computed(() => {
   if (editFieldKey.value === 'urls') return site.value.urls_raw || ''
-  return String(editFieldKey ? site.value[editFieldKey.value!] || '' : '')
+  return String(editFieldKey.value ? site.value[editFieldKey.value!] || '' : '')
 })
 
 const { t } = useI18n()
@@ -44,15 +44,15 @@ function del() {
     try {
       await artalk!.ctx.getApi().sites.deleteSite(site.value.id)
     } catch (err: any) {
-      console.log(err)
-      alert(`删除失败 ${String(err)}`)
+      alert(err.message)
+      console.error(err)
       return
     } finally {
       isLoading.value = false
     }
     emit('remove', site.value.id)
   }
-  if (window.confirm(`确认删除站点 "${site.value.name}"？将会删除所有相关数据`)) del()
+  if (window.confirm(t('siteDeleteConfirm', { name: site.value.name }))) del()
 }
 
 async function onFieldEditorYes(val: string) {
@@ -75,7 +75,7 @@ async function onFieldEditorYes(val: string) {
         })
       ).data
     } catch (err: any) {
-      alert(`修改失败：${err.message || '未知错误'}`)
+      alert(err.message)
       console.error(err)
       return false
     } finally {
@@ -116,8 +116,8 @@ function onFiledEditorNo() {
           {{ t('rename') }}
         </div>
         <div class="atk-item atk-edit-url-btn" @click="editURL()">{{ t('edit') }} URL</div>
-        <!--<div class="atk-item atk-export-btn">导出</div>
-        <div class="atk-item atk-import-btn">导入</div>-->
+        <!--<div class="atk-item atk-export-btn">Export</div>
+        <div class="atk-item atk-import-btn">Import</div>-->
       </div>
       <div class="atk-site-btn-actions">
         <div class="atk-item atk-del-btn" @click="del()">

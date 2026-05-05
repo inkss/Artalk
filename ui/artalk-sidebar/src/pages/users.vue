@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import type { ArtalkType } from 'artalk'
+import { storeToRefs } from 'pinia'
 import { useNavStore } from '../stores/nav'
 import { artalk, bootParams } from '../global'
 import Pagination from '../components/Pagination.vue'
-import type { ArtalkType } from 'artalk'
-import { storeToRefs } from 'pinia'
 
 const nav = useNavStore()
-const router = useRouter()
 const { curtTab } = storeToRefs(nav)
 const users = ref<ArtalkType.UserDataForAdmin[]>([])
 const { t } = useI18n()
@@ -14,12 +13,27 @@ const { t } = useI18n()
 const pageSize = ref(30)
 const pageTotal = ref(0)
 const pagination = ref<InstanceType<typeof Pagination>>()
-const curtType = ref('all')
+const curtType = ref<'all' | 'admin' | 'in_conf' | undefined>('all')
 
-const addingUser = ref(false)
-const editingUser = ref<ArtalkType.UserDataForAdmin | undefined>()
+const userEditorState = reactive({
+  show: false,
+  user: undefined as ArtalkType.UserDataForAdmin | undefined,
+})
+const search = ref('')
+
+watch(curtTab, (tab) => {
+  if (tab === 'create') {
+    createUser()
+  } else {
+    curtType.value = tab as any
+    fetchUsers(0)
+    closeUserEditor()
+  }
+})
 
 onMounted(() => {
+  fetchUsers(0)
+
   nav.updateTabs(
     {
       all: 'all',
@@ -29,36 +43,34 @@ onMounted(() => {
     'all',
   )
 
-  watch(curtTab, (tab) => {
-    if (tab === 'create') {
-      if (editingUser.value !== undefined) {
-        editingUser.value = undefined
-        nextTick(() => {
-          addingUser.value = true
-        })
-      } else {
-        addingUser.value = true
-      }
-    } else {
-      addingUser.value = false
-      editingUser.value = undefined
-
-      curtType.value = tab
-      pagination.value?.reset()
-      reqUsers(0)
-    }
-  })
-
-  reqUsers(0)
+  // Users search
+  nav.enableSearch(
+    (value: string) => {
+      search.value = value
+      fetchUsers(0)
+    },
+    () => {
+      if (search.value === '') return
+      search.value = ''
+      fetchUsers(0)
+    },
+  )
 })
 
-function reqUsers(offset: number) {
+watch(
+  () => userEditorState.show,
+  () => nav.scrollPageToTop(),
+)
+
+function fetchUsers(offset: number) {
+  if (offset === 0) pagination.value?.reset()
   nav.setPageLoading(true)
   artalk?.ctx
     .getApi()
-    .users.getUsers(curtType.value as any, {
+    .users.getUsers(curtType.value, {
       offset,
       limit: pageSize.value,
+      search: search.value,
     })
     .then((res) => {
       pageTotal.value = res.data.count
@@ -71,45 +83,52 @@ function reqUsers(offset: number) {
 }
 
 function onChangePage(offset: number) {
-  reqUsers(offset)
+  fetchUsers(offset)
 }
 
 function editUser(user: ArtalkType.UserDataForAdmin) {
   if (user.is_in_conf) {
-    alert('暂不支持在线编辑配置文件中的用户，请手动修改配置文件')
+    alert(t('userInConfCannotEditHint'))
     return
   }
 
-  addingUser.value = false
-  editingUser.value = user
+  userEditorState.show = true
+  userEditorState.user = user
+}
+
+function createUser() {
+  userEditorState.show = true
+  userEditorState.user = undefined
 }
 
 function updateUser(user: ArtalkType.UserDataForAdmin) {
   const index = users.value.findIndex((u) => u.id === user.id)
   if (index != -1) {
-    // 修改用户
+    // Edit user
     const orgUser = users.value[index]
     Object.keys(user).forEach((key) => {
       ;(orgUser as any)[key] = (user as any)[key]
     })
   } else {
-    // 创建用户
-    pagination.value!.reset()
-    reqUsers(0)
+    // Create user
+    fetchUsers(0)
   }
 
-  closeEditUser()
+  closeUserEditor()
 }
 
-function closeEditUser() {
-  addingUser.value = false
-  editingUser.value = undefined
+function closeUserEditor() {
+  userEditorState.show = false
+  userEditorState.user = undefined
 }
 
 function delUser(user: ArtalkType.UserDataForAdmin) {
   if (
     window.confirm(
-      `该操作将删除 用户："${user.name}" 邮箱："${user.email}" 所有评论，包括其评论下面他人的回复评论，是否继续？`,
+      t('userDeleteConfirm', {
+        name: user.name,
+        email: user.email,
+      }),
     )
   ) {
     artalk!.ctx
@@ -120,11 +139,11 @@ function delUser(user: ArtalkType.UserDataForAdmin) {
         users.value.splice(index, 1)
 
         if (user.is_in_conf) {
-          alert('用户已从数据库删除，请手动编辑配置文件并删除用户')
+          alert(t('userDeleteManuallyHint'))
         }
       })
       .catch((e: ArtalkType.FetchError) => {
-        alert('删除失败：' + e.message)
+        alert(e.message)
       })
   }
 }
@@ -164,17 +183,17 @@ function delUser(user: ArtalkType.UserDataForAdmin) {
     </div>
     <Pagination
       ref="pagination"
-      :pageSize="pageSize"
+      :page-size="pageSize"
       :total="pageTotal"
       :disabled="nav.isPageLoading"
       @change="onChangePage"
     />
 
     <UserEditor
-      v-if="addingUser || editingUser !== undefined"
-      :user="editingUser"
+      v-if="userEditorState.show"
+      :user="userEditorState.user"
       @update="updateUser"
-      @close="closeEditUser"
+      @close="closeUserEditor"
     />
   </div>
 </template>

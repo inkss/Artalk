@@ -1,13 +1,11 @@
 package handler
 
 import (
-	"strings"
-
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/internal/dao"
-	"github.com/ArtalkJS/Artalk/internal/entity"
-	"github.com/ArtalkJS/Artalk/internal/i18n"
-	"github.com/ArtalkJS/Artalk/server/common"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/dao"
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/i18n"
+	"github.com/artalkjs/artalk/v2/server/common"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -45,10 +43,6 @@ func PageUpdate(app *core.App, router fiber.Router) {
 		var p ParamsPageUpdate
 		if isOK, resp := common.ParamsDecode(c, &p); !isOK {
 			return resp
-		}
-
-		if strings.TrimSpace(p.Key) == "" {
-			return common.RespError(c, 400, i18n.T("{{name}} cannot be empty", Map{"name": "key"}))
 		}
 
 		// check site exist

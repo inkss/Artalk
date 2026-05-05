@@ -2,8 +2,8 @@ import * as Utils from '../lib/utils'
 import $t from '../i18n'
 
 export interface IHeightLimitConf {
-  /** Post expand btn click */
-  postExpandBtnClick?: (e: MouseEvent) => void
+  /** After expand btn click */
+  afterExpandBtnClick?: () => void
   /** Allow Scroll */
   scrollable?: boolean
 }
@@ -16,33 +16,46 @@ export interface IHeightLimitRule {
   max: number
 
   /** Whether or not the element contains `<img />` */
-  imgContains?: boolean
+  imgCheck?: boolean
 }
 
 export type THeightLimitRuleSet = IHeightLimitRule[]
 
 /** Check all elements below the max height limit */
 export function check(conf: IHeightLimitConf, rules: THeightLimitRuleSet) {
-  rules.forEach(({ el, max: maxHeight, imgContains }) => {
-    const _apply = () => {
-      if (!el) return
-      if (!conf.scrollable)
-        applyHeightLimit({
-          el,
-          maxHeight,
-          postBtnClick: conf.postExpandBtnClick,
-        })
-      else applyScrollableHeightLimit({ el, maxHeight })
+  rules.forEach(({ el, max, imgCheck }) => {
+    if (!el) return
+
+    // set max height for avoiding img exceed the limit while loading
+    if (imgCheck) el.style.maxHeight = `${max + 1}px` // allow 1px more for next detecting
+
+    let lock = false
+    const _check = () => {
+      if (lock) return
+      if (Utils.getHeight(el) <= max) return // if not exceed the limit, do nothing
+
+      const afterExpandBtnClick = () => {
+        lock = true // add lock to prevent collapse again after expand when image lazy loaded
+        conf.afterExpandBtnClick?.()
+      }
+
+      !conf.scrollable
+        ? applyHeightLimit({ el, max, afterExpandBtnClick })
+        : applyScrollableHeightLimit({ el, max })
     }
 
-    // checking
-    const _check = () => {
-      if (el && Utils.getHeight(el) > maxHeight) _apply() // 是否超过高度
+    // check immediately
+    _check()
+
+    // check images after loaded
+    if (imgCheck) {
+      // check again when image loaded
+      const imgs = el.querySelectorAll<HTMLImageElement>('.atk-content img')
+      if (imgs.length === 0) el.style.maxHeight = ''
+      imgs.forEach((img) => {
+        img.onload = () => _check()
+      })
     }
-    _check() // check now
-    if (imgContains && el)
-      // check again if img contains
-      Utils.onImagesLoaded(el, () => _check())
   })
 }
 
@@ -52,15 +65,15 @@ const HEIGHT_LIMIT_CSS = 'atk-height-limit'
 /** Apply height limit on an element and add expand btn */
 export function applyHeightLimit(obj: {
   el: HTMLElement
-  maxHeight: number
-  postBtnClick?: (e: MouseEvent) => void
+  max: number
+  afterExpandBtnClick?: (e: MouseEvent) => void
 }) {
   if (!obj.el) return
-  if (!obj.maxHeight) return
+  if (!obj.max) return
   if (obj.el.classList.contains(HEIGHT_LIMIT_CSS)) return
 
   obj.el.classList.add(HEIGHT_LIMIT_CSS)
-  obj.el.style.height = `${obj.maxHeight}px`
+  obj.el.style.height = `${obj.max}px`
   obj.el.style.overflow = 'hidden'
 
   /* Expand button */
@@ -71,7 +84,7 @@ export function applyHeightLimit(obj: {
     e.stopPropagation()
     disposeHeightLimit(obj.el)
 
-    if (obj.postBtnClick) obj.postBtnClick(e)
+    if (obj.afterExpandBtnClick) obj.afterExpandBtnClick(e)
   }
   obj.el.append($expandBtn)
 }
@@ -86,6 +99,7 @@ export function disposeHeightLimit($el: HTMLElement) {
     if (e.classList.contains('atk-height-limit-btn')) e.remove()
   })
   $el.style.height = ''
+  $el.style.maxHeight = ''
   $el.style.overflow = ''
 }
 
@@ -93,9 +107,9 @@ export function disposeHeightLimit($el: HTMLElement) {
 const HEIGHT_LIMIT_SCROLL_CSS = 'atk-height-limit-scroll'
 
 /** Apply scrollable height limit */
-export function applyScrollableHeightLimit(obj: { el: HTMLElement; maxHeight: number }) {
-  if (!obj.el) return
-  if (obj.el.classList.contains(HEIGHT_LIMIT_SCROLL_CSS)) return
-  obj.el.classList.add(HEIGHT_LIMIT_SCROLL_CSS)
-  obj.el.style.height = `${obj.maxHeight}px`
+export function applyScrollableHeightLimit(opt: { el: HTMLElement; max: number }) {
+  if (!opt.el) return
+  if (opt.el.classList.contains(HEIGHT_LIMIT_SCROLL_CSS)) return
+  opt.el.classList.add(HEIGHT_LIMIT_SCROLL_CSS)
+  opt.el.style.height = `${opt.max}px`
 }

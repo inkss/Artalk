@@ -1,54 +1,66 @@
-PKG_NAME    := github.com/ArtalkJS/Artalk
+PKG_NAME    := github.com/artalkjs/artalk/v2
 BIN_NAME	:= ./bin/artalk
-VERSION     ?= $(shell git describe --tags --abbrev=0 --match 'v*')
-COMMIT_HASH ?= $(shell git rev-parse --short HEAD)
 
 HAS_RICHGO  := $(shell which richgo)
 GOTEST      ?= $(if $(HAS_RICHGO), richgo test, go test)
 ARGS        ?= server
+
+export CGO_ENABLED := 1
 
 all: install build
 
 install:
 	go mod tidy
 
+run: all
+	$(BIN_NAME) $(ARGS)
+
 build:
 	go build \
-    	-ldflags "-s -w -X $(PKG_NAME)/internal/config.Version=$(VERSION) \
-        -X $(PKG_NAME)/internal/config.CommitHash=$(COMMIT_HASH)" \
+    	-ldflags "-s -w" \
         -o $(BIN_NAME) \
     	$(PKG_NAME)
 
 build-frontend:
 	./scripts/build-frontend.sh
 
-run: all
-	$(BIN_NAME) $(ARGS)
-
 build-debug:
-	@echo "Building Artalk $(VERSION) for debugging..."
+	@echo "Building Artalk for debugging..."
 	@go build \
-		-ldflags "-X $(PKG_NAME)/internal/config.Version=$(VERSION) \
-		  -X $(PKG_NAME)/internal/config.CommitHash=$(COMMIT_HASH)" \
 		-gcflags "all=-N -l" \
 		-o $(BIN_NAME) \
 		$(PKG_NAME)
 
 dev: build-debug
+	ATK_SITE_DEFAULT="ArtalkDocs" \
+	ATK_TRUSTED_DOMAINS="http://localhost:5173 http://localhost:23367" \
 	$(BIN_NAME) $(ARGS)
 
 test:
-	$(GOTEST) -timeout 20m ./internal/...
+	$(GOTEST) -timeout 20m $(or $(TEST_PATHS), ./...)
 
 test-coverage:
-	$(GOTEST) -cover ./...
+	$(GOTEST) -cover $(or $(TEST_PATHS), ./...)
 
 test-coverage-html:
-	$(GOTEST) -v -coverprofile=coverage.out ./...
+	$(GOTEST) -v -coverprofile=coverage.out $(or $(TEST_PATHS), ./...)
 	go tool cover -html=coverage.out
+
+test-frontend-e2e:
+	./scripts/frontend-e2e-test.sh $(if $(REPORT), --show-report)
 
 update-i18n:
 	go generate ./internal/i18n
+
+update-conf:
+	go generate ./internal/config
+
+update-conf-docs:
+	go run ./internal/config/meta/gen --format markdown --locale en -o ./docs/docs/en/guide/env.md
+	go run ./internal/config/meta/gen --format markdown --locale zh-CN -o ./docs/docs/zh/guide/env.md
+
+update-docs-features:
+	pnpm -F docs-landing update:readme
 
 update-swagger:
 	go install github.com/swaggo/swag/cmd/swag@latest
@@ -61,9 +73,8 @@ docker-build:
 docker-push:
 	./scripts/docker-build.sh --push
 
-test-frontend-e2e:
-	./scripts/frontend-e2e-test.sh $(if $(REPORT), --show-report)
-
-.PHONY: all install build build-frontend build-debug \
-	dev test test-coverage test-coverage-html update-i18n \
-	docker-build docker-push test-frontend-e2e;
+.PHONY: all install run build build-frontend build-debug dev \
+	test test-coverage test-coverage-html test-frontend-e2e \
+	update-i18n update-conf update-conf-docs \
+	update-docs-features update-swagger \
+	docker-build docker-push;

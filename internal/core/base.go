@@ -7,14 +7,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ArtalkJS/Artalk/internal/cache"
-	"github.com/ArtalkJS/Artalk/internal/config"
-	"github.com/ArtalkJS/Artalk/internal/dao"
-	"github.com/ArtalkJS/Artalk/internal/db"
-	"github.com/ArtalkJS/Artalk/internal/hook"
-	"github.com/ArtalkJS/Artalk/internal/i18n"
-	"github.com/ArtalkJS/Artalk/internal/log"
-	"github.com/ArtalkJS/Artalk/internal/pkged"
+	"github.com/artalkjs/artalk/v2/internal/cache"
+	"github.com/artalkjs/artalk/v2/internal/config"
+	"github.com/artalkjs/artalk/v2/internal/dao"
+	"github.com/artalkjs/artalk/v2/internal/db"
+	"github.com/artalkjs/artalk/v2/internal/hook"
+	"github.com/artalkjs/artalk/v2/internal/i18n"
+	"github.com/artalkjs/artalk/v2/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/pkged"
 )
 
 type App struct {
@@ -42,11 +42,11 @@ func NewApp(conf *config.Config) *App {
 }
 
 func (app *App) injectDefaultServices() {
-	// 请勿依赖注入顺序
-	AppInject[*EmailService](app, NewEmailService(app))
-	AppInject[*IPRegionService](app, NewIPRegionService(app))
-	AppInject[*NotifyService](app, NewNotifyService(app))
-	AppInject[*AntiSpamService](app, NewAntiSpamService(app))
+	// Please do not depend on the order of dependency injection
+	AppInject(app, NewEmailService(app))
+	AppInject(app, NewIPRegionService(app))
+	AppInject(app, NewNotifyService(app))
+	AppInject(app, NewAntiSpamService(app))
 }
 
 func (app *App) registerDefaultHooks() {
@@ -269,6 +269,11 @@ func (app *App) initDao() error {
 
 	// create new dao instance
 	app.SetDao(dao.NewDao(dbInstance))
+
+	// patch: switch comment email hash algorithm by config
+	app.Dao().SetCommentEmailHashFunc(func(email string) string {
+		return config.GetHashFuncByFrontendConf(app.Conf())(strings.ToLower(email))
+	})
 
 	return nil
 }

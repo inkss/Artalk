@@ -1,16 +1,18 @@
 package handler
 
 import (
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/internal/entity"
-	"github.com/ArtalkJS/Artalk/server/common"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/server/common"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type ParamsPageList struct {
 	SiteName string `query:"site_name" json:"site_name" validate:"optional"` // The site name of your content scope
 	Limit    int    `query:"limit" json:"limit" validate:"optional"`         // The limit for pagination
 	Offset   int    `query:"offset" json:"offset" validate:"optional"`       // The offset for pagination
+	Search   string `query:"search" json:"search" validate:"optional"`       // Search keywords
 }
 
 type ResponsePageList struct {
@@ -36,7 +38,7 @@ func PageList(app *core.App, router fiber.Router) {
 			return resp
 		}
 
-		// 准备 query
+		// Prepare query
 		q := app.Dao().DB().Model(&entity.Page{}).Order("created_at DESC")
 		if p.SiteName != "" {
 			if _, ok, resp := common.CheckSiteExist(app, c, p.SiteName); !ok {
@@ -46,14 +48,26 @@ func PageList(app *core.App, router fiber.Router) {
 			q = q.Where("site_name = ?", p.SiteName)
 		}
 
-		// 总共条数
+		// Search
+		if p.Search != "" {
+			q = q.Scopes(func(d *gorm.DB) *gorm.DB {
+				// Because historical reasons, the naming of this field named `key` does not follow best practices.
+				// In some database, directly use the field name `key` will cause an error.
+				// So must keep the table name before the field name.
+				tbPages := app.Dao().GetTableName(&entity.Page{})
+				return d.Where("LOWER("+tbPages+".key) LIKE LOWER(?) OR LOWER(title) LIKE LOWER(?)",
+					"%"+p.Search+"%", "%"+p.Search+"%")
+			})
+		}
+
+		// Total count
 		var total int64
 		q.Count(&total)
 
-		// 数据分页
+		// Pagination
 		q = q.Scopes(Paginate(p.Offset, p.Limit))
 
-		// 查找
+		// Find database
 		var pages []entity.Page
 		q.Find(&pages)
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { artalk } from '../global'
 import type { ArtalkType } from 'artalk'
+import { artalk } from '../global'
 import { useNavStore } from '../stores/nav'
 import { useUserStore } from '../stores/user'
 import Pagination from '../components/Pagination.vue'
@@ -14,6 +14,7 @@ const { t } = useI18n()
 
 const pageSize = ref(20)
 const pageTotal = ref(0)
+const search = ref('')
 const pagination = ref<InstanceType<typeof Pagination>>()
 const showActBarBorder = ref(false)
 const refreshBtn = ref({
@@ -22,14 +23,27 @@ const refreshBtn = ref({
 })
 
 onMounted(() => {
-  nav.updateTabs({}, '')
+  nav.updateTabs(
+    {
+      all: 'all',
+    },
+    'all',
+  )
 
-  reqPages(0)
+  // Users search
+  nav.enableSearch(
+    (value: string) => {
+      search.value = value
+      fetchPages(0)
+    },
+    () => {
+      if (search.value === '') return
+      search.value = ''
+      fetchPages(0)
+    },
+  )
 
-  watch(curtSite, (value) => {
-    pagination.value?.reset()
-    reqPages(0)
-  })
+  fetchPages(0)
 
   // Refresh task status recovery
   getRefreshTaskStatus().then((d) => {
@@ -39,13 +53,15 @@ onMounted(() => {
       startRefreshTaskWatchdog()
     }
   })
-
-  nav.scrollableArea?.addEventListener('scroll', scrollHandler)
 })
 
-onUnmounted(() => {
-  nav.scrollableArea?.removeEventListener('scroll', scrollHandler)
+watch(curtSite, () => {
+  pagination.value?.reset()
+  fetchPages(0)
 })
+
+onMounted(() => nav.scrollableArea?.addEventListener('scroll', scrollHandler))
+onUnmounted(() => nav.scrollableArea?.removeEventListener('scroll', scrollHandler))
 
 function scrollHandler() {
   showActBarBorder.value = nav.scrollableArea!.scrollTop > 10
@@ -55,7 +71,8 @@ function editPage(page: ArtalkType.PageData) {
   curtEditPageID.value = page.id
 }
 
-function reqPages(offset: number) {
+function fetchPages(offset: number) {
+  if (offset === 0) pagination.value?.reset()
   nav.setPageLoading(true)
   artalk?.ctx
     .getApi()
@@ -63,6 +80,7 @@ function reqPages(offset: number) {
       site_name: curtSite.value,
       offset: offset,
       limit: pageSize.value,
+      search: search.value,
     })
     .then((res) => {
       pageTotal.value = res.data.count
@@ -75,7 +93,7 @@ function reqPages(offset: number) {
 }
 
 function onChangePage(offset: number) {
-  reqPages(offset)
+  fetchPages(offset)
 }
 
 function onPageItemUpdate(page: ArtalkType.PageData) {
@@ -98,7 +116,7 @@ async function getRefreshTaskStatus() {
 }
 
 function startRefreshTaskWatchdog() {
-  // 不完美的轮询更新状态
+  // TODO: Not perfect polling update status
   const timerID = window.setInterval(async () => {
     const d = await getRefreshTaskStatus()
 
@@ -124,7 +142,6 @@ async function refreshAllPages() {
   refreshBtn.value.isRun = true
   refreshBtn.value.statusText = t('updateReady')
 
-  // 发起任务
   try {
     await artalk!.ctx.getApi().pages.fetchAllPages({
       site_name: curtSite.value,
@@ -199,7 +216,7 @@ function openPage(url: string) {
     </div>
     <Pagination
       ref="pagination"
-      :pageSize="pageSize"
+      :page-size="pageSize"
       :total="pageTotal"
       :disabled="nav.isPageLoading"
       @change="onChangePage"

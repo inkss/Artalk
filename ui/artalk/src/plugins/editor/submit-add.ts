@@ -1,6 +1,6 @@
+import type PlugKit from './_kit'
 import type { CommentData } from '@/types'
 import * as Utils from '@/lib/utils'
-import type PlugKit from './_kit'
 
 export default class SubmitAddPreset {
   constructor(private kit: PlugKit) {}
@@ -15,12 +15,12 @@ export default class SubmitAddPreset {
   }
 
   async getSubmitAddParams() {
-    const { nick, email, link } = this.kit.useUser().getData()
+    const { name, email, link } = this.kit.useUser().getData()
     const conf = this.kit.useConf()
 
     return {
       content: this.kit.useEditor().getContentFinal(),
-      name: nick,
+      name,
       email,
       link,
       rid: 0,

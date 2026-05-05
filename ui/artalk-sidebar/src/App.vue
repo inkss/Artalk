@@ -1,98 +1,30 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useNavStore } from './stores/nav'
-import { useUserStore } from './stores/user'
-import type Artalk from 'artalk'
-import { getArtalk, bootParams } from './global'
 
 const nav = useNavStore()
-const user = useUserStore()
-const route = useRoute()
-const router = useRouter()
-const { scrollableArea } = storeToRefs(nav)
+const { scrollableArea, darkMode } = storeToRefs(nav)
 
-const artalkLoaded = ref(false)
+const query = window.matchMedia('(prefers-color-scheme: dark)')
 
-onBeforeMount(() => {
-  const artalk = getArtalk()
-  if (!artalk) {
-    throw new Error('Artalk instance not initialized')
-  }
-
-  artalk.on('mounted', () => {
-    if (artalkLoaded.value) return
-    artalkLoaded.value = true
-
-    syncArtalk(artalk)
-  })
-})
-
-function syncArtalk(artalk: Artalk) {
-  // access from open sidebar or directly by url
-  if (bootParams.user?.email) {
-    // sync user from sidebar to artalk
-    artalk.ctx.get('user').update(bootParams.user)
-  } else {
-    // sync user from artalk to sidebar
-    try {
-      useUserStore().sync()
-    } catch {
-      nextTick(() => {
-        router.replace('/login')
-      })
-      return
-    }
-  }
-
-  // 验证登录身份有效性
-  const artalkUser = artalk.ctx.get('user')
-  const artalkUserData = artalkUser.getData()
-
-  artalk.ctx
-    .getApi()
-    .user.getUserStatus({
-      email: artalkUserData.email,
-      name: artalkUserData.nick,
-    })
-    .then((res) => {
-      if (res.data.is_admin && !res.data.is_login) {
-        user.logout()
-        nextTick(() => {
-          router.replace('/login')
-        })
-      } else {
-        // 将全部通知标记为已读
-        artalk.ctx.getApi().notifies.markAllNotifyRead({
-          email: artalkUserData.email,
-          name: artalkUserData.nick,
-        })
-      }
-    })
+onMounted(() => query.addEventListener('change', onDarkModeChange))
+onUnmounted(() => query.removeEventListener('change', onDarkModeChange))
+const onDarkModeChange = (e: MediaQueryListEvent) => {
+  // auto switch when localStorage is empty
+  if (localStorage.getItem('ATK_SIDEBAR_DARK_MODE') === null) darkMode.value = e.matches
 }
-
-const darkMode = ref(bootParams.darkMode)
-
-;(function initDarkModeWatchMedia() {
-  if (!window.matchMedia) return
-  const query = window.matchMedia('(prefers-color-scheme: dark)')
-  query.addEventListener('change', (e) => {
-    darkMode.value = e.matches
-  })
-})()
 </script>
 
 <template>
-  <div
-    v-if="artalkLoaded"
-    class="app-wrap artalk atk-sidebar"
-    :class="{ 'atk-dark-mode': darkMode }"
-  >
-    <Header />
-    <Tab />
+  <div class="app-wrap artalk atk-sidebar" :class="{ 'atk-dark-mode': darkMode }">
+    <AppHeader />
+    <AppNavigation />
 
     <div class="main">
       <div ref="scrollableArea" class="atk-sidebar-inner">
-        <router-view />
+        <div class="atk-sidebar-container">
+          <router-view />
+        </div>
       </div>
       <LoadingLayer v-if="nav.isPageLoading" />
     </div>
@@ -100,9 +32,15 @@ const darkMode = ref(bootParams.darkMode)
 </template>
 
 <style scoped lang="scss">
+$headerHeight: 61px;
+$subHeaderHeight: 41px;
+$maxWidth: 1100px;
+$sidebarWidth: 280px;
+
 .app-wrap {
   background: var(--at-color-bg);
   color: var(--at-color-font);
+  min-height: 100vh;
 }
 
 .main {
@@ -110,11 +48,15 @@ const darkMode = ref(bootParams.darkMode)
 
   .atk-sidebar-inner {
     overflow-y: auto;
-    height: calc(100vh - 61px - 41px);
+    height: calc(100vh - $headerHeight - $subHeaderHeight);
     padding-bottom: 50px;
+
+    @media (min-width: 1024px) {
+      height: calc(100vh - $headerHeight - 51px);
+    }
   }
 
-  // 分页条占位
+  // The placeholder area for the pagination bar
   :deep(.atk-pagination-wrap) {
     z-index: 200;
     position: fixed;
@@ -123,15 +65,25 @@ const darkMode = ref(bootParams.darkMode)
     left: 0;
     background: var(--at-color-bg);
     border-top: 1px solid var(--at-color-border);
+  }
+}
 
-    // A patch for loading
-    // Because the parent position set to fixed,
-    // the loading layer will be fixed to the area if position is absolute (which is default for atk-loading)
-    .atk-loading {
-      position: fixed;
-      top: 102px;
-      height: calc(100% - 102px);
-    }
+:deep(.atk-sidebar-container) {
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  :deep(.atk-sidebar-container) {
+    max-width: $maxWidth;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: calc($maxWidth + $sidebarWidth * 2)) {
+  :deep(.atk-sidebar-container) {
+    margin-left: $sidebarWidth;
+    max-width: calc(100% - $sidebarWidth);
   }
 }
 </style>

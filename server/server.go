@@ -5,15 +5,15 @@ import (
 	"io"
 	"net/http"
 
-	_ "github.com/ArtalkJS/Artalk/docs/swagger"
-	"github.com/ArtalkJS/Artalk/internal/config"
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/internal/log"
-	"github.com/ArtalkJS/Artalk/internal/pkged"
-	"github.com/ArtalkJS/Artalk/server/common"
-	h "github.com/ArtalkJS/Artalk/server/handler"
-	"github.com/ArtalkJS/Artalk/server/middleware"
-	"github.com/ArtalkJS/Artalk/server/middleware/limiter"
+	_ "github.com/artalkjs/artalk/v2/docs/swagger"
+	"github.com/artalkjs/artalk/v2/internal/config"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/pkged"
+	"github.com/artalkjs/artalk/v2/server/common"
+	h "github.com/artalkjs/artalk/v2/server/handler"
+	"github.com/artalkjs/artalk/v2/server/middleware"
+	"github.com/artalkjs/artalk/v2/server/middleware/limiter"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	fiber_logger "github.com/gofiber/fiber/v2/middleware/logger"
@@ -86,8 +86,18 @@ func Serve(app *core.App) (*fiber.App, error) {
 		// captcha
 		h.Captcha(app, api)
 
+		// auth
+		h.AuthEmailLogin(app, api)
+		h.AuthEmailRegister(app, api)
+		h.AuthEmailSend(app, api)
+		h.AuthMergeApply(app, api)
+		h.AuthMergeCheck(app, api)
+
+		h.AuthSocialLogin(app, api)
+
 		// user
 		h.UserInfo(app, api)
+		h.UserInfoUpdate(app, api)
 		h.UserLogin(app, api)
 		h.UserStatus(app, api)
 

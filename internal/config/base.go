@@ -1,5 +1,7 @@
 package config
 
+//go:generate go run ./meta/gen --format go --locale en --pkg config -o ./cache.go
+
 import (
 	"fmt"
 	"os"
@@ -7,11 +9,11 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/ArtalkJS/Artalk/internal/log"
-	"github.com/ArtalkJS/Artalk/internal/utils"
+	"github.com/artalkjs/artalk/v2/internal/config/env_provider"
+	"github.com/artalkjs/artalk/v2/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/utils"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
-	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 )
 
@@ -32,13 +34,7 @@ func NewFromFile(cfgFile string) (*Config, error) {
 
 	// load environment variables and merge into the loaded config
 	const envPrefix = "ATK_"
-	if err := kf.Load(env.Provider(envPrefix, ".", func(s string) string {
-		// FOO__BAR -> foo_bar to handle dash in config names
-		s = strings.ToLower(strings.TrimPrefix(s, envPrefix))
-		s = strings.ReplaceAll(s, "__", "-")
-		s = strings.ReplaceAll(s, "_", ".")
-		return strings.ReplaceAll(s, "-", "_")
-	}), nil); err != nil {
+	if err := kf.Load(env_provider.Provider(envPrefix, EnvPathMapCache), nil); err != nil {
 		return nil, fmt.Errorf("config environment variable parse error: %w", err)
 	}
 
@@ -140,6 +136,13 @@ func (conf *Config) normalPatch() {
 		conf.HTTP.ProxyHeader = &defaultProxyHeader
 	} else {
 		*conf.HTTP.ProxyHeader = strings.TrimSpace(*conf.HTTP.ProxyHeader)
+	}
+
+	// 社交登录配置
+	if conf.Auth.Enabled && strings.TrimSpace(conf.Auth.Callback) == "" {
+		callbackURL := "http://localhost:23366/api/v2/auth/:provider/callback"
+		log.Warn("[SocialLogin] config `auth.callback` is not set, now it is: ", strconv.Quote(callbackURL))
+		conf.Auth.Callback = callbackURL
 	}
 }
 

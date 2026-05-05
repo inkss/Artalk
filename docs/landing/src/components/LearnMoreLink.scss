@@ -1,17 +1,15 @@
 .app-learn-more-link {
   display: flex;
   flex-direction: row;
-  place-items: center;
-  justify-content: center;
   font-size: 24px;
 
   .prompt {
-    color: #000;
+    color: var(--color-font);
   }
 
   .link-btn {
     cursor: pointer;
-    color: #0071E3;
+    color: var(--color-primary);
 
     .icon {
       margin-left: 5px;

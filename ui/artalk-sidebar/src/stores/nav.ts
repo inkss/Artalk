@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { artalk } from '../global'
 import type { ArtalkType } from 'artalk'
+import { artalk, bootParams, getArtalk } from '@/global'
+import { useMobileWidth } from '@/hooks/MobileWidth'
 
 type TabsObj = { [name: string]: string }
 
@@ -18,6 +19,14 @@ export const useNavStore = defineStore('nav', () => {
 
   const isPageLoading = ref(false)
   const scrollableArea = ref<HTMLElement | null>(null)
+
+  const darkMode = ref(bootParams.darkMode)
+  watch(darkMode, (val) => {
+    getArtalk()?.setDarkMode(val)
+    if (val != window.matchMedia('(prefers-color-scheme: dark)').matches)
+      localStorage.setItem('ATK_SIDEBAR_DARK_MODE', val ? '1' : '0')
+    else localStorage.removeItem('ATK_SIDEBAR_DARK_MODE') // enable auto switch
+  })
 
   const updateTabs = (aTabs: TabsObj, activeTab?: string) => {
     tabs.value = aTabs
@@ -67,6 +76,16 @@ export const useNavStore = defineStore('nav', () => {
     searchResetEvent.value = searchResetEvt
   }
 
+  const toggleDarkMode = () => {
+    darkMode.value = !darkMode.value
+  }
+
+  useRouter().beforeEach((to, from) => {
+    isSearchEnabled.value = false
+  })
+
+  const isMobile = useMobileWidth()
+
   return {
     sites,
     curtPage,
@@ -88,5 +107,8 @@ export const useNavStore = defineStore('nav', () => {
     searchEvent,
     searchResetEvent,
     enableSearch,
+    isMobile,
+    darkMode,
+    toggleDarkMode,
   }
 })

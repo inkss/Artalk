@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/internal/entity"
-	"github.com/ArtalkJS/Artalk/internal/i18n"
-	"github.com/ArtalkJS/Artalk/internal/utils"
-	"github.com/ArtalkJS/Artalk/server/common"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/i18n"
+	"github.com/artalkjs/artalk/v2/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/utils"
+	"github.com/artalkjs/artalk/v2/server/common"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -68,17 +69,18 @@ func UserLogin(app *core.App, router fiber.Router) {
 		}
 
 		if user.IsEmpty() {
-			return common.RespError(c, 401, i18n.T("Login failed"))
+			return common.RespError(c, 401, i18n.T("User not found"))
 		}
 
 		// 密码验证
 		if !user.CheckPassword(p.Password) {
-			return common.RespError(c, 401, i18n.T("Login failed"))
+			return common.RespError(c, 401, i18n.T("Password is incorrect"))
 		}
 
 		jwtToken, err := common.LoginGetUserToken(user, app.Conf().AppKey, app.Conf().LoginTimeout)
 		if err != nil {
-			return common.RespError(c, 500, err.Error())
+			log.Error("[LoginGetUserToken] ", err)
+			return common.RespError(c, 500, i18n.T("Login failed"))
 		}
 
 		return common.RespData(c, ResponseUserLogin{

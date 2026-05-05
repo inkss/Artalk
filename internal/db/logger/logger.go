@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ArtalkJS/Artalk/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gorm.io/gorm"
@@ -40,7 +40,7 @@ func New() Logger {
 
 	return Logger{
 		LogLevel:                  level,
-		SlowThreshold:             100 * time.Millisecond,
+		SlowThreshold:             1500 * time.Millisecond,
 		SkipCallerLookup:          false,
 		IgnoreRecordNotFoundError: true,
 		ContextInfoGetter:         nil,

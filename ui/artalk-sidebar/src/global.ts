@@ -1,5 +1,5 @@
 import Artalk from 'artalk'
-import type { ArtalkType } from 'artalk'
+import type { LocalUser } from 'artalk'
 
 export let artalk: Artalk | null = null
 
@@ -11,7 +11,11 @@ export function getArtalk() {
   return artalk
 }
 
-// 启动参数
+/**
+ * Boot params from URL search params
+ *
+ * TODO: Refactor to a singleton store
+ */
 export const bootParams = getBootParams()
 
 function getBootParams() {
@@ -24,38 +28,35 @@ function getBootParams() {
     window.history.replaceState({}, '', window.location.pathname)
   }
 
+  const userFromURL = JSON.parse(p.get('user') || '{}')
+  const user: LocalUser = {
+    name: userFromURL.name || '',
+    email: userFromURL.email || '',
+    link: userFromURL.link || '',
+    token: userFromURL.token || '',
+    is_admin: userFromURL.is_admin || false,
+  }
+
+  let darkMode: boolean
+  if (p.get('darkMode') != null) {
+    darkMode = p.get('darkMode') == '1'
+  } else {
+    darkMode =
+      localStorage.getItem('ATK_SIDEBAR_DARK_MODE') != null
+        ? localStorage.getItem('ATK_SIDEBAR_DARK_MODE') == '1'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+
   return {
+    user,
     pageKey: p.get('pageKey') || '',
     site: p.get('site') || '',
-    user: <ArtalkType.LocalUser>JSON.parse(p.get('user') || '{}'),
     view: p.get('view') || '',
     viewParams: <any>null,
-    darkMode: p.get('darkMode') === '1',
+    darkMode,
   }
 }
 
-export function initArtalk() {
-  const artalkEl = document.createElement('div')
-  artalkEl.style.display = 'none'
-  document.body.append(artalkEl)
-
-  return Artalk.init({
-    el: artalkEl,
-    server: '../',
-    pageKey: bootParams.pageKey,
-    site: bootParams.site,
-    darkMode: bootParams.darkMode,
-    useBackendConf: true,
-    pvAdd: false,
-    remoteConfModifier: (conf) => {
-      conf.noComment = `<div class="atk-sidebar-no-content">No Content</div>` // TODO i18n t('noComment')
-      conf.flatMode = true
-      conf.pagination = {
-        pageSize: 20,
-        readMore: false,
-        autoLoad: false,
-      }
-      conf.listUnreadHighlight = true
-    },
-  })
+export function isOpenFromSidebar() {
+  return !!bootParams.user?.email
 }

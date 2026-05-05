@@ -51,12 +51,8 @@ function login(username?: string) {
       password: userForm.value.password,
     })
     .then((res) => {
-      const user = res.data.user
       artalk.ctx.get('user').update({
-        nick: user.name,
-        email: user.email,
-        link: user.link,
-        isAdmin: user.is_admin,
+        ...res.data.user,
         token: res.data.token,
       })
       useUserStore().sync()
@@ -75,6 +71,10 @@ function selectUser(username: string) {
   userSelector.value = null
   login(username)
 }
+
+const versionInfo = computed(() => {
+  return `v${version.value + (buildHash.value ? ' / ' + buildHash.value : '')}`
+})
 </script>
 
 <template>
@@ -83,11 +83,11 @@ function selectUser(username: string) {
       <img class="logo" src="../assets/favicon.png" alt="logo" draggable="false" />
     </a>
     <form class="login-form" @submit.prevent="login()">
-      <input type="text" :placeholder="t('email')" v-model="userForm.email" @focus="onFocus" />
+      <input v-model="userForm.email" type="text" :placeholder="t('email')" @focus="onFocus" />
       <input
+        v-model="userForm.password"
         type="password"
         :placeholder="t('password')"
-        v-model="userForm.password"
         @focus="onFocus"
       />
       <div v-if="!!loginErr" class="err-msg atk-fade-in">{{ loginErr }}</div>
@@ -96,7 +96,7 @@ function selectUser(username: string) {
     <div class="copyright">
       Powered by
       <a href="https://artalk.js.org" target="_blank">Artalk</a>
-      (v{{ version }} / {{ buildHash }})
+      ({{ versionInfo }})
     </div>
 
     <div v-if="userSelector" class="layer">
@@ -114,6 +114,7 @@ function selectUser(username: string) {
 
 <style lang="scss" scoped>
 .login-dialog {
+  z-index: 11;
   position: fixed;
   display: flex;
   flex-direction: column;

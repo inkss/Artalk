@@ -1,10 +1,23 @@
+// Convert Entity to JSON Response Data Structure for API
+// TODO: (refactor) consider to extract this file to a new package
 package dao
 
 import (
-	"github.com/ArtalkJS/Artalk/internal/entity"
-	"github.com/ArtalkJS/Artalk/internal/utils"
+	"strings"
+
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/utils"
 	"github.com/samber/lo"
 )
+
+const CommonDateTimeFormat = "2006-01-02 15:04:05"
+
+// TODO: (refactor) remove this global variable
+var getCommentEmailHash = func(email string) string { return utils.GetMD5Hash(strings.ToLower(email)) }
+
+func (dao *Dao) SetCommentEmailHashFunc(fn func(string) string) {
+	getCommentEmailHash = fn
+}
 
 // ===============
 //  Comment
@@ -36,10 +49,10 @@ func (dao *Dao) CookComment(c *entity.Comment) entity.CookedComment {
 		ContentMarked:  markedContent,
 		UserID:         c.UserID,
 		Nick:           user.Name,
-		EmailEncrypted: utils.GetMD5Hash(user.Email),
+		EmailEncrypted: getCommentEmailHash(user.Email),
 		Link:           user.Link,
 		UA:             c.UA,
-		Date:           c.CreatedAt.Local().Format("2006-01-02 15:04:05"),
+		Date:           c.CreatedAt.Local().Format(CommonDateTimeFormat),
 		IsCollapsed:    c.IsCollapsed,
 		IsPending:      c.IsPending,
 		IsPinned:       c.IsPinned,
@@ -78,7 +91,7 @@ func (dao *Dao) CookCommentForEmail(c *entity.Comment) entity.CookedCommentForEm
 		Nick:       user.Name,
 		Email:      user.Email,
 		IP:         c.IP,
-		Datetime:   c.CreatedAt.Local().Format("2006-01-02 15:04:05"),
+		Datetime:   c.CreatedAt.Local().Format(CommonDateTimeFormat),
 		Date:       c.CreatedAt.Local().Format("2006-01-02"),
 		Time:       c.CreatedAt.Local().Format("15:04:05"),
 		PageKey:    c.PageKey,
@@ -88,7 +101,7 @@ func (dao *Dao) CookCommentForEmail(c *entity.Comment) entity.CookedCommentForEm
 		Site:       dao.CookSite(&site),
 		CookedComment: entity.CookedComment{
 			ID:             c.ID,
-			EmailEncrypted: utils.GetMD5Hash(user.Email),
+			EmailEncrypted: getCommentEmailHash(user.Email),
 			Link:           user.Link,
 			UA:             c.UA,
 			IsCollapsed:    c.IsCollapsed,
@@ -99,37 +112,6 @@ func (dao *Dao) CookCommentForEmail(c *entity.Comment) entity.CookedCommentForEm
 			BadgeName:      user.BadgeName,
 			BadgeColor:     user.BadgeColor,
 		},
-	}
-}
-
-func (dao *Dao) CommentToArtran(c *entity.Comment) entity.Artran {
-	user := dao.FetchUserForComment(c)
-	page := dao.FetchPageForComment(c)
-	site := dao.FetchSiteForComment(c)
-
-	return entity.Artran{
-		ID:            utils.ToString(c.ID),
-		Rid:           utils.ToString(c.Rid),
-		Content:       c.Content,
-		UA:            c.UA,
-		IP:            c.IP,
-		IsCollapsed:   utils.ToString(c.IsCollapsed),
-		IsPending:     utils.ToString(c.IsPending),
-		IsPinned:      utils.ToString(c.IsPinned),
-		VoteUp:        utils.ToString(c.VoteUp),
-		VoteDown:      utils.ToString(c.VoteDown),
-		CreatedAt:     c.CreatedAt.String(),
-		UpdatedAt:     c.UpdatedAt.String(),
-		Nick:          user.Name,
-		Email:         user.Email,
-		Link:          user.Link,
-		BadgeName:     user.BadgeName,
-		BadgeColor:    user.BadgeColor,
-		PageKey:       page.Key,
-		PageTitle:     page.Title,
-		PageAdminOnly: utils.ToString(page.AdminOnly),
-		SiteName:      site.Name,
-		SiteUrls:      site.Urls,
 	}
 }
 
@@ -148,6 +130,7 @@ func (dao *Dao) CookPage(p *entity.Page) entity.CookedPage {
 		VoteUp:    p.VoteUp,
 		VoteDown:  p.VoteDown,
 		PV:        p.PV,
+		Date:      p.CreatedAt.Local().Format(CommonDateTimeFormat),
 	}
 }
 

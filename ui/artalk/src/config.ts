@@ -1,8 +1,8 @@
-import type { ArtalkConfig, ContextApi } from '@/types'
 import type { ApiOptions } from './api/options'
 import { mergeDeep } from './lib/merge-deep'
 import { createApiHandlers } from './api'
 import Defaults from './defaults'
+import type { ArtalkConfig, ContextApi } from '@/types'
 
 /**
  * Handle the custom config which is provided by the user
@@ -60,16 +60,19 @@ export function handelCustomConf(customConf: Partial<ArtalkConfig>, full = false
  * @returns The config for Artalk instance creation
  */
 export function handleConfFormServer(conf: Partial<ArtalkConfig>) {
-  const DisabledKeys: (keyof ArtalkConfig)[] = [
+  const ExcludedKeys: (keyof ArtalkConfig)[] = [
     'el',
     'pageKey',
     'pageTitle',
     'server',
     'site',
-    'darkMode',
+    'pvEl',
+    'countEl',
+    'statPageKeyAttr',
   ]
   Object.keys(conf).forEach((k) => {
-    if (DisabledKeys.includes(k as any)) delete conf[k]
+    if (ExcludedKeys.includes(k as any)) delete conf[k]
+    if (k === 'darkMode' && conf[k] !== 'auto') delete conf[k]
   })
 
   // Patch: `emoticons` config string to json
@@ -102,7 +105,7 @@ export function convertApiOptions(conf: Partial<ArtalkConfig>, ctx?: ContextApi)
     getApiToken: () => ctx?.get('user').getData().token,
     userInfo: ctx?.get('user').checkHasBasicUserInfo()
       ? {
-          name: ctx?.get('user').getData().nick,
+          name: ctx?.get('user').getData().name,
           email: ctx?.get('user').getData().email,
         }
       : undefined,

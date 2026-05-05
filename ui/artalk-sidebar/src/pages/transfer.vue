@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { useNavStore } from '../stores/nav'
 import { useUserStore } from '../stores/user'
 import { artalk } from '../global'
-import { storeToRefs } from 'pinia'
 
 const nav = useNavStore()
 const user = useUserStore()
@@ -65,10 +65,10 @@ function startImportTask() {
   const siteURL = p.siteURL.trim()
   const payload = p.payload.trim()
 
-  // 请求 payload 参数制备
+  // Prepare request params
   let rData: any = {}
   if (payload) {
-    // JSON 格式检验
+    // Validate payload JSON
     try {
       rData = JSON.parse(payload)
     } catch (err) {
@@ -85,7 +85,7 @@ function startImportTask() {
   if (siteURL) rData.target_site_url = siteURL
   rData.json_file = uploadedFilename.value
 
-  // 创建导入会话
+  // Create an import task
   importTaskParams.value = {
     ...rData,
     token: user.token,
@@ -105,7 +105,7 @@ async function startExportTask() {
     const res = await artalk!.ctx.getApi().transfer.exportArtrans()
     downloadFile(`backup-${getYmdHisFilename()}.artrans`, res.data.artrans)
   } catch (err: any) {
-    console.log(err)
+    console.error(err)
     window.alert(`${String(err)}`)
     return
   } finally {
@@ -164,31 +164,32 @@ const artransferToolHint = computed(() =>
   <div v-show="!importTaskStarted" class="atk-form">
     <div class="atk-label atk-data-file-label">Artrans {{ t('dataFile') }}</div>
     <FileUploader :api-url="uploadApiURL" @done="fileUploaded">
-      <template v-slot:tip>
+      <template #tip>
+        <!-- eslint-disable-next-line vue/no-v-html -->
         <span v-html="artransferToolHint" />
       </template>
-      <template v-slot:done-msg>
+      <template #done-msg>
         {{ t('uploadReadyToImport') }}
       </template>
     </FileUploader>
     <div class="atk-label">{{ t('targetSiteName') }}</div>
     <input
+      v-model="importParams.siteName"
       type="text"
       name="AtkSiteName"
       :placeholder="t('inputHint')"
       autocomplete="off"
-      v-model="importParams.siteName"
     />
     <div class="atk-label">{{ t('targetSiteURL') }}</div>
     <input
+      v-model="importParams.siteURL"
       type="text"
       name="AtkSiteURL"
       :placeholder="t('inputHint')"
       autocomplete="off"
-      v-model="importParams.siteURL"
     />
     <div class="atk-label">{{ t('payload') }} ({{ t('optional') }})</div>
-    <textarea name="AtkPayload" v-model="importParams.payload"></textarea>
+    <textarea v-model="importParams.payload" name="AtkPayload"></textarea>
     <span class="atk-desc">
       <a href="https://artalk.js.org/guide/transfer.html" target="_blank">
         {{ t('moreDetails') }}

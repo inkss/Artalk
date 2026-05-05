@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { artalk, bootParams } from '../global'
 import type { ArtalkType } from 'artalk'
+import { artalk, bootParams } from '../global'
 
 const { t } = useI18n()
 
@@ -59,10 +59,9 @@ function close() {
 }
 
 function submit() {
-  // 执行保存
   isLoading.value = true
 
-  // 默认标签颜色
+  // The default badge color
   if (editUser.value!.badge_name !== '' && editUser.value!.badge_color === '') {
     editUser.value!.badge_color = '#0083ff'
   }
@@ -77,7 +76,7 @@ function submit() {
         emit('update', res.data)
       })
       .catch((e: ArtalkType.FetchError) => {
-        alert('用户创建错误：' + e.message)
+        alert(e.message)
       })
       .finally(() => {
         isLoading.value = false
@@ -93,7 +92,7 @@ function submit() {
         emit('update', res.data)
       })
       .catch((e: ArtalkType.FetchError) => {
-        alert('用户保存错误：' + e.message)
+        alert(e.message)
       })
       .finally(() => {
         isLoading.value = false
@@ -128,8 +127,8 @@ function submit() {
         </template>
         <template v-else>
           <span
-            @click="showFullDetails = true"
             style="cursor: pointer; color: var(--at-color-main)"
+            @click="showFullDetails = true"
           >
             {{ t('Show') }}
           </span>
@@ -174,12 +173,13 @@ function submit() {
 
 <style scoped lang="scss">
 .user-editor-layer {
-  z-index: 201;
+  z-index: 5;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  min-height: calc(100vh - 160px);
   background: var(--at-color-bg);
   overflow-y: auto;
 }

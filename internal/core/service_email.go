@@ -3,10 +3,10 @@ package core
 import (
 	"time"
 
-	"github.com/ArtalkJS/Artalk/internal/email"
-	"github.com/ArtalkJS/Artalk/internal/entity"
-	"github.com/ArtalkJS/Artalk/internal/log"
-	"github.com/ArtalkJS/Artalk/internal/template"
+	"github.com/artalkjs/artalk/v2/internal/email"
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/template"
 )
 
 var _ Service = (*EmailService)(nil)
@@ -71,7 +71,7 @@ func (e *EmailService) AsyncSendTo(subject string, body string, toAddr string) {
 
 	e.queue.Push(&email.Email{
 		FromAddr: e.app.Conf().Email.SendAddr,
-		FromName: e.app.Conf().Email.SendName,
+		FromName: e.app.Conf().SiteDefault, // e.app.Conf().Email.SendName,
 		ToAddr:   toAddr,
 		Subject:  subject,
 		Body:     body,

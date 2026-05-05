@@ -9,47 +9,62 @@ interface RevelProps {
 }
 
 export const Reveal: React.FC<RevelProps> = (props) => {
-  props = {...{
-    // default config
-    threshold: 0.5,
-    duration: 1000,
-    delay: 0
-  }, ...props}
+  props = {
+    ...{
+      // default config
+      threshold: 0.5,
+      duration: 1000,
+      delay: 0,
+    },
+    ...props,
+  }
 
   const [isVisible, setIsVisible] = useState(false)
   const elementRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setIsVisible(true)
-        elementRef.current && observer.unobserve(elementRef.current)
-      }
-    }, {
-      threshold: props.threshold
-    })
+    const observerRefValue = elementRef.current
 
-    elementRef.current && observer.observe(elementRef.current)
+    if (!('IntersectionObserver' in window)) {
+      observerRefValue?.classList.add('show')
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true)
+          observerRefValue && observer.unobserve(observerRefValue)
+        }
+      },
+      {
+        threshold: props.threshold,
+      },
+    )
+
+    observerRefValue && observer.observe(observerRefValue)
 
     return () => {
-      elementRef.current && observer.unobserve(elementRef.current)
+      observerRefValue && observer.unobserve(observerRefValue)
     }
   }, [props.threshold])
 
   useEffect(() => {
-    if (isVisible) {
-      elementRef.current?.classList.add('animate')
+    if (!isVisible) return
 
-      const animationEndHandler = () => {
-        elementRef.current?.classList.remove('animate')
-        elementRef.current?.classList.add('show')
-      }
+    const observerRefValue = elementRef.current
 
-      elementRef.current?.addEventListener('animationend', animationEndHandler)
+    observerRefValue?.classList.add('animate')
 
-      return () => {
-        elementRef.current?.removeEventListener('animationend', animationEndHandler)
-      }
+    const animationEndHandler = () => {
+      observerRefValue?.classList.remove('animate')
+      observerRefValue?.classList.add('show')
+    }
+
+    observerRefValue?.addEventListener('animationend', animationEndHandler)
+
+    return () => {
+      observerRefValue?.removeEventListener('animationend', animationEndHandler)
     }
   }, [isVisible])
 

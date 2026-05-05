@@ -1,20 +1,25 @@
+import { DefaultPlugins } from './plugins'
 import type { ArtalkConfig, ArtalkPlugin, ContextApi } from '@/types'
 import { handleConfFormServer } from '@/config'
 import { showErrorDialog } from '@/components/error-dialog'
-import { DefaultPlugins } from './plugins'
 
 /**
  * Global Plugins for all Artalk instances
  */
-export const GlobalPlugins: ArtalkPlugin[] = [...DefaultPlugins]
+export const GlobalPlugins: Set<ArtalkPlugin> = new Set([...DefaultPlugins])
+
+/**
+ * Plugin options for plugin initialization
+ */
+export const PluginOptions: WeakMap<ArtalkPlugin, any> = new WeakMap()
 
 export async function load(ctx: ContextApi) {
-  const loadedPlugins: ArtalkPlugin[] = []
-  const loadPlugins = (plugins: ArtalkPlugin[]) => {
+  const loadedPlugins = new Set<ArtalkPlugin>()
+  const loadPlugins = (plugins: Set<ArtalkPlugin>) => {
     plugins.forEach((plugin) => {
-      if (typeof plugin === 'function' && !loadedPlugins.includes(plugin)) {
-        plugin(ctx)
-        loadedPlugins.push(plugin)
+      if (typeof plugin === 'function' && !loadedPlugins.has(plugin)) {
+        plugin(ctx, PluginOptions.get(plugin))
+        loadedPlugins.add(plugin)
       }
     })
   }
@@ -77,8 +82,9 @@ export async function load(ctx: ContextApi) {
 /**
  * Dynamically load plugins from Network
  */
-async function loadNetworkPlugins(scripts: string[], apiBase: string): Promise<ArtalkPlugin[]> {
-  if (!scripts || !Array.isArray(scripts)) return []
+async function loadNetworkPlugins(scripts: string[], apiBase: string): Promise<Set<ArtalkPlugin>> {
+  const networkPlugins = new Set<ArtalkPlugin>()
+  if (!scripts || !Array.isArray(scripts)) return networkPlugins
 
   const tasks: Promise<void>[] = []
 
@@ -88,7 +94,7 @@ async function loadNetworkPlugins(scripts: string[], apiBase: string): Promise<A
       url = `${apiBase.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
 
     tasks.push(
-      new Promise<void>((resolve, reject) => {
+      new Promise<void>((resolve) => {
         // check if loaded
         if (document.querySelector(`script[src="${url}"]`)) {
           resolve()
@@ -100,14 +106,22 @@ async function loadNetworkPlugins(scripts: string[], apiBase: string): Promise<A
         script.src = url
         document.head.appendChild(script)
         script.onload = () => resolve()
-        script.onerror = (err) => reject(err)
+        script.onerror = (err) => {
+          console.error('[artalk] Failed to load plugin', err)
+          resolve()
+        }
       }),
     )
   })
 
   await Promise.all(tasks)
 
-  return Object.values(window.ArtalkPlugins || {})
+  // Read ArtalkPlugins object from window
+  Object.values(window.ArtalkPlugins || {}).forEach((plugin) => {
+    if (typeof plugin === 'function') networkPlugins.add(plugin)
+  })
+
+  return networkPlugins
 }
 
 export function onLoadErr(ctx: ContextApi, err: any) {
@@ -127,7 +141,7 @@ export function onLoadErr(ctx: ContextApi, err: any) {
     errMsg: err.msg || String(err),
     errData: err.data,
     retryFn: () => load(ctx),
-    onOpenSidebar: ctx.get('user').getData().isAdmin
+    onOpenSidebar: ctx.get('user').getData().is_admin
       ? () =>
           ctx.showSidebar({
             view: sidebarOpenView as any,

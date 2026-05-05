@@ -1,8 +1,10 @@
 package dao
 
 import (
-	"github.com/ArtalkJS/Artalk/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/entity"
 )
+
+// TODO: consider refactor make all delete operations in a transaction
 
 func (dao *Dao) DelComment(comment *entity.Comment) error {
 	// 清除 notify
@@ -104,18 +106,39 @@ func (dao *Dao) DelUser(user *entity.User) error {
 		return err
 	}
 
-	// 删除所有相关内容
+	// Delete user comments
 	var comments []entity.Comment
 	dao.DB().Where("user_id = ?", user.ID).Find(&comments)
 	for _, c := range comments {
-		dao.DelComment(&c)           // 删除主评论
-		dao.DelCommentChildren(c.ID) // 删除子评论
+		dao.DelComment(&c)           // Delete parent comment
+		dao.DelCommentChildren(c.ID) // Delete all child comments
 	}
 
-	// 删除缓存
+	// Delete user auth identities
+	var authIdentity []entity.AuthIdentity
+	dao.DB().Where("user_id = ?", user.ID).Find(&authIdentity)
+	for _, a := range authIdentity {
+		dao.DelAuthIdentity(&a)
+	}
+
+	// Clear cache
 	dao.CacheAction(func(cache *DaoCache) {
 		cache.UserCacheDel(user)
 	})
+
+	return nil
+}
+
+func (dao *Dao) DelAuthIdentity(authIdentity *entity.AuthIdentity) error {
+	err := dao.DB().Unscoped().Delete(&authIdentity).Error
+	if err != nil {
+		return err
+	}
+
+	// TODO 删除缓存
+	// dao.CacheAction(func(cache *DaoCache) {
+	// 	cache.AuthIdentityCacheDel(authIdentity)
+	// })
 
 	return nil
 }

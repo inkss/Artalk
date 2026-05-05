@@ -1,0 +1,50 @@
+- id: 1000
+  key: /test/1000.html
+  title: 测试页面标题 1000
+  admin_only: false
+  site_name: Site A
+  created_at: 2022-04-29 14:41:37
+  updated_at: 2022-04-29 14:41:37
+
+- id: 1001
+  key: /site_b/1001.html
+  title: 测试页面标题 1001
+  admin_only: true
+  site_name: Site B
+  created_at: 2022-04-29 14:45:44
+  updated_at: 2022-04-29 14:45:44
+
+- id: 1002
+  key: /test_pagination.html
+  title: 分页测试页面
+  admin_only: false
+  site_name: Site A
+  created_at: 2022-04-29 14:47:59
+  updated_at: 2022-04-29 14:47:59
+
+## ----------------------------
+## Pages with PV
+## ----------------------------
+- id: 1003
+  key: /test/pv_is_100.html
+  title: PV 为 100 的页面
+  site_name: Site A
+  pv: 100
+  created_at: 2024-05-29 14:49:59
+  updated_at: 2024-05-29 14:49:59
+
+- id: 1004
+  key: /test/pv_is_1000.html
+  title: PV 为 1000 的页面
+  site_name: Site A
+  pv: 1000
+  created_at: 2024-05-29 14:51:59
+  updated_at: 2024-05-29 14:51:59
+
+- id: 1005
+  key: /test/pv_is_10000.html
+  title: PV 为 10000 的页面
+  site_name: Site A
+  pv: 10000
+  created_at: 2024-05-29 14:53:59
+  updated_at: 2024-05-29 14:53:59

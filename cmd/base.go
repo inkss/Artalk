@@ -6,14 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ArtalkJS/Artalk/internal/config"
-	"github.com/ArtalkJS/Artalk/internal/core"
-	"github.com/ArtalkJS/Artalk/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/config"
+	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/log"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
-
-var Version = config.Version + `/` + config.CommitHash
 
 var Banner = `
  ________  ________  _________  ________  ___       ___  __
@@ -24,7 +22,7 @@ var Banner = `
    \ \__\ \__\ \__\\ _\    \ \__\ \ \__\ \__\ \_______\ \__\\ \__\
     \|__|\|__|\|__|\|__|    \|__|  \|__|\|__|\|_______|\|__| \|__|
 
-Artalk (` + Version + `)
+Artalk (` + config.VersionString() + `)
 
  -> A Self-hosted Comment System.
  -> https://artalk.js.org
@@ -52,7 +50,7 @@ func New() *ArtalkCmd {
 			Use:     "artalk",
 			Short:   "Artalk: A self-hosted comment system",
 			Long:    Banner,
-			Version: Version,
+			Version: config.VersionString(),
 			Run: func(cmd *cobra.Command, args []string) {
 				fmt.Println(Banner)
 				fmt.Print("-------------------------------\n\n")

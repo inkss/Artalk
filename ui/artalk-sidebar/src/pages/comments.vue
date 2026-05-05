@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { artalk } from '../global'
-import Artalk from 'artalk'
 import { useNavStore } from '../stores/nav'
 import { useUserStore } from '../stores/user'
-import { storeToRefs } from 'pinia'
 
 const wrapEl = ref<HTMLElement>()
 const listEl = ref<HTMLElement>()
@@ -11,13 +10,12 @@ const user = useUserStore()
 const nav = useNavStore()
 const { curtTab } = storeToRefs(nav)
 const { site: curtSite } = storeToRefs(user)
-const { t } = useI18n()
 
 const search = ref('')
 
 onMounted(() => {
   // 初始化导航条
-  if (user.isAdmin) {
+  if (user.is_admin) {
     nav.updateTabs(
       {
         all: 'all',
@@ -55,9 +53,9 @@ onMounted(() => {
 
   artalk!.ctx.updateConf({
     listFetchParamsModifier: (params) => {
-      params.site_name = curtSite.value // 站点名
+      params.site_name = curtSite.value
 
-      let scope = user.isAdmin ? 'site' : 'user'
+      let scope = user.is_admin ? 'site' : 'user'
       let type = curtTab.value
 
       if (curtTab.value === 'personal_all') {
@@ -77,14 +75,12 @@ onMounted(() => {
 
   const $el = artalk!.ctx.get('list')!.$el
 
-  // @ts-ignore
-  $el.querySelector<HTMLElement>('.atk-list-header').style.display = 'none'
-  // @ts-ignore
-  $el.querySelector<HTMLElement>('.atk-list-footer').style.display = 'none'
+  $el.querySelector<HTMLElement>('.atk-list-header')!.style.display = 'none'
+  $el.querySelector<HTMLElement>('.atk-list-footer')!.style.display = 'none'
 
   listEl.value?.append($el)
 
-  // 搜索功能
+  // Comments search
   nav.enableSearch(
     (value: string) => {
       search.value = value
@@ -107,9 +103,6 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .comments-wrap {
-  overflow-y: auto;
-  height: 100%;
-
   :deep(.atk-comment-wrap) {
     border-bottom: 1px solid var(--at-color-border);
   }

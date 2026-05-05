@@ -5,6 +5,7 @@ debug: false
 locale: en
 timezone: Asia/Shanghai
 site_default: Default Site
+site_url: ""
 login_timeout: 259200
 db:
   type: sqlite
@@ -60,7 +61,7 @@ moderator:
     files:
       - ./data/keywords_1.txt
     file_sep: "\n"
-    replac_to: x
+    replace_to: x
 captcha:
   enabled: true
   always: false
@@ -123,6 +124,7 @@ admin_notify:
   lark:
     enabled: false
     webhook_url: ""
+    msg_type: "text"
   webhook:
     enabled: false
     url: ""
@@ -140,8 +142,84 @@ admin_notify:
     channel_secret: ""
     channel_access_token: ""
     receivers:
-      - USER_ID_1
-      - GROUP_ID_1
+      - "USER_ID_1"
+      - "GROUP_ID_1"
+auth:
+  enabled: false
+  anonymous: false
+  callback: "http://localhost:23366/api/v2/auth/{provider}/callback"
+  email:
+    enabled: true
+    verify_subject: "Your Code - {{code}}"
+    verify_tpl: default
+  github:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  gitlab:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  gitea:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  google:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  mastodon:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  twitter:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  facebook:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  discord:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  steam:
+    enabled: false
+    api_key: ""
+  apple:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  microsoft:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  wechat:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  tiktok:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  slack:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  line:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  patreon:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  auth0:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+    domain: ""
 frontend:
   placeholder: ""
   noComment: ""
@@ -152,15 +230,14 @@ frontend:
   voteDown: false
   uaBadge: false
   listSort: true
-  pvEl: "#ArtalkPV"
-  countEl: "#ArtalkCount"
   preview: true
   flatMode: auto
+  darkMode: inherit
   nestMax: 2
   nestSort: DATE_ASC
   gravatar:
     mirror: https://www.gravatar.com/avatar/
-    params: d=mp&s=240
+    params: sha256=1&d=mp&s=240
   pagination:
     pageSize: 20
     readMore: true
@@ -169,6 +246,7 @@ frontend:
     content: 300
     children: 400
     scrollable: false
+  imgLazyLoad: false
   reqTimeout: 15000
   versionCheck: true
   pluginURLs: []

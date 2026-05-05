@@ -1,12 +1,21 @@
 package core
 
 import (
-	"github.com/ArtalkJS/Artalk/internal/entity"
+	"strconv"
+
+	"github.com/artalkjs/artalk/v2/internal/entity"
+	"github.com/artalkjs/artalk/v2/internal/log"
 )
 
 func (app *App) syncFromConf() {
-	// 初始化默认站点
-	app.Dao().FindCreateSite(app.Conf().SiteDefault)
+	// Initialize default site
+	siteDefault := app.Dao().FindCreateSite(app.Conf().SiteDefault, app.Conf().SiteURL)
+	if app.Conf().SiteURL != "" && siteDefault.Urls != app.Conf().SiteURL {
+		siteDefault.Urls = app.Conf().SiteURL
+		app.Dao().UpdateSite(&siteDefault)
+		log.Info("Default Site ", strconv.Quote(app.Conf().SiteDefault),
+			" URL has been updated to: ", strconv.Quote(app.Conf().SiteURL))
+	}
 
 	// 导入配置文件的管理员用户
 	for _, admin := range app.Conf().AdminUsers {

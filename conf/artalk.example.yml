@@ -10,7 +10,7 @@ app_key: ""
 # Debug mode
 debug: false
 
-# Language (follow Unicode BCP 47) ["en", "zh-CN", "zh-TW", "jp"]
+# Language (follow Unicode BCP 47) ["en", "zh-CN", "zh-TW", "ja", "fr", "ko", "ru"]
 # -- see https://www.techonthenet.com/js/language_tags.php --
 locale: en
 
@@ -20,6 +20,9 @@ timezone: Asia/Shanghai
 
 # Default site name (create when app is first launched)
 site_default: Default Site
+
+# Default site url
+site_url: ""
 
 # Login timeout (in seconds)
 login_timeout: 259200
@@ -139,7 +142,7 @@ moderator:
     files:
       - ./data/keywords_1.txt
     file_sep: "\n"
-    replac_to: x
+    replace_to: x
 
 # Captcha
 captcha:
@@ -252,13 +255,17 @@ admin_notify:
   bark:
     enabled: false
     server: http://day.app/xxxxxxx/
+  # Lark
   lark:
     enabled: false
     webhook_url: ""
+    # Message type ["text", "card"]
+    msg_type: "text"
   # WebHook
   webhook:
     enabled: false
     url: ""
+  # DingTalk
   ding_talk:
     enabled: false
     token: ""
@@ -277,6 +284,108 @@ admin_notify:
     receivers:
       - USER_ID_1
       - GROUP_ID_1
+
+# Social Login
+auth:
+  # Enable Social Login
+  enabled: false
+  # Allow anonymous commenting (Allow skipping verification, only fill in an anonymous nickname and email)
+  anonymous: false
+  # Callback URL (https://example.com/api/v2/auth/{provider}/callback)
+  callback: "http://localhost:23366/api/v2/auth/{provider}/callback"
+  # Email
+  email:
+    # Enable email password login
+    enabled: true
+    # Verification email subject
+    verify_subject: "Your Code - {{code}}"
+    # Verification email template (set to file path to use custom template)
+    verify_tpl: default
+  # GitHub
+  github:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # GitLab
+  gitlab:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Gitea
+  gitea:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Google
+  google:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Mastodon
+  mastodon:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Twitter
+  twitter:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Facebook
+  facebook:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Discord
+  discord:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Steam
+  steam:
+    enabled: false
+    api_key: ""
+  # Apple
+  apple:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Microsoft
+  microsoft:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # WeChat
+  wechat:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Tiktok
+  tiktok:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Slack
+  slack:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Line
+  line:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Patreon
+  patreon:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+  # Auth0
+  auth0:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+    domain: ""
 
 # UI Settings
 frontend:
@@ -298,14 +407,12 @@ frontend:
   uaBadge: false
   # Comment sorting
   listSort: true
-  # Page PV binding element
-  pvEl: "#ArtalkPV"
-  # Comment count binding element
-  countEl: "#ArtalkCount"
   # Editor real-time preview
   preview: true
   # Flatten mode ["auto", true, false]
   flatMode: auto
+  # Dark mode ["inherit", "auto"]
+  darkMode: inherit
   # Maximum nesting level
   nestMax: 2
   # Nesting comment sorting rules ["DATE_ASC", "DATE_DESC", "VOTE_UP_DESC"]
@@ -315,7 +422,7 @@ frontend:
     # API URL
     mirror: https://www.gravatar.com/avatar/
     # API parameters
-    params: d=mp&s=240
+    params: sha256=1&d=mp&s=240
   # Comment pagination
   pagination:
     # Number of comments per page
@@ -332,6 +439,8 @@ frontend:
     children: 400
     # Scrollable (scrollable height limit area)
     scrollable: false
+  # Image lazy load [false, "native", "data-src"]
+  imgLazyLoad: false
   # Request timeout (unit: ms)
   reqTimeout: 15000
   # Version check

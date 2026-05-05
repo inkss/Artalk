@@ -4,7 +4,7 @@ import (
 	"io"
 	"os/exec"
 
-	"github.com/ArtalkJS/Artalk/internal/log"
+	"github.com/artalkjs/artalk/v2/internal/log"
 )
 
 // CmdSender implements Sender
@@ -55,7 +55,7 @@ func (s *CmdSender) Send(email *Email) bool {
 	if err := sendmail.Wait(); err != nil {
 		log.Error(LogTag, err)
 		if exitError, ok := err.(*exec.ExitError); ok {
-			log.Error(LogTag, "Exit code is %d", exitError.ExitCode())
+			log.Errorf("["+LogTag+"] Exit code is %d", exitError.ExitCode())
 		}
 		return false
 	}
