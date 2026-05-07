@@ -195,76 +195,45 @@ class Context implements ContextApi {
 
   /** 表情包放大 */
   showOwoBig(target: Node) {
-    const RATIO = 2;
-    const MaxLength = 200;
-    const body = document.querySelector('body') || document.createElement('body');
-    let div = document.querySelector('#owo-big') as HTMLElement;
+    const RATIO = 2
+    const MaxLength = 200
+    const body = document.querySelector('body') || document.createElement('body')
+    let div = document.querySelector('#owo-big') as HTMLElement
 
     if (!div) {
-      div = document.createElement('div');
-      div.id = 'owo-big';
-      body.appendChild(div);
+      div = document.createElement('div')
+      div.id = 'owo-big'
+      body.appendChild(div)
     }
 
-    const observer = new MutationObserver(mutations => {
-      mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-          const element = node as HTMLElement;
+    let owoTime: number
 
-          if (shouldEnlarge(element)) {
-            setupHoverEffects(element);
-          }
-        });
-      });
-    });
+    // 事件委托：在 target 上统一监听，而非逐个元素绑定
+    target.addEventListener('pointerover', ((e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      const img = e.target as HTMLImageElement
+      if (img.tagName !== 'IMG' || !img.hasAttribute('atk-emoticon')) return
 
-    observer.observe(target, { subtree: true, childList: true });
+      clearTimeout(owoTime)
+      owoTime = window.setTimeout(() => {
+        const alt = img.getAttribute('notitle') === 'true' ? '' : img.alt || ''
+        const { clientHeight, clientWidth, naturalHeight, naturalWidth } = img
 
-    function shouldEnlarge(element: HTMLElement): boolean {
-      return element.classList?.contains('atk-grp')
-        || element.classList?.contains('atk-comment-wrap')
-        || !!element.attributes?.['atk-emoticon']
-        || !!element.querySelector?.('img[atk-emoticon]');
-    }
+        if (clientHeight <= MaxLength && clientWidth <= MaxLength) {
+          const { tempWidth, tempHeight } = calculateSize(clientHeight, clientWidth, naturalHeight, naturalWidth, RATIO, MaxLength)
+          const { top, left } = calculatePosition(e, tempWidth, clientWidth, body)
 
-    function setupHoverEffects(element: HTMLElement) {
-      let flag = true;
-      let owoTime: number;
-      element.addEventListener('pointerover', (e: PointerEvent) => {
-        if (e.pointerType !== 'mouse') return;
-
-        const imgElement = e.target as HTMLImageElement;
-        if (flag && imgElement.tagName === 'IMG' && imgElement.hasAttribute('atk-emoticon')) {
-          flag = false;
-          owoTime = window.setTimeout(() => {
-            const alt = imgElement.getAttribute("notitle") === "true" ? '' : imgElement.alt || '';
-            const { clientHeight, clientWidth, naturalHeight, naturalWidth } = imgElement;
-
-            if (clientHeight <= MaxLength && clientWidth <= MaxLength) {
-              const { tempWidth, tempHeight } = calculateSize(clientHeight, clientWidth, naturalHeight, naturalWidth, RATIO, MaxLength);
-              const { top, left } = calculatePosition(e, tempWidth, clientWidth, body);
-
-              div.style.cssText = `
-                display: block;
-                width: ${tempWidth + 32}px; // div padding: 16px;
-                left: ${left}px;
-                top: ${top}px;
-              `;
-              div.innerHTML = `
-                <img src="${imgElement.src}" style="height: ${tempHeight}px;width: ${tempWidth}px" onerror="this.classList.add('error')">
-                <p>${alt.trim().replace(/\s+/g, ' ').replace(/ /g, '<br>')}</p>
-              `;
-            }
-          }, 300);
+          div.style.cssText = `display:block;width:${tempWidth + 32}px;left:${left}px;top:${top}px`
+          div.innerHTML = `<img src="${img.src}" style="height:${tempHeight}px;width:${tempWidth}px" onerror="this.classList.add('error')"><p>${alt.trim().replace(/\s+/g, ' ').replace(/ /g, '<br>')}</p>`
         }
-      });
+      }, 300)
+    }) as EventListener)
 
-      element.addEventListener('pointerout', () => {
-        flag = true;
-        div.style.display = 'none';
-        clearTimeout(owoTime);
-      });
-    }
+    target.addEventListener('pointerout', ((e: PointerEvent) => {
+      if ((e.target as HTMLElement).tagName !== 'IMG') return
+      clearTimeout(owoTime)
+      div.style.display = 'none'
+    }) as EventListener)
 
     function calculateSize(
       clientHeight: number,
@@ -274,18 +243,18 @@ class Context implements ContextApi {
       ratio: number,
       maxLength: number
     ): { tempWidth: number, tempHeight: number } {
-      const zoomHeight = clientHeight * ratio;
-      const zoomWidth = clientWidth * ratio;
-      const constrainedHeight = Math.min(zoomHeight, maxLength, Math.max(clientHeight, naturalHeight));
-      const constrainedWidth = Math.min(zoomWidth, maxLength, Math.max(clientWidth, naturalWidth));
-      const aspectRatio = constrainedWidth / constrainedHeight;
+      const zoomHeight = clientHeight * ratio
+      const zoomWidth = clientWidth * ratio
+      const constrainedHeight = Math.min(zoomHeight, maxLength, Math.max(clientHeight, naturalHeight))
+      const constrainedWidth = Math.min(zoomWidth, maxLength, Math.max(clientWidth, naturalWidth))
+      const aspectRatio = constrainedWidth / constrainedHeight
       const tempWidth = aspectRatio >= 1
         ? Math.min(constrainedWidth, maxLength)
-        : Math.min((constrainedWidth * maxLength) / constrainedHeight, constrainedWidth);
+        : Math.min((constrainedWidth * maxLength) / constrainedHeight, constrainedWidth)
       const tempHeight = aspectRatio < 1
         ? Math.min(constrainedHeight, maxLength)
-        : Math.min((constrainedHeight * maxLength) / constrainedWidth, constrainedHeight);
-      return { tempWidth, tempHeight };
+        : Math.min((constrainedHeight * maxLength) / constrainedWidth, constrainedHeight)
+      return { tempWidth, tempHeight }
     }
 
     function calculatePosition(
@@ -294,10 +263,10 @@ class Context implements ContextApi {
       clientWidth: number,
       bodyElement: HTMLElement
     ): { top: number, left: number } {
-      const top = e.clientY - e.offsetY;
-      let left = e.clientX - e.offsetX - (tempWidth - clientWidth) / 2;
-      left = Math.max(10, Math.min(left, bodyElement.clientWidth - tempWidth - 10));
-      return { top, left };
+      const top = e.clientY - e.offsetY
+      let left = e.clientX - e.offsetX - (tempWidth - clientWidth) / 2
+      left = Math.max(10, Math.min(left, bodyElement.clientWidth - tempWidth - 10))
+      return { top, left }
     }
   }
 
@@ -320,73 +289,60 @@ class Context implements ContextApi {
   lazyLoadImages(target: Node) {
     const loadImg = (img: Element) => {
       const dataSrc = img.getAttribute('data-src');
-      if (dataSrc) {
-        img.setAttribute('src', dataSrc);
+      if (!dataSrc) return;
+      img.setAttribute('src', dataSrc);
+      if (img.parentElement?.classList.contains('loading-spinner-wrapper')) {
         (img as HTMLElement).onload = () => {
-          const parent = img.parentElement;
-          if (parent && parent.classList.contains('loading-spinner-wrapper')) {
-            parent.replaceWith(img);
-          }
+          img.parentElement?.classList.contains('loading-spinner-wrapper') && img.parentElement!.replaceWith(img);
         };
       }
     };
 
     const wrapImgWithSpinner = (img: Element) => {
-      const dataSrc = img.getAttribute('data-src');
-      if (dataSrc) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'loading-spinner-wrapper';
-        wrapper.innerHTML = '<div class="loading-spinner"></div>';
-        img.parentNode?.insertBefore(wrapper, img);
-        wrapper.appendChild(img);
-      }
+      if (!img.getAttribute('data-src')) return;
+      if (img.parentElement?.classList.contains('loading-spinner-wrapper')) return;
+      const wrapper = document.createElement('div');
+      wrapper.className = 'loading-spinner-wrapper';
+      wrapper.innerHTML = '<div class="loading-spinner"></div>';
+      img.parentNode?.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
     };
 
-    if ('IntersectionObserver' in window) {
-      const ioObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target as HTMLImageElement;
-            loadImg(img);
-            observer.unobserve(img);
-          }
-        });
-      });
-
-      if (target instanceof HTMLElement) {
-        const initialImgs = target.querySelectorAll('img');
-        initialImgs.forEach(img => {
-          if (!img.hasAttribute('loading')) {
-            img.setAttribute('loading', 'lazy');
-          }
-          if (!img.parentElement?.classList.contains('loading-spinner-wrapper')) {
-            wrapImgWithSpinner(img);
-          }
-          ioObserver.observe(img);
-        });
+    const processImg = (img: Element) => {
+      wrapImgWithSpinner(img);
+      if (!img.hasAttribute('loading')) {
+        img.setAttribute('loading', 'lazy');
       }
+      ioObserver.observe(img);
+    };
 
-      const mutationObserver = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          mutation.addedNodes.forEach(node => {
-            if (node instanceof HTMLElement) {
-              const imgs = node.querySelectorAll('img');
-              imgs.forEach(img => {
-                if (!img.hasAttribute('loading')) {
-                  img.setAttribute('loading', 'lazy');
-                }
-                if (!img.parentElement?.classList.contains('loading-spinner-wrapper')) {
-                  wrapImgWithSpinner(img);
-                }
-                ioObserver.observe(img);
-              });
-            }
-          });
+    if (!('IntersectionObserver' in window)) return;
+
+    const ioObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target as HTMLImageElement;
+          loadImg(img);
+          observer.unobserve(img);
+        }
+      });
+    });
+
+    if (target instanceof HTMLElement) {
+      target.querySelectorAll('img').forEach(processImg);
+    }
+
+    const mutationObserver = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node instanceof HTMLElement) {
+            node.querySelectorAll('img').forEach(processImg);
+          }
         });
       });
+    });
 
-      mutationObserver.observe(target, { childList: true, subtree: true });
-    }
+    mutationObserver.observe(target, { childList: true, subtree: true });
   }
   
 }
