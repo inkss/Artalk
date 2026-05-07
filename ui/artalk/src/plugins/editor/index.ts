@@ -1,4 +1,3 @@
-import type { ArtalkConfig } from '@/types'
 import type EditorPlug from './_plug'
 import LocalStorage from './local-storage'
 import Textarea from './textarea'
@@ -15,6 +14,7 @@ import Emoticons from './emoticons'
 import Upload from './upload'
 import Preview from './preview'
 import Refresh from './refresh'
+import type { ArtalkConfig } from '@/types'
 
 /** The default enabled plugs */
 const EDITOR_PLUGS: (typeof EditorPlug)[] = [

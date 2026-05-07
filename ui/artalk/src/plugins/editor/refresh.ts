@@ -1,6 +1,6 @@
-import $t from '@/i18n'
 import PlugKit from './_kit';
 import EditorPlug from './_plug'
+import $t from '@/i18n'
 
 export default class Refresh extends EditorPlug {
 

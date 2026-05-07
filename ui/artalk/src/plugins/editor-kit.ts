@@ -1,9 +1,9 @@
-import type { EditorApi, ArtalkPlugin } from '@/types'
-import EventManager from '@/lib/event-manager'
 import { getEnabledPlugs } from './editor'
 import EditorPlug from './editor/_plug'
 import PlugKit from './editor/_kit'
 import Emoticons from './editor/emoticons'
+import type { EditorApi, ArtalkPlugin } from '@/types'
+import EventManager from '@/lib/event-manager'
 
 export interface EditorEventPayloadMap {
   mounted: undefined
