@@ -61,10 +61,6 @@
   }
 
   pre code {
-    * {
-      font-family: $codeFont;
-    }
-
     line-height: $line-height;
     display: block;
     padding: 10px 15px;
@@ -78,6 +74,10 @@
     width: auto;
     position: relative;
     border-radius: 4px;
+
+    * {
+      font-family: $codeFont;
+    }
 
     &:before {
       content: attr(language);
@@ -663,10 +663,6 @@ img[atk-emoticon] {
   }
 
   &:after {
-    @media screen and (max-width: 300px) {
-      display: none;
-    }
-
     content: attr(alt);
     position: absolute;
     left: 0;
@@ -681,6 +677,10 @@ img[atk-emoticon] {
     overflow: hidden;
     text-overflow: ellipsis;
     text-indent: initial;
+
+    @media screen and (max-width: 300px) {
+      display: none;
+    }
   }
 
   &[atk-emoticon] {

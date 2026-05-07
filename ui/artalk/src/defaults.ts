@@ -38,6 +38,8 @@ const defaults: ArtalkConfig = {
     autoLoad: true,
   },
 
+  statPageKeyAttr: 'data-page-key',
+
   heightLimit: {
     content: 300,
     children: 400,
