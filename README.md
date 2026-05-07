@@ -5,3 +5,13 @@
 > 自用仓库、依赖仓库~
 
 *A Self-hosted Comment System~*
+
+## 引用地址
+
+```html
+<!-- CSS -->
+<link rel="stylesheet" href="https://static.szyink.com/storage/artalk/Artalk.v2.9.1.css">
+
+<!-- JS -->
+<script src="https://static.szyink.com/storage/artalk/Artalk.v2.9.1.js"></script>
+```
