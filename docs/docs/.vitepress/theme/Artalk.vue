@@ -6,6 +6,10 @@
 import { watch, nextTick, ref, onMounted, onUnmounted } from 'vue'
 import { useData, useRouter } from 'vitepress'
 import Artalk from 'artalk'
+import { ArtalkKatexPlugin } from '@artalk/plugin-katex'
+import { ArtalkLightboxPlugin } from '@artalk/plugin-lightbox'
+import 'lightgallery/css/lightgallery.css'
+import 'katex/dist/katex.min.css'
 import 'artalk/dist/Artalk.css'
 
 const el = ref<HTMLElement | null>(null)
@@ -36,12 +40,24 @@ onUnmounted(() => {
 })
 
 function initArtalk(conf: any) {
+  Artalk.use(ArtalkKatexPlugin)
+  Artalk.use(ArtalkLightboxPlugin, {
+    lightGallery: {
+      lib: async () => (await import('lightgallery')).default,
+    },
+  })
+
+  Artalk.use((ctx) => {
+    ctx.on('mounted', () => {
+      // TODO: Optimize the locale setting, which is overwritten by the remote server config
+      const locale = document.documentElement.lang.includes('zh') ? 'zh-CN' : 'en'
+      if (locale !== ctx.getConf().locale) ctx.updateConf({ locale })
+    })
+  })
+
   artalk = Artalk.init({
     el: el.value,
     emoticons: '/assets/emoticons/default.json',
-    gravatar: {
-      mirror: 'https://weavatar.com/avatar/',
-    },
     ...conf,
   })
 
@@ -50,7 +66,10 @@ function initArtalk(conf: any) {
 
 function getConfByPage() {
   return {
-    pageKey: 'https://artalk.js.org' + router.route.path,
+    pageKey: `https://artalk.js.org/${router.route.path
+      .replace(/^\/+/, '')
+      .replace(/^zh\//, '')
+      .replace(/\.html$/, '')}.html`,
     pageTitle: page.value.title,
     server: 'https://artalk.qwqaq.com',
     site: 'ArtalkDocs',
@@ -58,28 +77,6 @@ function getConfByPage() {
 }
 
 function loadExtraFuncs() {
-  // 图片灯箱插件
-  artalk.on('list-loaded', () => {
-    document
-      .querySelectorAll('.atk-comment .atk-content')
-      .forEach(($content) => {
-        const imgEls = $content.querySelectorAll<HTMLImageElement>(
-          'img:not([atk-emoticon]):not([atk-lightbox])',
-        )
-        imgEls.forEach((imgEl) => {
-          imgEl.setAttribute('atk-lightbox', '')
-          const linkEl = document.createElement('a')
-          linkEl.setAttribute('class', 'atk-img-link')
-          linkEl.setAttribute('href', imgEl.src)
-          linkEl.setAttribute('data-src', imgEl.src)
-          linkEl.append(imgEl.cloneNode())
-          imgEl.replaceWith(linkEl)
-        })
-        // @ts-ignore
-        if (imgEls.length) lightGallery($content, { selector: '.atk-img-link' })
-      })
-  })
-
   // 夜间模式
   const darkMode = document.querySelector('html').classList.contains('dark')
   artalk.setDarkMode(darkMode)
@@ -88,8 +85,7 @@ function loadExtraFuncs() {
     mList.forEach((m) => {
       if (m.attributeName !== 'class') return
 
-      // @ts-ignore
-      const darkMode = m.target.classList.contains('dark')
+      const darkMode = (<HTMLElement>m.target).classList.contains('dark')
       artalk.setDarkMode(darkMode)
     })
   }).observe(document.querySelector('html'), { attributes: true })

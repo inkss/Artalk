@@ -1,4 +1,189 @@
 
+## [v2.9.1](https://github.com/ArtalkJS/Artalk/compare/v2.9.0...v2.9.1) (2024-09-18)
+
+### Features
+
+* **go:** upgrade golang to v1.22.7 and some deps
+
+### Bug Fixes
+
+* **db:** sql error with custom table prefix ([#970](https://github.com/ArtalkJS/Artalk/issues/970))
+* **test:** separate test db to isolate concurrent test instances ([#975](https://github.com/ArtalkJS/Artalk/issues/975))
+* **transfer:** ensure consistent time format in artrans export
+* **ui/plugin:** prevent exceptions from blocking other plugins loading
+
+### Performance Improvements
+
+* **plugin_katex:** add error message for missing katex deps
+
+### Code Refactoring
+
+* **dao:** improve concurrent testing for `FindCreateAction` function
+* **go:** hardcode version and get commit_hash via runtime/debug
+* **go:** bump the module version and support go install ([#979](https://github.com/ArtalkJS/Artalk/issues/979))
+
+### Testing
+
+* **mutex:** add tests for keyed mutex
+
+### Documentation
+
+* refine deployment documentation
+* **i18n:** add English translations for docs ([#978](https://github.com/ArtalkJS/Artalk/issues/978))
+* **landing:** add multi-language and dark-mode for landing
+* **landing:** add demo video in landing page
+
+### BREAKING CHANGE
+
+
+The original Go module name was `github.com/ArtalkJS/Artalk`, which has now been modified to `github.com/artalkjs/artalk/v2` (all lowercase). This change may affect the CI pipeline or other areas if you are compiling the Artalk server and have specified the fixed Go module name. Regarding the original `-ldflags -X github.com/ArtalkJS/Artalk/internal/config.Version` and `CommitHash` definitions, please remove them, as they are now obsolete. The `Version` has been hardcoded into the Go code, and the `CommitHash` is now read from the Go build info via runtime/debug’s vcs.revision value. This change only affects the server developers and does not impact the frontend UI client.
+
+
+## [v2.9.0](https://github.com/ArtalkJS/Artalk/compare/v2.8.7...v2.9.0) (2024-09-03)
+
+### Features
+
+* **auth:** add user profile and password changing ([#966](https://github.com/ArtalkJS/Artalk/issues/966))
+* **config:** add `site_url` config option ([#967](https://github.com/ArtalkJS/Artalk/issues/967))
+* **go:** upgrade golang to v1.22.6 and some deps
+* **ui/dashboard:** new dashboard ui refresh for desktop devices ([#957](https://github.com/ArtalkJS/Artalk/issues/957))
+* **ui/date:** add `dateFormatter` config option ([#940](https://github.com/ArtalkJS/Artalk/issues/940))
+* **ui/plugin:** make ui plugin configurable
+* **ui/sidebar:** add dark mode toggle for dashboard ([#790](https://github.com/ArtalkJS/Artalk/issues/790))
+* **ui/sidebar:** add page search by keywords in sidebar ([#603](https://github.com/ArtalkJS/Artalk/issues/603))
+* **ui/sidebar:** add user search by keywords in sidebar ([#710](https://github.com/ArtalkJS/Artalk/issues/710))
+
+### Bug Fixes
+
+* **anti_spam:** handle empty `referer` variable in anti-spam check ([#853](https://github.com/ArtalkJS/Artalk/issues/853))
+* **api/auth:** fix missing Microsoft oauth provider configuration ([#929](https://github.com/ArtalkJS/Artalk/issues/929))
+* **api/auth:** migrate auth_identities when account merging ([#920](https://github.com/ArtalkJS/Artalk/issues/920))
+* **api/auth:** register issue due to unremoved auth records after user deletion ([#919](https://github.com/ArtalkJS/Artalk/issues/919))
+* **api/comment_add:** improve the security of comment add api ([#964](https://github.com/ArtalkJS/Artalk/issues/964))
+* **auth:** correct email verification code send button
+* **plugin/lightbox:** fix import for non-browser env ([#931](https://github.com/ArtalkJS/Artalk/issues/931))
+* **plugin_kit:** fix typescript lib path retrieval on win
+* **plugin_kit:** import source path case error on linux
+* **sidebar:** correct total item count for pagination in sidebar
+* **ui/dark_mode:** apply dark mode config option before mounting ui ([#890](https://github.com/ArtalkJS/Artalk/issues/890))
+* **ui/plugin-kit:** fix typescript lib folder for api-extractor in monorepo
+* **ui/sidebar:** disable admin password check dialog in sidebar
+* **ui/sidebar:** show env variables in sidebar settings ui ([#946](https://github.com/ArtalkJS/Artalk/issues/946)) ([#956](https://github.com/ArtalkJS/Artalk/issues/956))
+* **ui/stat:** fix invalid backward compatible strategy ([#880](https://github.com/ArtalkJS/Artalk/issues/880))
+* **validator:** restrict to allow only HTTP protocol
+
+### Performance Improvements
+
+* **api/auth:** add more specific error messages for login failures
+* **app/init:** generate translated config file by env variable `ATK_LOCALE`
+* **auth:** add loading skeleton for login methods list
+* **auth:** enhance visibility of skip button ([#863](https://github.com/ArtalkJS/Artalk/issues/863))
+* **auth:** perform optical adjustment for consistent icon sizing
+* **auth:** correct verify button position in register form
+* **i18n:** auto-load frontend i18n locale js sources
+* **notify:** improve error messages for notify ([#943](https://github.com/ArtalkJS/Artalk/issues/943))
+* **plugin_kit:** improve typescript diagnostics output
+* **style/sidebar:** modify font-family for sidebar
+* **ui/sidebar:** enhance i18n translations for sidebar
+* **ui/sidebar:** mask sensitive input values in sidebar settings ([#494](https://github.com/ArtalkJS/Artalk/issues/494))
+* **ui/sidebar:** optimize setup process and i18n lazy load ([#962](https://github.com/ArtalkJS/Artalk/issues/962))
+
+### Code Refactoring
+
+* **plugin_katex:** use tokenizer extension of marked ([#955](https://github.com/ArtalkJS/Artalk/issues/955))
+* **ui/deps:** remove `abortcontroller-polyfill` ([#923](https://github.com/ArtalkJS/Artalk/issues/923))
+* **ui/marked:** replace pkg-level marked with new class instance ([#954](https://github.com/ArtalkJS/Artalk/issues/954))
+* **ui/types:** add `Layer` interface
+* **ui/user:** rename `nick` to `name` in `LocalUser` data structure ([#961](https://github.com/ArtalkJS/Artalk/issues/961))
+
+### Documentation
+
+* **auth:** set `auth.anonymous` to false as default
+* **ui/i18n:** add more locale support for sidebar
+* **ui/i18n:** add translations for French, Korean, and Russian
+
+
+## [v2.8.7](https://github.com/ArtalkJS/Artalk/compare/v2.8.6...v2.8.7) (2024-06-09)
+
+### Features
+
+* **go:** upgrade golang to v1.22.3 and some deps
+* **plugin_kit:** add vite plugin for developing artalk plugins ([#904](https://github.com/ArtalkJS/Artalk/issues/904))
+* **sync:** add keyed rw-mutex
+
+### Bug Fixes
+
+* **api/auth:** include render mustache params for verification email subject ([#910](https://github.com/ArtalkJS/Artalk/issues/910))
+* **api/stats:** fix `site_pv` response body and add unit tests ([#896](https://github.com/ArtalkJS/Artalk/issues/896))
+* **api/transfer_upload:** close temp file in transfer upload endpoint ([#877](https://github.com/ArtalkJS/Artalk/issues/877))
+* **auth:** failed to register by social account on mysql database ([#902](https://github.com/ArtalkJS/Artalk/issues/902))
+* **conf_env:** enhance environment variable loading for config ([#892](https://github.com/ArtalkJS/Artalk/issues/892))
+* **plugin_katex:** fix event issue causing katex integration failure ([#897](https://github.com/ArtalkJS/Artalk/issues/897))
+* **ui/height_limit:** height limit issue for collapsed comments ([#865](https://github.com/ArtalkJS/Artalk/issues/865))
+* **ui/sidebar:** unable to logout if user is not admin in control center
+* **ui/types:** remove marked dependency in dts ([#868](https://github.com/ArtalkJS/Artalk/issues/868))
+
+### Performance Improvements
+
+* **conf:** add cache for config metadata to boost startup speed ([#892](https://github.com/ArtalkJS/Artalk/issues/892))
+* **dao:** add singleflight for no-cache db find func
+* **gravatar:** support both sha256 and md5 hash for gravatar ([#912](https://github.com/ArtalkJS/Artalk/issues/912))
+* **gravatar:** convert email to lowercase before hashing for gravatar
+* **gravatar:** use sha256 hashing algorithm for gravatar ([#874](https://github.com/ArtalkJS/Artalk/issues/874))
+* **ui/conf:** exclude conf `pvEl`, `countEl` and `statPageKeyAttr` from remove server ([#905](https://github.com/ArtalkJS/Artalk/issues/905))
+* **ui/dev:** bump eslint to v9 ([#915](https://github.com/ArtalkJS/Artalk/issues/915))
+
+### Code Refactoring
+
+* **dao:** add `date` field to the page json entity
+* **dao:** improve `QueryDBWithCache` func and concurrent unit tests ([#884](https://github.com/ArtalkJS/Artalk/issues/884))
+* **transfer:** improve the reliability of the transfer ([#883](https://github.com/ArtalkJS/Artalk/issues/883))
+* **transfer:** strip domain from page key by default ([#873](https://github.com/ArtalkJS/Artalk/issues/873))
+* **ui:** fix linter issues for ui and docs ([#917](https://github.com/ArtalkJS/Artalk/issues/917))
+* **ui/stat:** use class selector for pageview elements by default ([#880](https://github.com/ArtalkJS/Artalk/issues/880))
+
+### Documentation
+
+* refine documentation
+* **dev:** refine contributing.md and translate to chinese
+* **i18n:** revise French translation ([#913](https://github.com/ArtalkJS/Artalk/issues/913))
+* **ip_region:** add instructions for obtaining accurate IP under proxy
+
+
+## [v2.8.6](https://github.com/ArtalkJS/Artalk/compare/v2.8.5...v2.8.6) (2024-05-09)
+
+### Features
+
+* **auth:** user accounts merge tool ([#854](https://github.com/ArtalkJS/Artalk/issues/854))
+* **auth:** social login api endpoints ([#854](https://github.com/ArtalkJS/Artalk/issues/854))
+* **ci:** include frontend dist files in release ([#860](https://github.com/ArtalkJS/Artalk/issues/860))
+* **i18n:** add incremental updates feature for i18n code scan tool
+* **multi_push/lark:** add card mode for lark push ([#839](https://github.com/ArtalkJS/Artalk/issues/839))
+* **sync:** add keyed mutex
+* **ui/auth:** plugin-auth for integrating social login ([#854](https://github.com/ArtalkJS/Artalk/issues/854))
+* **ui/img_lazyload:** add support for lazy loading images ([#850](https://github.com/ArtalkJS/Artalk/issues/850))
+
+### Bug Fixes
+
+* **api/pv:** add mutex for page pv record endpoint
+* **cache/user:** user id cache from email lookup not cleared
+* **comments_get:** include `site_name` for isolation in associated query for comment's page
+* **dao:** ensure find and create functions thread safe ([#845](https://github.com/ArtalkJS/Artalk/issues/845))
+* **db/migrate:** fix root_id migrate for database lacking recursive CTE support ([#848](https://github.com/ArtalkJS/Artalk/issues/848)) ([#846](https://github.com/ArtalkJS/Artalk/issues/846))
+* **db_migrate:** drop `fk_comments_user` foreign key constraint of the users table
+* **sidebar/site:** unable to edit the new site urls
+* **ui/dark_mode:** add support for configuring dark mode in backend ([#790](https://github.com/ArtalkJS/Artalk/issues/790))
+* **ui/dark_mode:** unable to toggle dark mode for sidebar in auto mode
+* **ui/height_limit:** height limit not working while loading images ([#849](https://github.com/ArtalkJS/Artalk/issues/849))
+* **ui/marked:** optimize same origin link judgment logic
+
+### Documentation
+
+* update introduction document
+* **auth:** add social login feature ([#854](https://github.com/ArtalkJS/Artalk/issues/854))
+* **i18n:** add translation for Korean and Russian
+
+
 ## [v2.8.5](https://github.com/ArtalkJS/Artalk/compare/v2.8.3...v2.8.5) (2024-04-21)
 
 ### Features

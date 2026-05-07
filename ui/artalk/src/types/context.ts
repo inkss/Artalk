@@ -1,10 +1,4 @@
-import type { TInjectedServices } from '@/service'
-import type { CheckerCaptchaPayload, CheckerPayload } from '@/components/checker'
-import type { EventManagerFuncs } from '@/lib/event-manager'
-import type { TMarked } from '@/lib/marked'
-import type { I18n } from '@/i18n'
-import type { Api, ApiHandlers } from '@/api'
-import type { CommentNode } from '@/comment'
+import type { Marked } from 'marked'
 import type {
   SidebarShowPayload,
   EventPayloadMap,
@@ -14,6 +8,12 @@ import type {
   ListFetchParams,
   NotifyLevel,
 } from '.'
+import type { TInjectedServices } from '@/service'
+import type { CheckerCaptchaPayload, CheckerPayload } from '@/components/checker'
+import type { EventManagerFuncs } from '@/lib/event-manager'
+import type { I18n } from '@/i18n'
+import type { Api, ApiHandlers } from '@/api'
+import type { CommentNode } from '@/comment'
 
 /**
  * Artalk Context
@@ -33,7 +33,7 @@ export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
   conf: ArtalkConfig
 
   /** marked 依赖对象 */
-  getMarked(): TMarked | undefined
+  getMarked(): Marked | undefined
 
   /** 获取 API 以供 HTTP 请求 */
   getApi(): Api

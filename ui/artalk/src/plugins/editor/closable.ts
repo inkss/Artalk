@@ -1,7 +1,7 @@
-import * as Utils from '@/lib/utils'
-import $t from '@/i18n'
 import EditorPlug from './_plug'
 import type PlugKit from './_kit'
+import * as Utils from '@/lib/utils'
+import $t from '@/i18n'
 
 export default class Closable extends EditorPlug {
   constructor(kit: PlugKit) {
@@ -35,7 +35,7 @@ export default class Closable extends EditorPlug {
           Utils.createElement(`<div class="atk-comment-closed">${$t('onlyAdminCanReply')}</div>`),
         )
 
-    if (!this.kit.useUser().getData().isAdmin) {
+    if (!this.kit.useUser().getData().is_admin) {
       this.kit.useUI().$textarea.style.display = 'none'
       this.kit.useUI().$notifyWrap.style.display = 'none'
       this.kit.useUI().$bottom.style.display = 'none'

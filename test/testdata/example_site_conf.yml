@@ -61,7 +61,7 @@ moderator:
     pending: false
     files:
     file_sep: "\n"
-    replac_to: x
+    replace_to: x
 captcha:
   enabled: true
   always: false
@@ -141,8 +141,6 @@ frontend:
   voteDown: false
   uaBadge: true
   listSort: true
-  pvEl: "#ArtalkPV"
-  countEl: "#ArtalkCount"
   preview: true
   flatMode: auto
   nestMax: 2

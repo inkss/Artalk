@@ -1,4 +1,3 @@
-import type { CommentNode } from '.'
 import ActionBtn from '../components/action-btn'
 import * as Utils from '../lib/utils'
 import * as Ui from '../lib/ui'
@@ -6,6 +5,7 @@ import * as Ui from '../lib/ui'
 import * as HeightLimit from './height-limit'
 import CommentHTML from './comment.html?raw'
 import loadRenders from './renders'
+import type { CommentNode } from '.'
 
 export default class Render {
   public comment: CommentNode
@@ -80,7 +80,7 @@ export default class Render {
 
     HeightLimit.check(
       {
-        postExpandBtnClick: () => {
+        afterExpandBtnClick: () => {
           // 子评论数仅有 1，直接取消限高
           const children = this.comment.getChildren()
           if (children.length === 1)
@@ -90,10 +90,10 @@ export default class Render {
       },
       [
         // 评论内容限高
-        { el: this.$content, max: contentMaxH, imgContains: true },
-        { el: this.$replyTo, max: contentMaxH, imgContains: true },
+        { el: this.$content, max: contentMaxH, imgCheck: true },
+        { el: this.$replyTo, max: contentMaxH, imgCheck: true },
         // 子评论区域限高（仅嵌套模式）
-        { el: this.$childrenWrap, max: childrenMaxH, imgContains: false },
+        { el: this.$childrenWrap, max: childrenMaxH, imgCheck: false },
       ],
     )
   }

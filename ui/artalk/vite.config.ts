@@ -69,12 +69,16 @@ export default defineConfig({
   },
   plugins: [
     tsconfigPaths(),
-    checker({
-      typescript: true,
-      eslint: {
-        lintCommand: 'eslint "./src/**/*.{js,ts}"',
-      },
-    }),
+    {
+      ...checker({
+        typescript: true,
+        eslint: {
+          useFlatConfig: true,
+          lintCommand: 'eslint .',
+        },
+      }),
+      apply: 'serve',
+    },
     // @see https://github.com/qmhc/vite-plugin-dts
     name === 'Artalk'
       ? dts({

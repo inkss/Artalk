@@ -1,19 +1,17 @@
+import type PlugKit from './_kit'
 import type { CommentData, EditorState } from '@/types'
 import * as Utils from '@/lib/utils'
-import type PlugKit from './_kit'
 
 /**
  * Editor 插件
  */
-interface EditorPlug {
+class EditorPlug {
   $btn?: HTMLElement
   $panel?: HTMLElement
   contentTransformer?(rawContent: string): string
   editorStateEffectWhen?: EditorState
   editorStateEffect?(comment: CommentData): () => void
-}
 
-class EditorPlug {
   constructor(protected kit: PlugKit) {}
 
   /** Use plug btn will add a btn on the bottom of editor */

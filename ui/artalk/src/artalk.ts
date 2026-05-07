@@ -1,6 +1,5 @@
 import './style/main.scss'
 
-import type { ArtalkConfig, EventPayloadMap, ArtalkPlugin, ContextApi } from '@/types'
 import type { EventHandler } from './lib/event-manager'
 import Context from './context'
 import { handelCustomConf, convertApiOptions } from './config'
@@ -8,7 +7,8 @@ import Services from './service'
 import * as Stat from './plugins/stat'
 import { Api } from './api'
 import type { TInjectedServices } from './service'
-import { GlobalPlugins, load } from './load'
+import { GlobalPlugins, PluginOptions, load } from './load'
+import type { ArtalkConfig, EventPayloadMap, ArtalkPlugin, ContextApi } from '@/types'
 
 /**
  * Artalk
@@ -106,9 +106,9 @@ export default class Artalk {
   }
 
   /** Use plugin, the plugin will be used when Artalk.init */
-  public static use(plugin: ArtalkPlugin) {
-    if (GlobalPlugins.includes(plugin)) return
-    GlobalPlugins.push(plugin)
+  public static use<T = any>(plugin: ArtalkPlugin<T>, options?: T) {
+    GlobalPlugins.add(plugin)
+    PluginOptions.set(plugin, options)
   }
 
   /** Load count widget */
@@ -120,6 +120,7 @@ export default class Artalk {
       siteName: conf.site,
       countEl: conf.countEl,
       pvEl: conf.pvEl,
+      pageKeyAttr: conf.statPageKeyAttr,
       pvAdd: false,
     })
   }

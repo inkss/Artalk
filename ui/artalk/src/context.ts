@@ -1,11 +1,4 @@
-import type {
-  ArtalkConfig,
-  CommentData,
-  ListFetchParams,
-  ContextApi,
-  EventPayloadMap,
-  SidebarShowPayload,
-} from '@/types'
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import type { TInjectedServices } from './service'
 import { Api, ApiHandlers } from './api'
 
@@ -20,7 +13,17 @@ import EventManager from './lib/event-manager'
 import { convertApiOptions, createNewApiHandlers, handelCustomConf } from './config'
 import { watchConf } from './lib/watch-conf'
 
+import type {
+  ArtalkConfig,
+  CommentData,
+  ListFetchParams,
+  ContextApi,
+  EventPayloadMap,
+  SidebarShowPayload,
+} from '@/types'
+
 // Auto dependency injection
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Context extends TInjectedServices {}
 
 /**
@@ -42,6 +45,7 @@ class Context implements ContextApi {
     this.$root = conf.el as HTMLElement
     this.$root.classList.add('artalk')
     this.$root.innerHTML = ''
+    conf.darkMode && this.$root.classList.add('atk-dark-mode')
 
     this.data = new DataManager(this.events)
 

@@ -3,6 +3,8 @@ const en = {
   placeholder: 'Leave a comment',
   noComment: 'No Comment',
   send: 'Send',
+  signIn: 'Sign in',
+  signUp: 'Sign up',
   save: 'Save',
   nick: 'Nickname',
   email: 'Email',
@@ -67,8 +69,32 @@ const en = {
 
   /* Sidebar */
   msgCenter: 'Messages',
-  ctrlCenter: 'Admin',
+  ctrlCenter: 'Dashboard',
+
+  /* Auth */
+  userProfile: 'Profile',
+  noAccountPrompt: "Don't have an account?",
+  haveAccountPrompt: 'Already have an account?',
+  forgetPassword: 'Forget Password',
+  resetPassword: 'Reset Password',
+  changePassword: 'Change Password',
+  confirmPassword: 'Confirm Password',
+  passwordMismatch: 'Passwords do not match',
+  verificationCode: 'Verification Code',
+  verifySend: 'Send Code',
+  verifyResend: 'Resend',
+  waitSeconds: 'Wait {seconds}s',
   emailVerified: 'Email has been verified',
+  password: 'Password',
+  username: 'Username',
+  nextStep: 'Next Step',
+  skipVerify: 'Skip verification',
+  logoutConfirm: 'Are you sure to logout?',
+  accountMergeNotice: 'Your email has multiple accounts with different id.',
+  accountMergeSelectOne: 'Please select one you want to merge all the data into it.',
+  accountMergeConfirm: 'All data will be merged into one account, the id is {id}.',
+  dismiss: 'Dismiss',
+  merge: 'Merge',
 
   /* General */
   frontend: 'Frontend',

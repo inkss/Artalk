@@ -1,9 +1,9 @@
+import SidebarHTML from './sidebar-layer.html?raw'
+import type { Layer } from './layer'
 import type { ContextApi, SidebarShowPayload } from '@/types'
 import Component from '@/lib/component'
 import * as Utils from '@/lib/utils'
 import * as Ui from '@/lib/ui'
-import SidebarHTML from './sidebar-layer.html?raw'
-import type { Layer } from './layer'
 
 export default class SidebarLayer extends Component {
   public layer?: Layer
@@ -26,12 +26,12 @@ export default class SidebarLayer extends Component {
 
     // event
     this.ctx.on('user-changed', () => {
-      this.refreshOnShow = true
+      this.refreshWhenShow = true
     })
   }
 
-  /** Refresh iFrame on show */
-  private refreshOnShow = true
+  /** Refresh iFrame when show */
+  private refreshWhenShow = true
 
   /** Animation timer */
   private animTimer?: any = undefined
@@ -45,8 +45,8 @@ export default class SidebarLayer extends Component {
     this.layer!.show()
 
     // init iframe
-    if (this.refreshOnShow) {
-      this.refreshOnShow = false
+    if (this.refreshWhenShow) {
+      this.refreshWhenShow = false
       this.$iframeWrap.innerHTML = ''
       this.$iframe = this.createIframe(conf.view)
       this.$iframeWrap.append(this.$iframe)
@@ -54,12 +54,10 @@ export default class SidebarLayer extends Component {
       // Sync Dark Mode (reload iframe if not match)
       const $iframe = this.$iframe!
       const iFrameSrc = $iframe.src
-      if (this.conf.darkMode !== iFrameSrc.includes('darkMode=1')) {
+      if (this.getDarkMode() !== iFrameSrc.includes('&darkMode=1')) {
         this.iframeLoad(
           $iframe,
-          this.conf.darkMode
-            ? iFrameSrc.concat('&darkMode=1')
-            : iFrameSrc.replace('&darkMode=1', ''),
+          iFrameSrc.replace(/&darkMode=\d/, `&darkMode=${Number(this.getDarkMode())}`),
         )
       }
     }
@@ -96,7 +94,7 @@ export default class SidebarLayer extends Component {
       })
     ).data
     if (data.is_admin && !data.is_login) {
-      this.refreshOnShow = true
+      this.refreshWhenShow = true
 
       // show checker layer
       this.ctx.checkAdmin({
@@ -154,12 +152,18 @@ export default class SidebarLayer extends Component {
     }
 
     if (view) query.view = view
-    if (this.conf.darkMode) query.darkMode = '1'
+    query.darkMode = this.getDarkMode() ? '1' : '0'
 
     const urlParams = new URLSearchParams(query)
     this.iframeLoad($iframe, `${baseURL}?${urlParams.toString()}`)
 
     return $iframe
+  }
+
+  private getDarkMode() {
+    return this.conf.darkMode === 'auto'
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      : this.conf.darkMode
   }
 
   private iframeLoad($iframe: HTMLIFrameElement, src: string) {
