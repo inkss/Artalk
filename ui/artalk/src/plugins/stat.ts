@@ -19,6 +19,10 @@ export interface CountOptions {
 
 export const PvCountWidget: ArtalkPlugin = (ctx: ContextApi) => {
   ctx.watchConf(['site', 'pageKey', 'pageTitle', 'countEl', 'pvEl', 'statPageKeyAttr'], (conf) => {
+    const skipPvForAdmin = localStorage.getItem('ArtalkAdminSkipPV') === 'true'
+    const user = ctx.get('user').getData()
+    const isAdmin = skipPvForAdmin && user.is_admin && !!user.token
+
     initCountWidget({
       getApi: () => ctx.getApi(),
       siteName: conf.site,
@@ -27,7 +31,7 @@ export const PvCountWidget: ArtalkPlugin = (ctx: ContextApi) => {
       countEl: conf.countEl,
       pvEl: conf.pvEl,
       pageKeyAttr: conf.statPageKeyAttr,
-      pvAdd: typeof ctx.conf.pvAdd === 'boolean' ? ctx.conf.pvAdd : true,
+      pvAdd: isAdmin ? false : typeof ctx.conf.pvAdd === 'boolean' ? ctx.conf.pvAdd : true,
     })
   })
 }
