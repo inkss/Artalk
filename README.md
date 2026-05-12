@@ -10,8 +10,8 @@
 
 ```html
 <!-- CSS -->
-<link rel="stylesheet" href="https://static.szyink.com/storage/artalk/Artalk.v2.9.1.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/inkss/inkss-cdn@main/js/Artalk.v2.9.1.css">
 
 <!-- JS -->
-<script src="https://static.szyink.com/storage/artalk/Artalk.v2.9.1.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/inkss/inkss-cdn@main/js/Artalk.v2.9.1.js"></script>
 ```
