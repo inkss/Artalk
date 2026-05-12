@@ -18,8 +18,6 @@
 
 ## 自定义功能清单
 
-以下功能为本项目额外添加，非上游原生功能：
-
 ### 1. 表情包放大预览
 
 鼠标悬停在评论中的表情包上时，放大显示表情图片。使用事件委托监听 pointerover/pointerout 事件，300ms 延迟后显示放大预览框。
@@ -46,7 +44,7 @@
 
 ### 5. 提交按钮默认隐藏
 
-解决页面加载时提交按钮一闪而过的问题，提交按钮默认隐藏，mounted 后才显示。
+提交按钮默认隐藏，mounted 后才显示。
 
 - **文件**: `ui/artalk/src/plugins/editor/submit-btn.ts`
 
@@ -66,12 +64,6 @@
 
 ```javascript
 localStorage.setItem('ArtalkAdminSkipPV', 'true')
-```
-
-关闭功能：
-
-```javascript
-localStorage.removeItem('ArtalkAdminSkipPV')
 ```
 
 - **文件**: `ui/artalk/src/plugins/stat.ts`
