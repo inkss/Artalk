@@ -2,6 +2,7 @@ import { getEnabledPlugs } from './editor'
 import EditorPlug from './editor/_plug'
 import PlugKit from './editor/_kit'
 import Emoticons from './editor/emoticons'
+import Preview from './editor/preview'
 import type { EditorApi, ArtalkPlugin } from '@/types'
 import EventManager from '@/lib/event-manager'
 
@@ -80,6 +81,10 @@ export class PlugManager {
     this.editor.getUI().$plugPanelWrap.innerHTML = ''
     this.editor.getUI().$plugPanelWrap.style.display = 'none'
     this.editor.getUI().$plugBtnWrap.innerHTML = ''
+    // 清理独立面板
+    this.editor.getUI().$plugPanelWrap.parentElement
+      ?.querySelectorAll('.atk-editor-plug-preview')
+      .forEach((el) => el.remove())
 
     // load the plug UI
     this.plugs.forEach((plug) => this.loadPluginItem(plug))
@@ -91,15 +96,26 @@ export class PlugManager {
     if (!$btn) return
     this.editor.getUI().$plugBtnWrap.appendChild($btn)
 
+    // 独立面板由插件自己管理点击事件
+    if (plug.independentPanel) {
+      const $panel = plug.$panel
+      if ($panel) {
+        $panel.style.display = 'none'
+        // 独立面板插入到 $plugPanelWrap 之后，不受其 display 影响
+        this.editor.getUI().$plugPanelWrap.after($panel)
+      }
+      $btn.onclick = () => {
+        // 独立面板由插件自己管理 toggle
+        if (plug instanceof Preview) {
+          (plug as Preview).toggle()
+        }
+      }
+      return
+    }
+
     // bind the event when click plug btn
     !$btn.onclick &&
       ($btn.onclick = () => {
-        // removing the active class from all the buttons
-        this.editor
-          .getUI()
-          .$plugBtnWrap.querySelectorAll('.active')
-          .forEach((item) => item.classList.remove('active'))
-
         // if the plug is not the same as the openedPlug,
         if (plug !== this.openedPlug) {
           // then open the plug current clicked plug panel
@@ -134,9 +150,8 @@ export class PlugManager {
       if (aPlug === plug) {
         plugPanel.style.display = ''
         this.events.trigger('panel-show', plug)
-      } else {
+      } else if (!aPlug.independentPanel) {
         plugPanel.style.display = 'none'
-        this.events.trigger('panel-hide', plug)
       }
     })
 
@@ -148,10 +163,6 @@ export class PlugManager {
         // 为表情弹窗添加关闭事件监听
         document.addEventListener('click', () => {
           this.closePlugPanel()
-          // 移除按钮激活
-          this.editor.getUI().$plugBtnWrap
-            .querySelectorAll('.active')
-            .forEach(item => item.classList.remove('active'))
         }, { once: true })
       }
     }, 100)
@@ -163,6 +174,8 @@ export class PlugManager {
 
     this.editor.getUI().$plugPanelWrap.style.display = 'none'
     this.events.trigger('panel-hide', this.openedPlug)
+    // 只移除被关闭面板对应按钮的高亮
+    if (this.openedPlug.$btn) this.openedPlug.$btn.classList.remove('active')
     this.openedPlug = null
   }
 

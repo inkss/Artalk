@@ -11,6 +11,8 @@ class EditorPlug {
   contentTransformer?(rawContent: string): string
   editorStateEffectWhen?: EditorState
   editorStateEffect?(comment: CommentData): () => void
+  /** 面板是否独立于其他面板（不受 openPlugPanel/closePlugPanel 影响） */
+  independentPanel = false
 
   constructor(protected kit: PlugKit) {}
 
