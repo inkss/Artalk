@@ -2431,6 +2431,149 @@ const docTemplate = `{
                 }
             }
         },
+        "/sso/exchange": {
+            "post": {
+                "description": "Validates a third-party OIDC access token by calling the issuer's /userinfo endpoint, requires a verified email claim, then mints an Artalk session JWT. Use when the surrounding application already runs OIDC and you want Artalk comments to inherit that session without showing Artalk's own login UI.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Exchange an external IdP access token for an Artalk JWT",
+                "operationId": "AuthSSOExchange",
+                "parameters": [
+                    {
+                        "description": "External SSO token",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ParamsAuthSSOExchange"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ResponseUserLogin"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/stats/{type}": {
             "get": {
                 "description": "Get the statistics of various data analysis",
@@ -3525,9 +3668,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/votes/{type}/{target_id}": {
-            "post": {
-                "description": "Vote for a specific comment or page",
+        "/votes/{target_name}/{target_id}": {
+            "get": {
+                "description": "Get vote status for a specific comment or page",
                 "consumes": [
                     "application/json"
                 ],
@@ -3537,26 +3680,151 @@ const docTemplate = `{
                 "tags": [
                     "Vote"
                 ],
-                "summary": "Vote",
-                "operationId": "Vote",
+                "summary": "Get Vote Status",
+                "operationId": "GetVote",
                 "parameters": [
                     {
                         "enum": [
-                            "comment_up",
-                            "comment_down",
-                            "page_up",
-                            "page_down"
+                            "comment",
+                            "page"
                         ],
                         "type": "string",
-                        "description": "The type of vote target",
-                        "name": "type",
+                        "description": "The name of vote target",
+                        "name": "target_name",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Target comment or page ID you want to vote for",
+                        "description": "The target comment or page ID",
                         "name": "target_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ResponseVote"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/votes/{target_name}/{target_id}/{choice}": {
+            "post": {
+                "description": "Create a new vote for a specific comment or page",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vote"
+                ],
+                "summary": "Create Vote",
+                "operationId": "CreateVote",
+                "parameters": [
+                    {
+                        "enum": [
+                            "comment",
+                            "page"
+                        ],
+                        "type": "string",
+                        "description": "The name of vote target",
+                        "name": "target_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The target comment or page ID",
+                        "name": "target_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "up",
+                            "down"
+                        ],
+                        "type": "string",
+                        "description": "The vote choice",
+                        "name": "choice",
                         "in": "path",
                         "required": true
                     },
@@ -3566,7 +3834,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ParamsVote"
+                            "$ref": "#/definitions/handler.ParamsVoteCreate"
                         }
                     }
                 ],
@@ -3694,10 +3962,6 @@ const docTemplate = `{
         },
         "common.JSONResult": {
             "type": "object",
-            "required": [
-                "data",
-                "msg"
-            ],
             "properties": {
                 "data": {
                     "description": "Data"
@@ -3722,7 +3986,6 @@ const docTemplate = `{
                 "date",
                 "email_encrypted",
                 "id",
-                "ip_region",
                 "is_allow_reply",
                 "is_collapsed",
                 "is_pending",
@@ -4020,6 +4283,18 @@ const docTemplate = `{
         "handler.Map": {
             "type": "object",
             "additionalProperties": true
+        },
+        "handler.ParamsAuthSSOExchange": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "description": "External IdP access token (e.g. an Auth0 access token)",
+                    "type": "string"
+                }
+            }
         },
         "handler.ParamsCaptchaVerify": {
             "type": "object",
@@ -4430,7 +4705,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ParamsVote": {
+        "handler.ParamsVoteCreate": {
             "type": "object",
             "properties": {
                 "email": {
@@ -4624,7 +4899,6 @@ const docTemplate = `{
                 "date",
                 "email_encrypted",
                 "id",
-                "ip_region",
                 "is_allow_reply",
                 "is_collapsed",
                 "is_pending",
@@ -4747,7 +5021,6 @@ const docTemplate = `{
             "required": [
                 "comments",
                 "count",
-                "page",
                 "roots_count"
             ],
             "properties": {
@@ -4778,7 +5051,6 @@ const docTemplate = `{
                 "date",
                 "email_encrypted",
                 "id",
-                "ip_region",
                 "is_allow_reply",
                 "is_collapsed",
                 "is_pending",
@@ -5405,11 +5677,19 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "down",
+                "is_down",
+                "is_up",
                 "up"
             ],
             "properties": {
                 "down": {
                     "type": "integer"
+                },
+                "is_down": {
+                    "type": "boolean"
+                },
+                "is_up": {
+                    "type": "boolean"
                 },
                 "up": {
                     "type": "integer"

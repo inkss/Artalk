@@ -1,33 +1,65 @@
-import Component from '../lib/component'
 import * as Ui from '../lib/ui'
 import marked from '../lib/marked'
-import { render, EditorUI } from './ui'
-import EditorStateManager from './state'
-import type { CommentData, ContextApi, EditorApi } from '@/types'
+import { render, type EditorUI } from './ui'
+import { EditorStateManager } from './state'
+import type { ConfigManager, CommentData, Editor as IEditor, EventManager } from '@/types'
+import type { PluginManager } from '@/plugins/editor-kit'
 
-class Editor extends Component implements EditorApi {
+export interface EditorOptions {
+  getEvents: () => EventManager
+  getConf: () => ConfigManager
+}
+
+export class Editor implements IEditor {
+  private opts: EditorOptions
+  private _$el: HTMLElement
   private ui: EditorUI
   private state: EditorStateManager
+  private plugins?: PluginManager
+
+  constructor(opts: EditorOptions) {
+    this.opts = opts
+
+    // init editor ui
+    this.ui = render()
+    this._$el = this.ui.$el
+
+    // init state manager
+    this.state = new EditorStateManager(this)
+  }
+
+  getOptions() {
+    return this.opts
+  }
+
+  getEl() {
+    return this._$el
+  }
+
+  /** @deprecated Use `getEl()` instead. */
+  get $el() {
+    return this.getEl()
+  }
 
   getUI() {
     return this.ui
   }
-  getPlugs() {
-    return this.ctx.get('editorPlugs')
+
+  getPlugins() {
+    return this.plugins
   }
+
+  /** @deprecated Use `getPlugins()` instead. */
+  getPlugs() {
+    return this.getPlugins()
+  }
+
+  setPlugins(plugins: PluginManager) {
+    this.plugins = plugins
+  }
+
   getState() {
     return this.state.get()
-  }
-
-  constructor(ctx: ContextApi) {
-    super(ctx)
-
-    // init editor ui
-    this.ui = render()
-    this.$el = this.ui.$el
-
-    // init state manager
-    this.state = new EditorStateManager(this)
   }
 
   getHeaderInputEls() {
@@ -37,9 +69,9 @@ class Editor extends Component implements EditorApi {
   getContentFinal() {
     let content = this.getContentRaw()
 
-    // plug hook: final content transformer
-    const plugs = this.getPlugs()
-    if (plugs) content = plugs.getTransformedContent(content)
+    // plugin hook: final content transformer
+    const plugins = this.getPlugins()
+    if (plugins) content = plugins.getTransformedContent(content)
 
     return content
   }
@@ -56,7 +88,7 @@ class Editor extends Component implements EditorApi {
     this.ui.$textarea.value = val
 
     // plug hook: content updated
-    this.getPlugs()?.getEvents().trigger('content-updated', val)
+    this.getPlugins()?.getEvents().trigger('content-updated', val)
   }
 
   insertContent(val: string) {
@@ -100,8 +132,13 @@ class Editor extends Component implements EditorApi {
     this.state.switch('normal')
   }
 
-  setReply(comment: CommentData, $comment: HTMLElement) {
+  setReplyComment(comment: CommentData, $comment: HTMLElement) {
     this.state.switch('reply', { comment, $comment })
+  }
+
+  /** @deprecated Use `setReplyComment()` instead. */
+  setReply(comment: CommentData, $comment: HTMLElement, _scroll?: boolean) {
+    this.setReplyComment(comment, $comment)
   }
 
   setEditComment(comment: CommentData, $comment: HTMLElement) {
@@ -121,13 +158,15 @@ class Editor extends Component implements EditorApi {
   }
 
   submit() {
-    const next = () => this.ctx.trigger('editor-submit')
-    if (this.ctx.conf.beforeSubmit) {
-      this.ctx.conf.beforeSubmit(this, next)
+    const next = () => {
+      this.getPlugins()?.getEvents().trigger('editor-submit')
+      this.opts.getEvents().trigger('editor-submit')
+    }
+    const beforeSubmit = this.opts.getConf().get().beforeSubmit
+    if (beforeSubmit) {
+      beforeSubmit(this, next)
     } else {
       next()
     }
   }
 }
-
-export default Editor

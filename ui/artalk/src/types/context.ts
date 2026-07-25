@@ -2,15 +2,18 @@ import type { Marked } from 'marked'
 import type {
   SidebarShowPayload,
   EventPayloadMap,
-  ArtalkConfig,
+  ConfigPartial,
+  Config,
   CommentData,
-  DataManagerApi,
+  DataManager,
   ListFetchParams,
   NotifyLevel,
+  Services,
+  EventManager,
+  UserManager,
 } from '.'
-import type { TInjectedServices } from '@/service'
 import type { CheckerCaptchaPayload, CheckerPayload } from '@/components/checker'
-import type { EventManagerFuncs } from '@/lib/event-manager'
+import type { DependencyContainer } from '@/lib/injection'
 import type { I18n } from '@/i18n'
 import type { Api, ApiHandlers } from '@/api'
 import type { CommentNode } from '@/comment'
@@ -18,45 +21,98 @@ import type { CommentNode } from '@/comment'
 /**
  * Artalk Context
  */
-export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
-  /** Artalk 根元素对象 */
-  $root: HTMLElement
+export interface Context extends EventManager<EventPayloadMap>, DependencyContainer<Services> {
+  /** @deprecated Use `getData()` or `inject('data')` instead. */
+  readonly data: Services['data']
 
-  /** 依赖注入函数 */
-  inject<K extends keyof TInjectedServices>(depName: K, obj: TInjectedServices[K]): void
+  /** @deprecated Use `getUser()` or `inject('user')` instead. */
+  readonly user: Services['user']
 
-  /** 获取依赖对象 */
-  get<K extends keyof TInjectedServices>(depName: K): TInjectedServices[K]
+  /** @deprecated Use `inject('editor')` instead. */
+  readonly editor: Services['editor']
 
-  /** 配置对象 */
-  // TODO: 修改为 getConf() 和 setConf() 并且返回拷贝而不是引用
-  conf: ArtalkConfig
+  /** @deprecated Use `inject('list')` instead. */
+  readonly list: Services['list']
 
-  /** marked 依赖对象 */
+  /** @deprecated Use `inject('layers')` instead. */
+  readonly layerManager: Services['layers']
+
+  /** @deprecated Use `inject('checkers')` instead. */
+  readonly checkerLauncher: Services['checkers']
+
+  /** @deprecated Use `inject('sidebar')` instead. */
+  readonly sidebarLayer: Services['sidebar']
+
+  /** @deprecated Use `inject('editorPlugs')` instead. */
+  readonly editorPlugs: Services['editorPlugs']
+
+  /**
+   * The root element of Artalk
+   *
+   * @deprecated Use `getEl()` instead
+   */
+  readonly $root: HTMLElement
+
+  /** Get the root element */
+  getEl(): HTMLElement
+
+  /**
+   * Inject a dependency object
+   *
+   * @deprecated Use `inject()` instead
+   */
+  get<T extends keyof Services>(key: T): Services[T]
+
+  /**
+   * Get config object
+   *
+   * @deprecated Use `getConf()` and `updateConf()` instead
+   */
+  readonly conf: Config
+
+  /** Get the config */
+  getConf(): Config
+
+  /** Update the config */
+  updateConf(conf: ConfigPartial): void
+
+  /** Watch the config */
+  watchConf<T extends (keyof Config)[]>(
+    keys: T,
+    effect: (val: Pick<Config, T[number]>) => void,
+  ): void
+
+  /** Get the marked instance */
   getMarked(): Marked | undefined
 
-  /** 获取 API 以供 HTTP 请求 */
+  /** Set dark mode */
+  setDarkMode(darkMode: boolean | 'auto'): void
+
+  /** Translate i18n message */
+  $t(key: keyof I18n, args?: { [key: string]: string }): string
+
+  /** Get HTTP API client */
   getApi(): Api
 
-  /** Get API handlers */
+  /** Get HTTP API handlers */
   getApiHandlers(): ApiHandlers
 
-  /** 获取数据管理器对象 */
-  getData(): DataManagerApi
+  /** Get Data Manager */
+  getData(): DataManager
 
-  /** 评论回复 */
-  replyComment(commentData: CommentData, $comment: HTMLElement): void
+  /** Get User Manager */
+  getUser(): UserManager
 
-  /** 编辑评论 */
-  editComment(commentData: CommentData, $comment: HTMLElement): void
-
-  /** 获取评论数据 */
+  /** Fetch comments */
   fetch(params: Partial<ListFetchParams>): void
 
-  /** 重载评论数据 */
+  /** Reload comments */
   reload(): void
 
-  /** 列表滚动到第一个评论的位置 */
+  /** Destroy */
+  destroy(): void
+
+  /** Goto the first comment of the list */
   listGotoFirst(): void
 
   /** Get the comment data list */
@@ -77,57 +133,45 @@ export interface ContextApi extends EventManagerFuncs<EventPayloadMap> {
    */
   getCommentList(): CommentNode[]
 
-  /** 显示侧边栏 */
-  showSidebar(payload?: SidebarShowPayload): void
+  /** Reply to a comment */
+  replyComment(commentData: CommentData, $comment: HTMLElement): void
 
-  /** 隐藏侧边栏 */
-  hideSidebar(): void
+  /** Edit a comment */
+  editComment(commentData: CommentData, $comment: HTMLElement): void
 
-  /** 编辑器 - 显示加载 */
+  /** Show loading of the editor */
   editorShowLoading(): void
 
-  /** 编辑器 - 隐藏加载 */
+  /** Hide loading of the editor */
   editorHideLoading(): void
 
-  /** 编辑器 - 显示提示消息 */
+  /** Show notify of the editor */
   editorShowNotify(msg: string, type: NotifyLevel): void
 
-  /** 评论框 - 复原状态 */
+  /** Reset the state of the editor */
   editorResetState(): void
 
-  /** 验证码检测 */
+  /** Show the sidebar */
+  showSidebar(payload?: SidebarShowPayload): void
+
+  /** Hide the sidebar */
+  hideSidebar(): void
+
+  /** Check captcha */
   checkCaptcha(payload: CheckerCaptchaPayload): Promise<void>
 
-  /** 管理员检测 */
+  /** Check admin */
   checkAdmin(payload: CheckerPayload): Promise<void>
 
-  /** i18n 翻译 */
-  $t(key: keyof I18n, args?: { [key: string]: string }): string
-
-  /** 设置夜间模式 */
-  setDarkMode(darkMode: boolean | 'auto'): void
-
-  /** 获取配置 */
-  getConf(): ArtalkConfig
-
-  /** 获取挂载元素 */
-  getEl(): HTMLElement
-
-  /** 更新配置 */
-  updateConf(conf: Partial<ArtalkConfig>): void
-
-  /** 监听配置更新 */
-  watchConf<T extends (keyof ArtalkConfig)[]>(
-    keys: T,
-    effect: (val: Pick<ArtalkConfig, T[number]>) => void,
-  ): void
-
   /** 表情包放大  */
-  showOwoBig(target:Node): void
+  showOwoBig(target: Node): void
 
   /** 图片加载失败处理 */
-  handleImageLoadFailure(target:Node): void
+  handleImageLoadFailure(target: Node): void
 
   /** 图片懒加载 */
-  lazyLoadImages(target:Node): void
+  lazyLoadImages(target: Node): void
 }
+
+/** @deprecated Use `Context` instead. */
+export type ContextApi = Context

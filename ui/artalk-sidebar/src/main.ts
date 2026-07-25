@@ -4,7 +4,7 @@ import Artalk from 'artalk'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
 import { setupI18n } from './i18n'
-import 'artalk/dist/Artalk.css'
+import 'artalk/Artalk.css'
 import './style.scss'
 import App from './App.vue'
 import { setArtalk } from './global'
@@ -16,7 +16,7 @@ import './lib/promise-polyfill'
 const { i18n, setLocale } = setupI18n()
 
 // Router
-// @see https://github.com/posva/unplugin-vue-router
+// @see https://router.vuejs.org/
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
@@ -59,7 +59,7 @@ const artalkLoader = () =>
   app.use(pinia)
 
   // user sync from artalk to sidebar
-  await syncArtalkUser(artalk, router)
+  await syncArtalkUser(artalk.ctx, router)
 
   app.mount('#app')
 })()

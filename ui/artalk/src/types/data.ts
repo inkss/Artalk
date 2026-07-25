@@ -219,7 +219,7 @@ export interface ListLastFetchData {
   data?: ListData
 }
 
-export interface DataManagerApi {
+export interface DataManager {
   getLoading(): boolean
   setLoading(val: boolean): void
 
@@ -243,6 +243,9 @@ export interface DataManagerApi {
   getPage(): PageData | undefined
   updatePage(pageData: PageData): void
 }
+
+/** @deprecated Use `DataManager` instead. */
+export type DataManagerApi = DataManager
 
 export type NotifyLevel = 'i' | 's' | 'w' | 'e'
 

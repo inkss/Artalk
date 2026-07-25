@@ -1,164 +1,123 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { TInjectedServices } from './service'
-import { Api, ApiHandlers } from './api'
-
-import * as marked from './lib/marked'
-import { mergeDeep } from './lib/merge-deep'
-import { CheckerCaptchaPayload, CheckerPayload } from './components/checker'
-
-import { DataManager } from './data'
-import * as I18n from './i18n'
-
-import EventManager from './lib/event-manager'
-import { convertApiOptions, createNewApiHandlers, handelCustomConf } from './config'
-import { watchConf } from './lib/watch-conf'
-
 import type {
-  ArtalkConfig,
+  Config,
+  ConfigPartial,
   CommentData,
   ListFetchParams,
-  ContextApi,
-  EventPayloadMap,
+  Context as IContext,
   SidebarShowPayload,
-} from '@/types'
-
-// Auto dependency injection
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface Context extends TInjectedServices {}
+  Services,
+} from './types'
+import * as I18n from './i18n'
+import * as marked from './lib/marked'
+import { createInjectionContainer } from './lib/injection'
+import type { CheckerCaptchaPayload, CheckerPayload } from './components/checker'
 
 /**
  * Artalk Context
  */
-class Context implements ContextApi {
-  /* 运行参数 */
-  conf: ArtalkConfig
-  data: DataManager
-  $root: HTMLElement
+class Context implements IContext {
+  private _deps = createInjectionContainer<Services>()
 
-  /* Event Manager */
-  private events = new EventManager<EventPayloadMap>()
-  private mounted = false
+  constructor(private _$root: HTMLElement) {}
 
-  constructor(conf: ArtalkConfig) {
-    this.conf = conf
-
-    this.$root = conf.el as HTMLElement
-    this.$root.classList.add('artalk')
-    this.$root.innerHTML = ''
-    conf.darkMode && this.$root.classList.add('atk-dark-mode')
-
-    this.data = new DataManager(this.events)
-
-    this.on('mounted', () => {
-      this.mounted = true
-    })
+  getEl(): HTMLElement {
+    return this._$root
   }
 
-  inject(depName: string, obj: any) {
-    this[depName] = obj
+  destroy(): void {
+    this.trigger('unmounted')
+    while (this._$root.firstChild) {
+      this._$root.removeChild(this._$root.firstChild)
+    }
   }
 
-  get(depName: string) {
-    return this[depName]
+  // -------------------------------------------------------------------
+  //  Dependency Injection
+  // -------------------------------------------------------------------
+  provide: IContext['provide'] = (key, impl, deps, opts) => {
+    this._deps.provide(key, impl, deps, opts)
   }
 
-  getApi() {
-    return new Api(convertApiOptions(this.conf, this))
+  inject: IContext['inject'] = (key) => {
+    return this._deps.inject(key)
+  }
+  get = this.inject
+
+  /** @deprecated Use `getData()` or `inject('data')` instead. */
+  get data() {
+    return this.inject('data')
   }
 
-  private apiHandlers = <ApiHandlers | null>null
-  getApiHandlers() {
-    if (!this.apiHandlers) this.apiHandlers = createNewApiHandlers(this)
-    return this.apiHandlers
+  /** @deprecated Use `getUser()` or `inject('user')` instead. */
+  get user() {
+    return this.inject('user')
   }
 
-  getData() {
-    return this.data
+  /** @deprecated Use `inject('editor')` instead. */
+  get editor() {
+    return this.inject('editor')
   }
 
-  replyComment(commentData: CommentData, $comment: HTMLElement): void {
-    this.editor.setReply(commentData, $comment)
+  /** @deprecated Use `inject('list')` instead. */
+  get list() {
+    return this.inject('list')
   }
 
-  editComment(commentData: CommentData, $comment: HTMLElement): void {
-    this.editor.setEditComment(commentData, $comment)
+  /** @deprecated Use `inject('layers')` instead. */
+  get layerManager() {
+    return this.inject('layers')
   }
 
-  fetch(params: Partial<ListFetchParams>): void {
-    this.data.fetchComments(params)
+  /** @deprecated Use `inject('checkers')` instead. */
+  get checkerLauncher() {
+    return this.inject('checkers')
   }
 
-  reload(): void {
-    this.data.fetchComments({ offset: 0 })
+  /** @deprecated Use `inject('sidebar')` instead. */
+  get sidebarLayer() {
+    return this.inject('sidebar')
   }
 
-  /* List */
-  listGotoFirst(): void {
-    this.events.trigger('list-goto-first')
+  /** @deprecated Use `inject('editorPlugs')` instead. */
+  get editorPlugs() {
+    return this.inject('editorPlugs')
   }
 
-  getCommentNodes() {
-    return this.list.getCommentNodes()
+  // -------------------------------------------------------------------
+  //  Event Manager
+  // -------------------------------------------------------------------
+  on: IContext['on'] = (name, handler) => {
+    this.inject('events').on(name, handler)
   }
 
-  getComments() {
-    return this.data.getComments()
+  off: IContext['off'] = (name, handler) => {
+    this.inject('events').off(name, handler)
   }
 
-  getCommentList = this.getCommentNodes
-  getCommentDataList = this.getComments
-
-  /* Editor */
-  editorShowLoading(): void {
-    this.editor.showLoading()
+  trigger: IContext['trigger'] = (name, payload) => {
+    this.inject('events').trigger(name, payload)
   }
 
-  editorHideLoading(): void {
-    this.editor.hideLoading()
+  // -------------------------------------------------------------------
+  //  Configurations
+  // -------------------------------------------------------------------
+  getConf(): Config {
+    return this.inject('config').get()
   }
 
-  editorShowNotify(msg, type): void {
-    this.editor.showNotify(msg, type)
+  updateConf(conf: ConfigPartial): void {
+    this.inject('config').update(conf)
   }
 
-  editorResetState(): void {
-    this.editor.resetState()
+  watchConf<T extends (keyof Config)[]>(
+    keys: T,
+    effect: (conf: Pick<Config, T[number]>) => void,
+  ): void {
+    this.inject('config').watchConf(keys, effect)
   }
 
-  /* Sidebar */
-  showSidebar(payload?: SidebarShowPayload): void {
-    this.sidebarLayer.show(payload)
-  }
-
-  hideSidebar(): void {
-    this.sidebarLayer.hide()
-  }
-
-  /* Checker */
-  checkAdmin(payload: CheckerPayload): Promise<void> {
-    return this.checkerLauncher.checkAdmin(payload)
-  }
-
-  checkCaptcha(payload: CheckerCaptchaPayload): Promise<void> {
-    return this.checkerLauncher.checkCaptcha(payload)
-  }
-
-  /* Events */
-  on(name: any, handler: any) {
-    this.events.on(name, handler)
-  }
-
-  off(name: any, handler: any) {
-    this.events.off(name, handler)
-  }
-
-  trigger(name: any, payload?: any) {
-    this.events.trigger(name, payload)
-  }
-
-  /* i18n */
-  $t(key: I18n.I18nKeys, args: { [key: string]: string } = {}): string {
-    return I18n.t(key, args)
+  getMarked() {
+    return marked.getInstance()
   }
 
   setDarkMode(darkMode: boolean | 'auto'): void {
@@ -169,28 +128,123 @@ class Context implements ContextApi {
     else owoShow?.classList.remove('atk-dark-mode')
   }
 
-  updateConf(nConf: Partial<ArtalkConfig>): void {
-    this.conf = mergeDeep(this.conf, handelCustomConf(nConf, false))
-    this.mounted && this.events.trigger('updated', this.conf)
+  get conf() {
+    return this.getConf()
+  }
+  set conf(_val) {
+    throw new Error('Cannot replace ctx.conf directly; call ctx.updateConf() instead')
+  }
+  get $root() {
+    return this.getEl()
+  }
+  set $root(_val) {
+    throw new Error('Cannot replace ctx.$root; create a new Artalk instance instead')
   }
 
-  getConf(): ArtalkConfig {
-    return this.conf
+  // -------------------------------------------------------------------
+  //  I18n: Internationalization
+  // -------------------------------------------------------------------
+  $t(key: I18n.I18nKeys, args: { [key: string]: string } = {}): string {
+    return I18n.t(key, args)
   }
 
-  getEl(): HTMLElement {
-    return this.$root
+  // -------------------------------------------------------------------
+  //  HTTP API Client
+  // -------------------------------------------------------------------
+  getApi() {
+    return this.inject('api')
   }
 
-  getMarked() {
-    return marked.getInstance()
+  getApiHandlers() {
+    return this.inject('apiHandlers')
   }
 
-  watchConf<T extends (keyof ArtalkConfig)[]>(
-    keys: T,
-    effect: (conf: Pick<ArtalkConfig, T[number]>) => void,
-  ): void {
-    watchConf(this, keys, effect)
+  // -------------------------------------------------------------------
+  //  User Manager
+  // -------------------------------------------------------------------
+  getUser() {
+    return this.inject('user')
+  }
+
+  // -------------------------------------------------------------------
+  //  Data Manager
+  // -------------------------------------------------------------------
+  getData() {
+    return this.inject('data')
+  }
+
+  fetch(params: Partial<ListFetchParams>): void {
+    this.getData().fetchComments(params)
+  }
+
+  reload(): void {
+    this.getData().fetchComments({ offset: 0 })
+  }
+
+  // -------------------------------------------------------------------
+  //  List
+  // -------------------------------------------------------------------
+  listGotoFirst(): void {
+    this.trigger('list-goto-first')
+  }
+
+  getCommentList = this.getCommentNodes
+  getCommentNodes() {
+    return this.inject('list').getCommentNodes()
+  }
+
+  getCommentDataList = this.getComments
+  getComments() {
+    return this.getData().getComments()
+  }
+
+  // -------------------------------------------------------------------
+  //  Editor
+  // -------------------------------------------------------------------
+  replyComment(commentData: CommentData, $comment: HTMLElement): void {
+    this.inject('editor').setReplyComment(commentData, $comment)
+  }
+
+  editComment(commentData: CommentData, $comment: HTMLElement): void {
+    this.inject('editor').setEditComment(commentData, $comment)
+  }
+
+  editorShowLoading(): void {
+    this.inject('editor').showLoading()
+  }
+
+  editorHideLoading(): void {
+    this.inject('editor').hideLoading()
+  }
+
+  editorShowNotify(msg, type): void {
+    this.inject('editor').showNotify(msg, type)
+  }
+
+  editorResetState(): void {
+    this.inject('editor').resetState()
+  }
+
+  // -------------------------------------------------------------------
+  //  Sidebar
+  // -------------------------------------------------------------------
+  showSidebar(payload?: SidebarShowPayload): void {
+    this.inject('sidebar').show(payload)
+  }
+
+  hideSidebar(): void {
+    this.inject('sidebar').hide()
+  }
+
+  // -------------------------------------------------------------------
+  //  Checker
+  // -------------------------------------------------------------------
+  checkAdmin(payload: CheckerPayload): Promise<void> {
+    return this.inject('checkers').checkAdmin(payload)
+  }
+
+  checkCaptcha(payload: CheckerCaptchaPayload): Promise<void> {
+    return this.inject('checkers').checkCaptcha(payload)
   }
 
   /** 表情包放大 */
@@ -344,7 +398,6 @@ class Context implements ContextApi {
 
     mutationObserver.observe(target, { childList: true, subtree: true });
   }
-  
 }
 
 export default Context

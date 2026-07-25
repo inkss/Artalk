@@ -13,11 +13,12 @@ export interface OptionNode {
   items?: OptionNode[]
 }
 
+export const KEYWORD_FILE_SEPARATOR_PATH = 'moderator.keywords.file_sep'
+
 function extractItemComment(item: Pair, index: number, parentPair?: Pair): string {
-  let comment = ''
-  if (index === 0 && parentPair) comment = parentPair?.value?.commentBefore || ''
-  else comment = item?.key?.commentBefore || ''
-  return comment
+  return index === 0 && parentPair
+    ? parentPair?.value?.commentBefore || ''
+    : item?.key?.commentBefore || ''
 }
 
 export function getTree(yamlObj: YAML.Document.Parsed): OptionNode {
@@ -120,14 +121,12 @@ function extractComment(name: string, comment: string) {
   // ignore comments begin and end with `--`
   comment = comment.replace(/--(.*?)--/gm, '')
 
-  let title = ''
-  let subTitle = ''
   let selector: string[] | undefined
 
   const stReg = /\(.*?\)/gm
-  title = comment.replace(stReg, '').trim()
+  let title = comment.replace(stReg, '').trim()
   const stFind = stReg.exec(comment)
-  subTitle = stFind ? stFind[0].substring(1, stFind[0].length - 1) : ''
+  const subTitle = stFind ? stFind[0].substring(1, stFind[0].length - 1) : ''
   if (!title) {
     title = snakeToCamel(name)
   }
@@ -169,7 +168,9 @@ export function patchOptionValue(value: any, node: OptionNode) {
       else if (value === 'false') value = false
       break
     case 'string':
-      if (!node.selector)
+      if (node.path === KEYWORD_FILE_SEPARATOR_PATH)
+        value = unescapeControlCharacters(String(value))
+      else if (!node.selector)
         // ignore option item
         value = String(value).trim()
       break
@@ -183,4 +184,41 @@ export function patchOptionValue(value: any, node: OptionNode) {
   }
 
   return value
+}
+
+/**
+ * Format an option value for editing in a single-line input.
+ *
+ * Keyword separators may contain control characters that HTML text inputs
+ * cannot represent directly, so display them using reversible escape sequences.
+ */
+export function formatOptionValue(value: any, node: OptionNode) {
+  if (node.path === KEYWORD_FILE_SEPARATOR_PATH && typeof value === 'string') {
+    return escapeControlCharacters(value)
+  }
+
+  return value
+}
+
+function escapeControlCharacters(value: string) {
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/\t/g, '\\t')
+}
+
+function unescapeControlCharacters(value: string) {
+  return value.replace(/\\(\\|n|r|t)/g, (_, char: string) => {
+    switch (char) {
+      case 'n':
+        return '\n'
+      case 'r':
+        return '\r'
+      case 't':
+        return '\t'
+      default:
+        return '\\'
+    }
+  })
 }

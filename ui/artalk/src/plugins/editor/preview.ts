@@ -1,11 +1,10 @@
 import './preview.scss'
 
-import EditorPlug from './_plug'
+import EditorPlugin from './_plug'
 import type PlugKit from './_kit'
-import * as marked from '@/lib/marked'
 import $t from '@/i18n'
 
-export default class Preview extends EditorPlug {
+export default class Preview extends EditorPlugin {
   private isPlugPanelShow = false
 
   constructor(kit: PlugKit) {
@@ -27,7 +26,7 @@ export default class Preview extends EditorPlug {
     })
 
     // 评论提交后关闭预览
-    this.kit.useGlobalCtx().on('editor-submitted', () => {
+    this.kit.useEvents().on('editor-submitted', () => {
       this.isPlugPanelShow && this.toggle()
     })
   }

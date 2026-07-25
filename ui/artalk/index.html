@@ -11,6 +11,14 @@
     <style>
       * {
         box-sizing: border-box;
+        font-family:
+          SF Pro Display,
+          PingFang SC,
+          Hiragino Sans GB,
+          Microsoft YaHei,
+          Roboto,
+          Noto Sans CJK SC,
+          sans-serif;
       }
       body {
         padding: 45px 10px;
@@ -139,6 +147,14 @@
         <span id="ArtalkPV"></span>
         |
         <span id="ArtalkCount"></span>
+        <div class="artalk-page-vote">
+          <span class="artalk-page-vote-up"
+            >赞同 (<span class="artalk-page-vote-up-count"></span>)</span
+          >
+          <span class="artalk-page-vote-down"
+            >反对 (<span class="artalk-page-vote-down-count"></span>)</span
+          >
+        </div>
       </div>
       <div class="social">
         <a
@@ -184,17 +200,16 @@
     <div class="float-btn to-night atk-fade-in">Blink</div>
     <div class="float-btn to-top atk-fade-in" style="display: none">TOP</div>
 
-  <script type="module">
-    import Artalk from './src/main'
-    var artalk = Artalk.init({
-      el: '#comments',
-      pageKey: 'https://artalk.js.org/guide/intro.html',
-      pageTitle: 'Artalk Home',
-      server: 'http://10.0.10.2:23366',
-      site: 'ArtalkDocs',
-      nestMax: 3
-      //useBackendConf: true,
-    });
+    <script type="module">
+      import Artalk from './src/main'
+      var artalk = Artalk.init({
+        el: '#comments',
+        pageKey: 'https://artalk.js.org/guide/intro.html',
+        pageTitle: 'Artalk Home',
+        server: 'http://10.0.10.2:23366',
+        nestMax: 3,
+        site: 'ArtalkDocs',
+      })
 
       window.artalk = artalk
       window.Artalk = Artalk

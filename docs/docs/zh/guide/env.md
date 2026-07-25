@@ -25,6 +25,7 @@ services:
       - ./data:/data
     environment:
       - TZ=Asia/Shanghai
+      - ATK_TIMEZONE=Asia/Shanghai
       - ATK_LOCALE=zh-CN
       - ATK_SITE_DEFAULT=Artalk 的博客
       - ATK_SITE_URL=https://example.com
@@ -35,6 +36,8 @@ services:
       - ATK_ADMIN_USERS_0_BADGE_NAME=管理员
       - ATK_ADMIN_USERS_0_BADGE_COLOR=#0083FF
 ```
+
+`TZ` 设置容器或宿主进程环境的时区，`ATK_TIMEZONE` 设置 Artalk 应用时区；两者可以不同。Artalk 应用时区只在进程初始化时生效，修改 `ATK_TIMEZONE` 后必须完整重启 Artalk 进程或容器。
 
 当变量为数组，通过空格分隔的字符串或数字索引来设置数组值，例如：
 
@@ -165,6 +168,8 @@ ATK_TRUSTED_DOMAINS_0="https://a.com"
 | **ATK_AUTH_SLACK_CLIENT_ID** | `""` | ClientId | auth.slack.client_id (社交登录 > Slack > ClientId) |
 | **ATK_AUTH_SLACK_CLIENT_SECRET** | `""` | ClientSecret | auth.slack.client_secret (社交登录 > Slack > ClientSecret) |
 | **ATK_AUTH_SLACK_ENABLED** | `false` | 启用 | auth.slack.enabled (社交登录 > Slack > Enabled) |
+| **ATK_AUTH_SSO_ENABLED** | `false` | 启用 SSO 令牌交换 | auth.sso.enabled (社交登录 > SSO > 启用 SSO 令牌交换) |
+| **ATK_AUTH_SSO_ISSUER** | `""` | OIDC issuer 地址 (如 "tenant.auth0.com" 或 "https://tenant.auth0.com") | auth.sso.issuer (社交登录 > SSO > OIDC issuer 地址) |
 | **ATK_AUTH_STEAM_API_KEY** | `""` | ApiKey | auth.steam.api_key (社交登录 > Steam > ApiKey) |
 | **ATK_AUTH_STEAM_ENABLED** | `false` | 启用 | auth.steam.enabled (社交登录 > Steam > Enabled) |
 | **ATK_AUTH_TIKTOK_CLIENT_ID** | `""` | ClientId | auth.tiktok.client_id (社交登录 > Tiktok > ClientId) |

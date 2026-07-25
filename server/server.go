@@ -71,7 +71,8 @@ func Serve(app *core.App) (*fiber.App, error) {
 		h.CommentCreate(app, api)
 		h.CommentList(app, api)
 		h.CommentGet(app, api)
-		h.Vote(app, api)
+		h.VoteGet(app, api)
+		h.VoteCreate(app, api)
 		h.PagePV(app, api)
 		h.Stat(app, api)
 		h.NotifyList(app, api)
@@ -94,6 +95,7 @@ func Serve(app *core.App) (*fiber.App, error) {
 		h.AuthMergeCheck(app, api)
 
 		h.AuthSocialLogin(app, api)
+		h.AuthSSOExchange(app, api)
 
 		// user
 		h.UserInfo(app, api)

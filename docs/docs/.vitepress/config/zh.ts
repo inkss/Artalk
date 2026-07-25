@@ -40,6 +40,7 @@ export const zh = defineConfig({
             { text: 'LaTeX', link: '/zh/guide/frontend/latex.md' },
             { text: '图片灯箱', link: '/zh/guide/frontend/lightbox.md' },
             { text: '图片懒加载', link: '/zh/guide/frontend/img-lazy-load.md' },
+            { text: '投票功能', link: '/zh/guide/frontend/voting.md' },
             { text: 'IP 属地', link: '/zh/guide/frontend/ip-region.md' },
             { text: '多语言', link: '/zh/guide/frontend/i18n.md' },
             { text: '开发文档', link: '/zh/develop/index.md' },
@@ -85,7 +86,8 @@ export const zh = defineConfig({
             { text: '置入博客', link: '/zh/develop/import-blog.md' },
             { text: '置入框架', link: '/zh/develop/import-framework.md' },
             { text: '前端 API', link: '/zh/develop/fe-api.md' },
-            { text: '前端 Event', link: '/zh/develop/event.md' },
+            { text: '前端 Events', link: '/zh/develop/event.md' },
+            { text: '前端 Types', link: 'https://artalk.js.org/typedoc/' },
             { text: '插件开发', link: '/zh/develop/plugin.md' },
             { text: '兼容性', link: '/zh/develop/compatibility.md' },
             {

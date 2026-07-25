@@ -1,6 +1,8 @@
-import type { ListFetchParams, ArtalkPlugin } from '@/types'
+import type { ListData, ListFetchParams, ArtalkPlugin } from '@/types'
 
 export const Fetch: ArtalkPlugin = (ctx) => {
+  const conf = ctx.inject('config')
+
   ctx.on('list-fetch', (_params) => {
     if (ctx.getData().getLoading()) return
     ctx.getData().setLoading(true)
@@ -8,9 +10,9 @@ export const Fetch: ArtalkPlugin = (ctx) => {
     const params: ListFetchParams = {
       // default params
       offset: 0,
-      limit: ctx.conf.pagination.pageSize,
-      flatMode: ctx.conf.flatMode as boolean, // always be boolean because had been handled in Artalk.init
-      paramsModifier: ctx.conf.listFetchParamsModifier,
+      limit: conf.get().pagination.pageSize,
+      flatMode: conf.get().flatMode as boolean, // always be boolean because had been handled in Artalk.init
+      paramsModifier: conf.get().listFetchParamsModifier,
       ..._params,
     }
 
@@ -24,8 +26,8 @@ export const Fetch: ArtalkPlugin = (ctx) => {
       limit: params.limit,
       offset: params.offset,
       flat_mode: params.flatMode,
-      page_key: ctx.getConf().pageKey,
-      site_name: ctx.getConf().site,
+      page_key: conf.get().pageKey,
+      site_name: conf.get().site,
     }
 
     // call the modifier function
@@ -39,22 +41,31 @@ export const Fetch: ArtalkPlugin = (ctx) => {
         ...ctx.getApi().getUserFields(),
       })
       .then(({ data }) => {
+        const scope = (reqParams as { scope?: 'page' | 'user' | 'site' }).scope
+        if ((!scope || scope === 'page') && !data.page) {
+          throw new Error('Page data is missing from comment list response')
+        }
+
+        // Keep the public ListData contract for page-scoped consumers. Site and user scopes
+        // intentionally omit page data and are used by the sidebar and message center.
+        const listData = data as ListData
+
         // Must before all other function call and event trigger,
         // because it will depend on the lastData
         // TODO: this is global variable, easy to use, but not good, consider to refactor.
         // refactor work is hard, because it is used in many places.
-        ctx.getData().setListLastFetch({ params, data })
+        ctx.getData().setListLastFetch({ params, data: listData })
 
         // 装置评论
-        ctx.getData().loadComments(data.comments)
+        ctx.getData().loadComments(listData.comments)
 
         // 更新页面数据
-        ctx.getData().updatePage(data.page)
+        if (data.page) ctx.getData().updatePage(data.page)
 
         // trigger events when success
-        params.onSuccess && params.onSuccess(data)
+        params.onSuccess && params.onSuccess(listData)
 
-        ctx.trigger('list-fetched', { params, data })
+        ctx.trigger('list-fetched', { params, data: listData })
       })
       .catch((e) => {
         // 显示错误对话框

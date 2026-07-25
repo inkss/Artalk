@@ -49,6 +49,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 __debug*
+vite.config.ts.timestamp-*
 
 # frontend
 node_modules
@@ -68,3 +69,6 @@ node_modules
 
 playwright-report
 test-results
+
+# TypeScript composite build declaration output
+.tsbuildinfo-dts/

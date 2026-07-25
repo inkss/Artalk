@@ -69,6 +69,62 @@ Artalk 支持同时启用多种登录方式，用户可以选择任意一种方�
 
 接入 GitHub 登录可参考文档：[关于创建 GitHub 应用](https://docs.github.com/zh/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps)，得到 Client ID 和 Client Secret 后，填写到 Artalk 控制中心的设置页面的社交登录中的「GitHub」选项中即可。
 
+## SSO 令牌交换
+
+如果你的站点被嵌入在一个已经通过外部 OIDC 身份提供商（Auth0、Keycloak、Okta 等）完成用户认证的应用中，可以让 Artalk 复用该登录态，而不必显示自己的登录界面。外层应用用它已经持有的 IdP 访问令牌换取一个 Artalk 会话令牌，这样已在父应用登录的用户无需额外点击或弹窗即可发表评论。
+
+该功能**默认关闭**，需手动开启。可通过 [配置文件](../backend/config.md) 或 [环境变量](../env.md#社交登录) 启用，并填写你所用提供商的 OIDC issuer：
+
+```yaml
+auth:
+  enabled: true
+  sso:
+    enabled: true
+    issuer: "https://tenant.auth0.com" # 例如 "tenant.auth0.com" 或 "https://tenant.auth0.com"
+```
+
+启用后，外层应用将 IdP 访问令牌提交到交换接口：
+
+```
+POST /api/v2/sso/exchange
+Content-Type: application/json
+
+{ "token": "<外部 IdP 访问令牌>" }
+```
+
+Artalk 通过调用 issuer 的 `/userinfo` 端点校验该令牌（OIDC 标准做法——由 IdP 在服务端验证并签名响应，因此 Artalk 侧无需处理密钥），读取其中的 `email` 声明。只有同时返回 `email_verified: true` 时，Artalk 才会查找或创建对应用户，并返回与其它登录接口一致的响应结构：
+
+```json
+{
+  "token": "<Artalk 会话令牌>",
+  "user": { "name": "...", "email": "...", "is_admin": false }
+}
+```
+
+前端在 `Artalk.init()` 运行前将其写入 `localStorage["ArtalkUser"]`，组件即把该用户视为已完全登录（不弹窗，管理员用户也不再要求输入管理密码）：
+
+```js
+const res = await fetch('https://comments.example.com/api/v2/sso/exchange', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ token: idpAccessToken }), // 来自你的 IdP 的访问令牌
+})
+const { token, user } = await res.json()
+
+// 在组件挂载前预填 Artalk 登录态
+localStorage.setItem('ArtalkUser', JSON.stringify({ ...user, token }))
+
+Artalk.init({ el: '#Comments', server: 'https://comments.example.com', site: 'Blog' })
+```
+
+当 SSO 未启用时接口返回 `404`，IdP 拒绝令牌或邮箱未验证时返回 `401`，令牌不含邮箱声明时返回 `400`。Artalk 不提供跳过邮箱验证的开关。
+
+::: tip
+
+校验完全依赖 issuer 的 `/userinfo` 拒绝无效或已吊销的令牌，且用户按 `email` 声明匹配。请仅对你信任的 issuer 启用此功能。未经验证的邮箱可能冒充现有用户甚至管理员，因此 Artalk 强制要求 `email_verified: true`。
+
+:::
+
 ## 插件开发
 
 Artalk 的社交登录功能是通过独立的插件实现并采用 Solid.js 开发，代码可在 [@ArtalkJS/Artalk:ui/plugin-auth](https://github.com/ArtalkJS/Artalk/tree/master/ui/plugin-auth) 找到。

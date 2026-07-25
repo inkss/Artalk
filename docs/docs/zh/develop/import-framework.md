@@ -17,7 +17,7 @@ pnpm add artalk
 import Artalk from 'artalk'
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 
-import 'artalk/dist/Artalk.css'
+import 'artalk/Artalk.css'
 
 const el = ref<HTMLElement>()
 
@@ -50,7 +50,7 @@ import Artalk from 'artalk'
 import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
-import 'artalk/dist/Artalk.css'
+import 'artalk/Artalk.css'
 
 const el = ref<HTMLElement>()
 const router = useRouter()
@@ -98,32 +98,37 @@ onBeforeUnmount(() => {
 ::: code-group
 
 ```tsx [React Hooks]
-import React, { useEffect, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import 'artalk/dist/Artalk.css'
+import 'artalk/Artalk.css'
 import Artalk from 'artalk'
 
 const ArtalkComment = () => {
-  const container = useRef<HTMLDivElement>(null)
-  const location = useLocation()
-  const artalk = useRef<Artalk>()
+  const { pathname } = useLocation()
+  const artalk = useRef<Artalk | null>(null)
 
-  useEffect(() => {
-    artalk.current = Artalk.init({
-      el: container.current!,
-      pageKey: location.pathname,
-      pageTitle: document.title,
-      server: 'http://localhost:8080',
-      site: 'Artalk 的博客',
-      // ...
-    })
+  const handleContainerInit = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) {
+        return
+      }
+      if (artalk.current) {
+        artalk.current.destroy()
+        artalk.current = null
+      }
+      artalk.current = Artalk.init({
+        el: node,
+        pageKey: pathname,
+        pageTitle: document.title,
+        server: 'http://localhost:8080',
+        site: 'Artalk 的博客',
+        // ...
+      })
+    },
+    [pathname],
+  )
 
-    return () => {
-      artalk.current?.destroy()
-    }
-  }, [container, location.pathname])
-
-  return <div ref={container}></div>
+  return <div ref={handleContainerInit}></div>
 }
 
 export default ArtalkComment
@@ -133,7 +138,7 @@ export default ArtalkComment
 
 ```jsx [React Class]
 import React, { createRef } from 'react'
-import 'artalk/dist/Artalk.css'
+import 'artalk/Artalk.css'
 import Artalk from 'artalk'
 
 export default class Artalk extends React.Component {
@@ -168,7 +173,7 @@ export default class Artalk extends React.Component {
 ```tsx
 import { onCleanup, onMount } from 'solid-js'
 import Artalk from 'artalk'
-import 'artalk/dist/Artalk.css'
+import 'artalk/Artalk.css'
 
 const ArtalkComment = () => {
   let el: HTMLDivElement
@@ -200,7 +205,7 @@ const ArtalkComment = () => {
 import Artalk from 'artalk'
 import { onMount, onDestroy } from 'svelte'
 
-import 'artalk/dist/Artalk.css'
+import 'artalk/Artalk.css'
 
 let el
 let artalk

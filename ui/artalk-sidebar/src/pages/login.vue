@@ -51,7 +51,7 @@ function login(username?: string) {
       password: userForm.value.password,
     })
     .then((res) => {
-      artalk.ctx.get('user').update({
+      artalk.ctx.getUser().update({
         ...res.data.user,
         token: res.data.token,
       })
@@ -219,7 +219,7 @@ const versionInfo = computed(() => {
   left: 50%;
   top: 43.5%;
   transform: translate(-50%, -50%);
-  background: #fff;
+  background: var(--at-color-bg);
   border: 1px solid var(--at-color-border);
   padding-bottom: 10px;
   width: 280px;

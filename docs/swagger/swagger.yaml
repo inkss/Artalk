@@ -45,9 +45,6 @@ definitions:
       msg:
         description: Message
         type: string
-    required:
-    - data
-    - msg
     type: object
   common.Map:
     additionalProperties: true
@@ -110,7 +107,6 @@ definitions:
     - date
     - email_encrypted
     - id
-    - ip_region
     - is_allow_reply
     - is_collapsed
     - is_pending
@@ -275,6 +271,14 @@ definitions:
     type: object
   handler.Map:
     additionalProperties: true
+    type: object
+  handler.ParamsAuthSSOExchange:
+    properties:
+      token:
+        description: External IdP access token (e.g. an Auth0 access token)
+        type: string
+    required:
+    - token
     type: object
   handler.ParamsCaptchaVerify:
     properties:
@@ -574,7 +578,7 @@ definitions:
     - name
     - receive_email
     type: object
-  handler.ParamsVote:
+  handler.ParamsVoteCreate:
     properties:
       email:
         description: The user email
@@ -755,7 +759,6 @@ definitions:
     - date
     - email_encrypted
     - id
-    - ip_region
     - is_allow_reply
     - is_collapsed
     - is_pending
@@ -802,7 +805,6 @@ definitions:
     required:
     - comments
     - count
-    - page
     - roots_count
     type: object
   handler.ResponseCommentUpdate:
@@ -863,7 +865,6 @@ definitions:
     - date
     - email_encrypted
     - id
-    - ip_region
     - is_allow_reply
     - is_collapsed
     - is_pending
@@ -1255,10 +1256,16 @@ definitions:
     properties:
       down:
         type: integer
+      is_down:
+        type: boolean
+      is_up:
+        type: boolean
       up:
         type: integer
     required:
     - down
+    - is_down
+    - is_up
     - up
     type: object
 info:
@@ -2672,6 +2679,87 @@ paths:
       summary: Update Site
       tags:
       - Site
+  /sso/exchange:
+    post:
+      consumes:
+      - application/json
+      description: Validates a third-party OIDC access token by calling the issuer's
+        /userinfo endpoint, requires a verified email claim, then mints an Artalk
+        session JWT. Use when the surrounding application already runs OIDC and you
+        want Artalk comments to inherit that session without showing Artalk's own
+        login UI.
+      operationId: AuthSSOExchange
+      parameters:
+      - description: External SSO token
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ParamsAuthSSOExchange'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseUserLogin'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Exchange an external IdP access token for an Artalk JWT
+      tags:
+      - Auth
   /stats/{type}:
     get:
       consumes:
@@ -3278,34 +3366,106 @@ paths:
       summary: Get Version Info
       tags:
       - System
-  /votes/{type}/{target_id}:
-    post:
+  /votes/{target_name}/{target_id}:
+    get:
       consumes:
       - application/json
-      description: Vote for a specific comment or page
-      operationId: Vote
+      description: Get vote status for a specific comment or page
+      operationId: GetVote
       parameters:
-      - description: The type of vote target
+      - description: The name of vote target
         enum:
-        - comment_up
-        - comment_down
-        - page_up
-        - page_down
+        - comment
+        - page
         in: path
-        name: type
+        name: target_name
         required: true
         type: string
-      - description: Target comment or page ID you want to vote for
+      - description: The target comment or page ID
         in: path
         name: target_id
         required: true
         type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseVote'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Get Vote Status
+      tags:
+      - Vote
+  /votes/{target_name}/{target_id}/{choice}:
+    post:
+      consumes:
+      - application/json
+      description: Create a new vote for a specific comment or page
+      operationId: CreateVote
+      parameters:
+      - description: The name of vote target
+        enum:
+        - comment
+        - page
+        in: path
+        name: target_name
+        required: true
+        type: string
+      - description: The target comment or page ID
+        in: path
+        name: target_id
+        required: true
+        type: integer
+      - description: The vote choice
+        enum:
+        - up
+        - down
+        in: path
+        name: choice
+        required: true
+        type: string
       - description: The vote data
         in: body
         name: vote
         required: true
         schema:
-          $ref: '#/definitions/handler.ParamsVote'
+          $ref: '#/definitions/handler.ParamsVoteCreate'
       produces:
       - application/json
       responses:
@@ -3340,7 +3500,7 @@ paths:
                 msg:
                   type: string
               type: object
-      summary: Vote
+      summary: Create Vote
       tags:
       - Vote
   /votes/sync:

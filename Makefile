@@ -1,11 +1,20 @@
 PKG_NAME    := github.com/artalkjs/artalk/v2
 BIN_NAME	:= ./bin/artalk
+LDFLAGS     := -s -w
+
+ifneq ($(strip $(VERSION)),)
+LDFLAGS += -X '$(PKG_NAME)/internal/config.Version=$(VERSION)'
+endif
+
+ifneq ($(strip $(COMMIT_HASH)),)
+LDFLAGS += -X '$(PKG_NAME)/internal/config.buildCommitHash=$(COMMIT_HASH)'
+endif
 
 HAS_RICHGO  := $(shell which richgo)
 GOTEST      ?= $(if $(HAS_RICHGO), richgo test, go test)
 ARGS        ?= server
 
-export CGO_ENABLED := 1
+export CGO_ENABLED := 0
 
 all: install build
 
@@ -17,12 +26,15 @@ run: all
 
 build:
 	go build \
-    	-ldflags "-s -w" \
+		-ldflags "$(LDFLAGS)" \
         -o $(BIN_NAME) \
     	$(PKG_NAME)
 
 build-frontend:
-	./scripts/build-frontend.sh
+	@./scripts/build-frontend.sh
+
+pack-frontend:
+	@./scripts/pack-frontend.sh
 
 build-debug:
 	@echo "Building Artalk for debugging..."
@@ -73,7 +85,7 @@ docker-build:
 docker-push:
 	./scripts/docker-build.sh --push
 
-.PHONY: all install run build build-frontend build-debug dev \
+.PHONY: all install run build build-frontend pack-frontend build-debug dev \
 	test test-coverage test-coverage-html test-frontend-e2e \
 	update-i18n update-conf update-conf-docs \
 	update-docs-features update-swagger \

@@ -1,12 +1,14 @@
 # 界面配置
 
-可在「[控制中心](./sidebar.md)」修改界面配置，而无需改动前端代码。另外也支持 [配置文件](../backend/config.md#界面配置-frontend) 和 [环境变量](../env.md#界面配置)。
+界面配置，也称为客户端配置、前端配置。可在「[控制中心](./sidebar.md#控制中心)」修改界面配置，而无需改动前端代码。另外也支持 [配置文件](../backend/config.md#界面配置-frontend) 和 [环境变量](../env.md#界面配置)。
 
 界面配置的优先级如下：
 
 ```
-环境变量 > 配置文件 = 控制中心 > 前端代码
+前端代码 > 环境变量 > 控制中心 = 配置文件
 ```
+
+如果你通过环境变量、配置文件或是在控制中心修改了界面配置，遇到了配置未生效的情况，请考虑配置优先级的问题。
 
 ## 通过 `Artalk.init` 配置界面
 
@@ -81,14 +83,20 @@ artalk.update({ ... })
 
 Artalk 支持多站点统一管理，此项用于站点隔离。
 
-### useBackendConf
+### preferRemoteConf
 
-**引用后端的配置**
+**优先使用远程配置**
 
 - 类型：`Boolean`
-- 默认值：`true`（默认启用）
+- 默认值：`false`（默认关闭）
 
-可以在后端的配置文件中定义前端的配置，让前端配置始终引用后端。
+默认情况下，该配置项为关闭状态，Artalk 界面配置优先级为：优先使用本地的配置。本地配置是指在前端代码中通过 `Artalk.init` 传入的配置。
+
+开启后，Artalk 会优先使用远程配置，如果远程配置不存在则使用本地配置。远程配置是指后端服务器程序返回的配置，用于动态配置 Artalk 客户端。你可以在「[控制中心](./sidebar.md#控制中心)」中修改用户界面的配置。
+
+::: warning 更新注意
+从 v2.10.0 开始，`useBackendConf` 配置项已废弃并始终为 `true`，请使用 `preferRemoteConf` 替代。
+:::
 
 ## 国际化 (i18n)
 
@@ -277,6 +285,17 @@ pvEl 和 countEl 元素标签都可以设置 `data-page-key` 属性值，来指�
 Artalk 统计组件查询评论数和浏览量时，会通过该属性名来查询指定页面，例如：`<span data-page-key="/t/1.html"></span>`。
 
 为了便于主题适配，可根据需要自定义属性名，例如将其替换为 `data-path`，则 HTML 标签为 `<span data-path="/t/1.html"></span>`。
+
+### pageVote
+
+**页面投票**
+
+- 类型：`Boolean | { upBtnEl: string; downBtnEl: string; upCountEl: string; downCountEl: string; activeClass: string }`
+- 默认值： `true`
+
+启用页面投票功能，用户可以为页面投票。
+
+详情参考：[页面投票](./voting.md#页面投票)
 
 ### vote
 

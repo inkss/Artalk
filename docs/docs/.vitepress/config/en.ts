@@ -17,7 +17,7 @@ export const en = defineConfig({
           ],
         },
         {
-          text: 'Core Guide',
+          text: 'Basic Usage',
           collapsed: false,
           items: [
             { text: 'Sidebar', link: '/en/guide/frontend/sidebar.md' },
@@ -32,7 +32,7 @@ export const en = defineConfig({
           ],
         },
         {
-          text: 'Advanced Guide',
+          text: 'Extensions',
           collapsed: false,
           items: [
             { text: 'Emoticons', link: '/en/guide/frontend/emoticons.md' },
@@ -40,22 +40,23 @@ export const en = defineConfig({
             { text: 'LaTeX', link: '/en/guide/frontend/latex.md' },
             { text: 'Image Lightbox', link: '/en/guide/frontend/lightbox.md' },
             { text: 'Image Lazy Load', link: '/en/guide/frontend/img-lazy-load.md' },
+            { text: 'Voting', link: '/zh/guide/frontend/voting.md' },
             { text: 'IP Region', link: '/en/guide/frontend/ip-region.md' },
             { text: 'Localization', link: '/en/guide/frontend/i18n.md' },
             { text: 'Development Documentation', link: '/en/develop/index.md' },
           ],
         },
         {
-          text: 'Configuration Documentation',
+          text: 'Configurations',
           collapsed: false,
           items: [
             { text: 'Environment Variables', link: '/en/guide/env.md' },
             { text: 'Configuration File', link: '/en/guide/backend/config.md' },
-            { text: 'Interface Configuration', link: '/en/guide/frontend/config.md' },
+            { text: 'UI Configuration', link: '/en/guide/frontend/config.md' },
           ],
         },
         {
-          text: 'Deployment Instructions',
+          text: 'Deployment details',
           collapsed: false,
           items: [
             { text: 'Daemon Process', link: '/en/guide/backend/daemon.md' },
@@ -82,7 +83,8 @@ export const en = defineConfig({
             { text: 'Import to Blog', link: '/en/develop/import-blog.md' },
             { text: 'Import to Framework', link: '/en/develop/import-framework.md' },
             { text: 'Frontend API', link: '/en/develop/fe-api.md' },
-            { text: 'Frontend Event', link: '/en/develop/event.md' },
+            { text: 'Frontend Events', link: '/en/develop/event.md' },
+            { text: 'Frontend Types', link: 'https://artalk.js.org/typedoc/' },
             { text: 'Plugin Development', link: '/en/develop/plugin.md' },
             { text: 'Compatibility', link: '/en/develop/compatibility.md' },
             {
@@ -100,7 +102,7 @@ export const en = defineConfig({
         link: '/en/guide/intro',
       },
       {
-        text: 'Deployment',
+        text: 'Installation',
         link: '/en/guide/deploy',
       },
       {

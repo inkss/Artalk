@@ -4,7 +4,7 @@ import type { MarkedOptions } from 'marked'
 import { sanitize } from './sanitizer'
 import { renderCode } from './highlight'
 import { getRenderer } from './marked-renderer'
-import type { ArtalkConfig } from '@/types'
+import type { Config } from '@/types'
 
 type Replacer = (raw: string) => string
 
@@ -27,8 +27,8 @@ export function setReplacers(arr: Replacer[]) {
 }
 
 export interface MarkedInitOptions {
-  markedOptions: ArtalkConfig['markedOptions']
-  imgLazyLoad: ArtalkConfig['imgLazyLoad']
+  markedOptions: Config['markedOptions']
+  imgLazyLoad: Config['imgLazyLoad']
 }
 
 /** 初始化 marked */
@@ -42,7 +42,7 @@ export function initMarked(options: MarkedInitOptions) {
   // @see https://github.com/markedjs/marked/blob/4afb228d956a415624c4e5554bb8f25d047676fe/src/Tokenizer.js#L329
   const marked = new Marked()
   marked.setOptions({
-    renderer: getRenderer(), // imgLazyLoad 参数已失效，懒加载由 context.ts 的 lazyLoadImages() 统一处理
+    renderer: getRenderer({ imgLazyLoad: options.imgLazyLoad }), // 懒加载由 context.ts 的 lazyLoadImages() 统一处理
     ...markedOptions,
     ...options.markedOptions,
   })

@@ -49,11 +49,11 @@ docker exec -it artalk artalk admin
 <div id="Comments"></div>
 <script>
 Artalk.init({
-  el:        '#Comments',                // 绑定元素的 Selector
-  pageKey:   '/post/1',                  // 固定链接
-  pageTitle: '关于引入 Artalk 的这档子事',  // 页面标题 (留空自动获取)
+  el:        '#Comments',                       // 绑定元素的 Selector
+  pageKey:   '/post/1',                         // 固定链接
+  pageTitle: '关于引入 Artalk 的这档子事',         // 页面标题 (留空自动获取)
   server:    'http://artalk.example.com:8080',  // 后端地址
-  site:      'Artalk 的博客',             // 你的站点名
+  site:      'Artalk 的博客',                    // 你的站点名
 })
 </script>
 ```
@@ -82,7 +82,7 @@ Artalk.init({
 - [反向代理 (Caddy, Nginx, Apache)](./backend/reverse-proxy.md)
 - [自编译 (通过最新代码构建)](../develop/contributing.md)
 
-## Go 模块
+## Go 安装
 
 如果你已经安装了 Golang 工具链，可以运行以下命令来编译和安装最新版本的 Artalk：
 
@@ -99,6 +99,14 @@ artalk server
 客户端集成步骤详见[此处](#集成客户端)。
 
 ## Linux 发行版
+
+**Fedora (Copr)**：
+
+```bash
+dnf install 'dnf-command(copr)'
+dnf copr enable @artalk/artalk
+dnf install artalk
+```
 
 **Arch Linux (AUR)**：
 
@@ -119,6 +127,8 @@ pkg install artalk
 ```
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/artalk.svg)](https://repology.org/project/artalk/versions)
+
+[![Copr status](https://img.shields.io/badge/dynamic/json?color=blue&label=Fedora%20Copr&query=builds.latest.source_package.version&url=https%3A%2F%2Fcopr.fedorainfracloud.org%2Fapi_3%2Fpackage%3Fownername%3D%40artalk%26projectname%3Dartalk%26packagename%3Dartalk%26with_latest_build%3DTrue)](https://copr.fedorainfracloud.org/coprs/g/artalk/artalk/)
 
 ## Docker Compose
 
@@ -164,22 +174,50 @@ docker-compose exec artalk bash # 进入容器
 
 更多信息：[Docker](./backend/docker.md) / [环境变量](./env.md)
 
-## 前端项目 (Node.js)
+## 客户端
+
+如果你有前端或 Node.js Web 项目，以下指南将帮助你将 Artalk **客户端** 集成到你的 Web 项目中。
+
+### 客户端安装
 
 通过 NPM 安装 Artalk：
 
-```bash
+::: code-group
+
+```sh [npm]
 npm install artalk
 ```
+
+```sh [yarn]
+yarn add artalk
+```
+
+```sh [pnpm]
+pnpm add artalk
+```
+
+```sh [bun]
+bun add artalk
+```
+
+:::
+
+(你也可以选择通过 [CDN 资源](#客户端-cdn-资源) 引入).
+
+### 客户端集成
 
 在你的 Web 项目中引入 Artalk：
 
 ```js
-import 'artalk/dist/Artalk.css'
+import 'artalk/Artalk.css'
 import Artalk from 'artalk'
 
 Artalk.init({
-  // ...
+  el:        document.querySelector('#Comments'), // 挂载的 DOM 元素
+  pageKey:   '/post/1',                           // 固定链接
+  pageTitle: '关于引入 Artalk 的这档子事',           // 页面标题
+  server:    'http://artalk.example.com:8080',    // 后端地址
+  site:      'Artalk 的博客',                      // 站点名
 })
 ```
 
@@ -190,29 +228,69 @@ Artalk.init({
 - [前端 API](../develop/fe-api.md)
 - [前端配置](./frontend/config.md)
 
-## 前端 CDN 资源
+### 客户端 CDN 资源
+
+要通过 CDN 在浏览器中使用 Artalk，对于现代浏览器 (支持 [ES 模块](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules))，可以使用 [esm.sh](https://esm.sh) 或 [esm.run](https://esm.run):
+
+::: code-group
+
+```html [ES 模块]
+<body>
+  <div id="Comments"></div>
+
+  <script type="module">
+    import Artalk from 'https://esm.sh/artalk@:ArtalkVersion:'
+
+    Artalk.init({
+      el: '#Comments',
+    })
+  </script>
+</body>
+```
+
+```html [传统方式]
+<body>
+  <div id="Comments"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/artalk/:ArtalkVersion:/Artalk.js"></script>
+  <script>
+    Artalk.init({
+      el: '#Comments',
+    })
+  </script>
+</body>
+```
+
+:::
+
+记得引入 CSS 文件：
+
+```html
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/artalk/:ArtalkVersion:/Artalk.css">
+```
 
 ::: tip Artalk 最新版本
 
-当前 Artalk 前端最新版本号为： **:ArtalkVersion:**
+Artalk 客户端的最新版本为：`:ArtalkVersion:`
 
 若需升级前端将 URL 中的版本号数字部分替换即可。
 :::
 
-Artalk 后端程序内嵌了前端 JS、CSS 文件，使用公共 CDN 资源请注意版本兼容性。
+注：Artalk 后端程序内嵌了前端 JS、CSS 文件，使用公共 CDN 资源请注意版本兼容性。
+
+::: details 其他可选的 CDN 资源
+
+**SUSTech Mirrors (境内)**
+
+> <https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/artalk/:ArtalkVersion:/Artalk.js>
+>
+> <https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/artalk/:ArtalkVersion:/Artalk.css>
 
 **CDNJS**
 
 > <https://cdnjs.cloudflare.com/ajax/libs/artalk/:ArtalkVersion:/Artalk.js>
 >
 > <https://cdnjs.cloudflare.com/ajax/libs/artalk/:ArtalkVersion:/Artalk.css>
-
-::: details 查看更多
-**SUSTech Mirrors (境内)**
-
-> <https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/artalk/:ArtalkVersion:/Artalk.js>
->
-> <https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/artalk/:ArtalkVersion:/Artalk.css>
 
 **UNPKG**
 

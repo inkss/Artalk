@@ -11,7 +11,7 @@ export default class Refresh extends EditorPlug {
     const $btn = this.useBtn(btnText);
 
     $btn.onclick = () => {
-      kit.useEditor().ctx.reload()
+      kit.useData().fetchComments({ offset: 0 })
     }
   }
 }

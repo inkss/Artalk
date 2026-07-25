@@ -103,8 +103,8 @@ export default defineLocaleExternal(
     merge: 'Fusionner',
 
     /* General */
-    frontend: 'Frontend',
-    backend: 'Backend',
+    client: 'Client',
+    server: 'Serveur',
     loading: 'Chargement',
     loadFail: 'Échec du chargement',
     editing: 'Modification',

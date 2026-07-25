@@ -1,10 +1,36 @@
-import type { CommentData, NotifyLevel } from '.'
-import type Component from '@/lib/component'
+import type { CommentData, NotifyLevel, EventManager } from '.'
+import type {
+  EditorEventPayloadMap,
+  PluginManager,
+  PluginManagerOptions,
+} from '@/plugins/editor-kit'
+import type { EditorPlugin } from '@/plugins/editor/_plug'
+import type { EditorOptions } from '@/editor/editor'
 import type { EditorUI } from '@/editor/ui'
 
 export type EditorState = 'reply' | 'edit' | 'normal'
 
-export interface EditorApi extends Component {
+export interface Editor {
+  /**
+   * Get the editor element
+   *
+   * @deprecated Use `getEl()` instead.
+   */
+  readonly $el: HTMLElement
+
+  /**
+   * Get editor options
+   */
+  getOptions(): EditorOptions
+
+  /**
+   * Get the editor element
+   */
+  getEl(): HTMLElement
+
+  /**
+   * Get the editor UI instance
+   */
   getUI(): EditorUI
 
   /**
@@ -84,12 +110,48 @@ export interface EditorApi extends Component {
   /**
    * Start replying a comment
    */
+  setReplyComment(commentData: CommentData, $comment: HTMLElement, scroll?: boolean): void
+
+  /**
+   * Start replying to a comment
+   *
+   * @deprecated Use `setReplyComment()` instead.
+   */
   setReply(commentData: CommentData, $comment: HTMLElement, scroll?: boolean): void
 
   /**
    * Start editing a comment
    */
   setEditComment(commentData: CommentData, $comment: HTMLElement): void
+
+  /**
+   * Get plugin manager
+   */
+  getPlugins(): PluginManager | undefined
+
+  /**
+   * Get plugin manager
+   *
+   * @deprecated Use `getPlugins()` instead.
+   */
+  getPlugs(): PluginManager | undefined
+
+  /**
+   * Set plugin manager
+   */
+  setPlugins(plugins: PluginManager): void
 }
 
-export default EditorApi
+/** @deprecated Use `Editor` instead. */
+export type EditorApi = Editor
+
+export interface EditorPluginManager {
+  getPlugins: () => EditorPlugin[]
+  getEvents: () => EventManager<EditorEventPayloadMap>
+  getEditor: () => Editor
+  getOptions: () => PluginManagerOptions
+  get<T extends typeof EditorPlugin>(plug: T): InstanceType<T> | undefined
+  openPluginPanel: (plug: EditorPlugin) => void
+  closePluginPanel: () => void
+  getTransformedContent: (rawContent: string) => string
+}

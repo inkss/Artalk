@@ -1,4 +1,4 @@
-import type { ContextApi, ArtalkPlugin, ArtalkConfig } from '@/types'
+import type { Context, ArtalkPlugin } from '@/types'
 import { Api } from '@/api'
 
 type CountCache = { [pageKey: string]: number }
@@ -17,23 +17,26 @@ export interface CountOptions {
   pvAdd?: boolean
 }
 
-export const PvCountWidget: ArtalkPlugin = (ctx: ContextApi) => {
-  ctx.watchConf(['site', 'pageKey', 'pageTitle', 'countEl', 'pvEl', 'statPageKeyAttr'], (conf) => {
-    const skipPvForAdmin = localStorage.getItem('ArtalkAdminSkipPV') === 'true'
-    const user = ctx.get('user').getData()
-    const isAdmin = skipPvForAdmin && user.is_admin && !!user.token
+export const PvCountWidget: ArtalkPlugin = (ctx: Context) => {
+  ctx.watchConf(
+    ['site', 'pageKey', 'pageTitle', 'countEl', 'pvEl', 'statPageKeyAttr', 'pvAdd'],
+    (conf) => {
+      const skipPvForAdmin = localStorage.getItem('ArtalkAdminSkipPV') === 'true'
+      const user = ctx.get('user').getData()
+      const isAdmin = skipPvForAdmin && user.is_admin && !!user.token
 
-    initCountWidget({
-      getApi: () => ctx.getApi(),
-      siteName: conf.site,
-      pageKey: conf.pageKey,
-      pageTitle: conf.pageTitle,
-      countEl: conf.countEl,
-      pvEl: conf.pvEl,
-      pageKeyAttr: conf.statPageKeyAttr,
-      pvAdd: isAdmin ? false : typeof ctx.conf.pvAdd === 'boolean' ? ctx.conf.pvAdd : true,
-    })
-  })
+      initCountWidget({
+        getApi: () => ctx.getApi(),
+        siteName: conf.site,
+        pageKey: conf.pageKey,
+        pageTitle: conf.pageTitle,
+        countEl: conf.countEl,
+        pvEl: conf.pvEl,
+        pageKeyAttr: conf.statPageKeyAttr,
+        pvAdd: isAdmin ? false : conf.pvAdd,
+      })
+    },
+  )
 }
 
 /** Initialize count widgets */

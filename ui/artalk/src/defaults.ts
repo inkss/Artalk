@@ -1,6 +1,6 @@
-import type { ArtalkConfig } from '@/types'
+import type { Config } from '@/types'
 
-const defaults: ArtalkConfig = {
+export const Defaults: Readonly<RequiredExcept<Config, ExcludedKeys>> = {
   el: '',
   pageKey: '',
   pageTitle: '',
@@ -17,15 +17,20 @@ const defaults: ArtalkConfig = {
   nestMax: 2,
   nestSort: 'DATE_ASC',
 
-  emoticons: 'https://cdn.jsdelivr.net/gh/ArtalkJS/Emoticons/grps/default.json',
+  emoticons: ARTALK_LITE
+    ? false
+    : 'https://cdn.jsdelivr.net/gh/ArtalkJS/Emoticons/grps/default.json',
 
-  vote: true,
+  pageVote: true,
+
+  vote: ARTALK_LITE ? false : true,
   voteDown: false,
-  uaBadge: true,
+  uaBadge: ARTALK_LITE ? false : true,
   listSort: true,
-  preview: true,
+  preview: ARTALK_LITE ? false : true,
   countEl: '#ArtalkCount',
   pvEl: '#ArtalkPV',
+  statPageKeyAttr: 'data-page-key',
 
   gravatar: {
     mirror: 'https://weavatar.com/avatar/',
@@ -38,8 +43,6 @@ const defaults: ArtalkConfig = {
     autoLoad: true,
   },
 
-  statPageKeyAttr: 'data-page-key',
-
   heightLimit: {
     content: 300,
     children: 400,
@@ -47,18 +50,25 @@ const defaults: ArtalkConfig = {
   },
 
   imgUpload: true,
+  imgLazyLoad: false,
   reqTimeout: 15000,
   versionCheck: true,
   useBackendConf: true,
+  preferRemoteConf: false,
+  listUnreadHighlight: false,
+  pvAdd: true,
+  fetchCommentsOnInit: true,
 
   locale: 'en',
+  apiVersion: '',
+  pluginURLs: [],
+  markedReplacers: [],
+  markedOptions: {},
 }
 
-if (ARTALK_LITE) {
-  defaults.vote = false
-  defaults.uaBadge = false
-  defaults.emoticons = false
-  defaults.preview = false
-}
-
-export default defaults
+type RequiredExcept<T, K extends keyof T> = Required<Omit<T, K>> & Pick<T, K>
+type FunctionKeys<T> = Exclude<
+  { [K in keyof T]: NonNullable<T[K]> extends (...args: any[]) => any ? K : never }[keyof T],
+  undefined
+>
+type ExcludedKeys = FunctionKeys<Config>
