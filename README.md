@@ -8,13 +8,20 @@
 
 ## 引用地址
 
+CDN 会保留各历史版本，将下方模板中的 `<version>` 替换为所需版本号即可：
+
 ```html
 <!-- CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/inkss/inkss-cdn@main/js/Artalk.v2.9.1.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/inkss/inkss-cdn@main/js/Artalk.v<version>.css">
 
 <!-- JS -->
-<script src="https://cdn.jsdelivr.net/gh/inkss/inkss-cdn@main/js/Artalk.v2.9.1.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/inkss/inkss-cdn@main/js/Artalk.v<version>.js"></script>
 ```
+
+当前已发布版本：
+
+- [v2.10.0（最新）](https://github.com/ArtalkJS/Artalk/releases/tag/v2.10.0)
+- [v2.9.1](https://github.com/ArtalkJS/Artalk/releases/tag/v2.9.1)
 
 ## 自定义功能清单
 
