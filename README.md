@@ -20,7 +20,8 @@ CDN 会保留各历史版本，将下方模板中的 `<version>` 替换为所需
 
 当前已发布版本：
 
-- [v2.10.0（最新）](https://github.com/ArtalkJS/Artalk/releases/tag/v2.10.0)
+- [v2.10.1（最新）](https://github.com/ArtalkJS/Artalk/releases/tag/v2.10.1)
+- [v2.10.0](https://github.com/ArtalkJS/Artalk/releases/tag/v2.10.0)
 - [v2.9.1](https://github.com/ArtalkJS/Artalk/releases/tag/v2.9.1)
 
 ## 自定义功能清单

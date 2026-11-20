@@ -4,7 +4,7 @@
 
 - **fork 来源**: ArtalkJS/Artalk (上游, remote: `upstream`)
 - **工作分支**: `new`
-- **当前版本**: v2.10.0（2026-07 完成合并）
+- **当前版本**: v2.10.1（2026-11 完成合并）
 - **后端测试地址**: `http://10.0.10.2:23366`
 - **前端开发**: `cd ui/artalk && pnpm dev` (Vite, port 5500)
 
@@ -66,6 +66,33 @@ echo <v2.10.0-sha> > .git/MERGE_HEAD          # 生成正规双父 merge commit
 
 ### 验证
 - `ui/artalk`、`ui/artalk-sidebar`、全部 plugin 包 pnpm build 通过
+- Go 后端本机无工具链未编译，但 Go 侧无冲突、定制均为增量保留
+
+## v2.10.1 合并记录（2026-11）
+
+### 方法
+- 祖先已修正（`v2.10.0` 为 merge-base），直接 `git fetch upstream --tags && git merge --no-ff v2.10.1`
+- 合并前备份分支：`backup-before-v2.10.1-20261120`
+
+### 冲突解决摘要（9 个）
+- `.github/workflows/*` 6 个：保持删除
+- `ui/artalk/src/plugins/editor/{emoticons,preview,upload}.ts`：上游给按钮图标加 `role="img"`，同时移除了 `useBtn()` 中的 `htmlDecode`；fork 依赖 i18n 中的自定义 SVG 图标。解决方式为显式 `Utils.htmlDecode($t(key))` 后注入 `<span role="img" aria-label="…">图标</span>`，保留自定义图标并通过上游新增的 `plug-btn-a11y.test.ts`
+- `htmlDecode` 改用 `textContent` 代替 `innerText`，使 jsdom 测试环境与浏览器行为一致（仅影响编辑器按钮解码）
+
+### 上游 v2.10.1 要点
+- 后端安全修复：OAuth/邮箱验证回调、评论与通知归属、页面标题抓取域名白名单、comment query scope 校验、限速、guest 身份等；Go 侧无冲突，定制均为增量保留
+- DOMPurify 收紧 data URL：仅允许 `img` 的栅格图片 mime；fork 的 `notitle`/`data-src`/`language` 等定制保留
+- i18n 日文文案与 CJK 字体回退；土耳其语新增导出入口 `artalk/i18n/tr`
+- 新增按钮无障碍、guest 身份、mount-destroy、package-exports 等测试
+
+### 适配与杂项
+- 既有 `marked.test.ts`、`sanitizer.test.ts` 两处断言更新为 fork 行为（code/img 不加 class、懒加载由 `context.ts` 统一处理）；上游新增安全测试全部保留
+- README 版本列表加入 v2.10.1
+- `nightly` 为移动标签，本地旧值未覆盖，不影响版本合并
+
+### 验证
+- `pnpm test -- --run`：22 个测试文件、184 个用例全部通过
+- `pnpm build`、`pnpm build:sidebar`、`pnpm build:plugins`、`pnpm test:plugins` 均通过
 - Go 后端本机无工具链未编译，但 Go 侧无冲突、定制均为增量保留
 
 ## 注意事项

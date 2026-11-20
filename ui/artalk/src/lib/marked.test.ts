@@ -23,8 +23,8 @@ const answer = 42
 
     expect(html).toContain('target="_blank"')
     expect(html).toContain('rel="noreferrer noopener nofollow ugc"')
-    expect(html).toContain('<code class="hljs language-ts">')
-    expect(html).toContain('class="lazyload" loading="lazy"')
+    expect(html).toContain('<code>')
+    expect(html).toContain('<img data-src="https://example.com/image.png" alt="alt">')
     expect(html).toContain('<ul>')
     expect(html).toContain('<li>first</li>')
     expect(html).toContain('<li>second</li>')
@@ -49,4 +49,26 @@ const answer = 42
 
     expect(renderMarkdown(`${delimiter}x${delimiter}`)).toContain('<span>math</span>')
   })
+
+  it.each(['native', 'data-src'] as const)(
+    'filters data URLs through the comment/preview renderer with %s images',
+    (imgLazyLoad) => {
+      initMarked({ markedOptions: {}, imgLazyLoad })
+      const html = renderMarkdown(`
+[link](data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==)
+
+<a href="data:text/html,hello">raw HTML link</a>
+
+![unsafe](data:image/svg+xml,%3Csvg%3E)
+
+![safe](data:image/png;base64,AA==)
+`)
+      expect(html).not.toContain('data:text/html')
+      expect(html).not.toContain('data:image/svg+xml')
+      expect(html).toContain(
+        `${imgLazyLoad === 'data-src' ? 'data-src' : 'src'}="data:image/png;base64,AA=="`,
+      )
+      expect(html).toContain('raw HTML link</a>')
+    },
+  )
 })
