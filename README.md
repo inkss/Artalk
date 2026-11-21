@@ -18,7 +18,7 @@ CDN 会保留各历史版本，将下方模板中的 `<version>` 替换为所需
 <script src="https://cdn.jsdelivr.net/gh/inkss/inkss-cdn@main/js/Artalk.v<version>.js"></script>
 ```
 
-当前修改版已发布版本：v2.10.1（最新）、v2.10.0、v2.9.1。发布记录见 [inkss/Artalk releases](https://github.com/inkss/Artalk/releases)。
+当前修改版已发布版本：v2.10.1（最新）、v2.10.0、v2.9.1，均由本仓库自行编译维护。
 
 ## 自定义功能清单
 
