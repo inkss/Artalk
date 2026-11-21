@@ -195,9 +195,14 @@
       user-select: none;
       border-radius: calc($block-radius / 2);
       display: inline-flex;
+      align-items: center;
       align-content: center;
       justify-content: center;
       word-break: keep-all;
+
+      svg {
+        display: block;
+      }
 
       &:not(:last-child) {
         margin-right: 2px;
