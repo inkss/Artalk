@@ -87,7 +87,7 @@ echo <v2.10.0-sha> > .git/MERGE_HEAD          # 生成正规双父 merge commit
 
 ### 适配与杂项
 - 既有 `marked.test.ts`、`sanitizer.test.ts` 两处断言更新为 fork 行为（code/img 不加 class、懒加载由 `context.ts` 统一处理）；上游新增安全测试全部保留
-- README 版本列表加入 v2.10.1
+- README 版本说明更新至 v2.10.1
 - `nightly` 为移动标签，本地旧值未覆盖，不影响版本合并
 
 ### 验证
